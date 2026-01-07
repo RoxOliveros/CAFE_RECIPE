@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Creation - Recipe</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f9f4e9;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* BACK BUTTON */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: #fff;
+            border: 2px solid #c89b52;
+            color: #8f4a14;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .back-button:hover {
+            background: #c89b52;
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .back-button i {
+            font-size: 20px;
+        }
+
+        /* RECIPE SECTION */
+        .recipe-section {
+            padding: 80px 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* RECIPE HEADER */
+        .recipe-header {
+            background: #fff;
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .recipe-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: #6b300a;
+            margin-bottom: 15px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .meta-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #faf7f2;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #8f4a14;
+            font-weight: 600;
+        }
+
+        .meta-badge i {
+            color: #c89b52;
+            font-size: 16px;
+        }
+
+        .recipe-description {
+            font-size: 16px;
+            color: #8f4a14;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .creator-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 2px solid #f0e6d6;
+        }
+
+        .creator-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #c89b52;
+            object-fit: cover;
+        }
+
+        .creator-details {
+            flex: 1;
+        }
+
+        .creator-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #6b300a;
+        }
+
+        .creator-date {
+            font-size: 13px;
+            color: #b08261;
+        }
+
+        .recipe-actions {
+            display: flex;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .action-button {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .btn-like {
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+
+        .btn-like.active {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-like:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-save {
+            background: #e8f4f8;
+            color: #3498db;
+        }
+
+        .btn-save.active {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-save:hover {
+            transform: scale(1.1);
+        }
+
+        .action-count {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            background: #6b300a;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+        }
+
+        /* MEDIA SECTION */
+        .media-section {
+            background: #fff;
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .recipe-video {
+            width: 100%;
+            height: 500px;
+            border-radius: 20px;
+        }
+
+        /* CONTENT GRID */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .content-card {
+            background: #fff;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .content-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #6b300a;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-title i {
+            color: #c89b52;
+            font-size: 30px;
+        }
+
+        /* INGREDIENTS */
+        .ingredient-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0e6d6;
+            font-size: 15px;
+            color: #8f4a14;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+
+        .ingredient-item i {
+            color: #c89b52;
+            font-size: 8px;
+        }
+
+        /* INSTRUCTIONS */
+        .instruction-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0e6d6;
+        }
+
+        .instruction-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: #c89b52;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 15px;
+            color: #8f4a14;
+            line-height: 1.7;
+            padding-top: 5px;
+        }
+
+        /* COMMENTS SECTION */
+        .comments-section {
+            background: #fff;
+            border-radius: 30px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .comment-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .comment-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #c89b52;
+            flex-shrink: 0;
+        }
+
+        .comment-input {
+            flex: 1;
+        }
+
+        .comment-input textarea {
+            width: 100%;
+            border: 2px solid #e6dcc8;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #6b300a;
+            font-family: 'Fredoka', sans-serif;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .comment-input textarea:focus {
+            outline: none;
+            border-color: #c89b52;
+        }
+
+        .comment-submit {
+            background: #c89b52;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            background: #a85a1a;
+        }
+
+        .comments-list {
+            margin-top: 30px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #f0e6d6;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-size: 15px;
+            font-weight: 700;
+            color: #6b300a;
+            margin-bottom: 5px;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #b08261;
+            margin-bottom: 10px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #8f4a14;
+            line-height: 1.6;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recipe-title {
+                font-size: 32px;
+            }
+
+            .recipe-image,
+            .recipe-video {
+                height: 350px;
+            }
+
+            .back-button {
+                top: 15px;
+                left: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACK BUTTON -->
+    <button class="back-button" onclick="goBack()">
+        <i class="bi bi-arrow-left"></i>
+    </button>
+
+    <!-- RECIPE SECTION -->
+    <section class="recipe-section">
+        <div id="recipeContainer">
+            <!-- Recipe content will be generated here -->
+        </div>
+    </section>
+
+    <script>
+        // In production, get recipe ID from URL: const urlParams = new URLSearchParams(window.location.search); const recipeId = urlParams.get('id');
+        // Then fetch from PHP: fetch('get-recipe.php?id=' + recipeId)
+
+        // Sample recipe data - replace with PHP/MySQL data
+        const recipeData = {
+            id: 1,
+            title: "Chocolate Delight Cake",
+            description: "A rich, moist chocolate cake with layers of silky ganache frosting. Perfect for special occasions or when you need a chocolate fix. This recipe has been passed down through generations and never fails to impress!",
+            category: "Cakes & Cupcakes",
+            time: "45 mins",
+            servings: 12,
+            difficulty: "Medium",
+            image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800",
+            videoUrl: null, // or YouTube URL if available
+            creator: {
+                name: "Sarah Chen",
+                username: "@sarah_bakes",
+                avatar: "https://i.pravatar.cc/150?img=1",
+                createdDate: "2024-01-15"
+            },
+            stats: {
+                likes: 234,
+                saves: 89,
+                comments: 12
+            },
+            ingredients: [
+                "2 cups all-purpose flour",
+                "1¾ cups granulated sugar",
+                "¾ cup unsweetened cocoa powder",
+                "2 teaspoons baking soda",
+                "1 teaspoon baking powder",
+                "1 teaspoon salt",
+                "2 large eggs",
+                "1 cup buttermilk",
+                "1 cup strong black coffee, cooled",
+                "½ cup vegetable oil",
+                "2 teaspoons vanilla extract"
+            ],
+            instructions: [
+                "Preheat your oven to 350°F (175°C). Grease and flour two 9-inch round cake pans.",
+                "In a large mixing bowl, sift together flour, sugar, cocoa powder, baking soda, baking powder, and salt.",
+                "Add eggs, buttermilk, coffee, oil, and vanilla. Beat on medium speed for 2 minutes until well combined.",
+                "Pour batter evenly into prepared pans. Bake for 30-35 minutes or until a toothpick inserted in center comes out clean.",
+                "Cool in pans for 10 minutes, then remove to wire racks to cool completely.",
+                "Once cooled, frost with your favorite chocolate ganache or buttercream frosting.",
+                "Decorate as desired and serve! Store leftover cake covered at room temperature for up to 3 days."
+            ],
+            comments: [
+                {
+                    id: 1,
+                    author: "Mike Johnson",
+                    username: "@mike_cooks",
+                    avatar: "https://i.pravatar.cc/150?img=12",
+                    date: "2024-01-20",
+                    text: "Made this for my daughter's birthday and it was a huge hit! The coffee really enhances the chocolate flavor. Will definitely make again!"
+                },
+                {
+                    id: 2,
+                    author: "Emily Rodriguez",
+                    username: "@emily_bakes",
+                    avatar: "https://i.pravatar.cc/150?img=25",
+                    date: "2024-01-18",
+                    text: "This is now my go-to chocolate cake recipe. So moist and delicious! Thank you for sharing!"
+                }
+            ]
+        };
+
+        // Function to render recipe
+        function renderRecipe(recipe) {
+            const container = document.getElementById('recipeContainer');
+            
+            // Format date
+            const date = new Date(recipe.creator.createdDate);
+            const formattedDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            
+            // Generate ingredients HTML
+            const ingredientsHTML = recipe.ingredients.map(ingredient => `
+                <div class="ingredient-item">
+                    <i class="bi bi-circle-fill"></i>
+                    <span>${ingredient}</span>
+                </div>
+            `).join('');
+            
+            // Generate instructions HTML
+            const instructionsHTML = recipe.instructions.map((instruction, index) => `
+                <div class="instruction-item">
+                    <div class="step-number">${index + 1}</div>
+                    <div class="step-text">${instruction}</div>
+                </div>
+            `).join('');
+            
+            // Generate comments HTML
+            const commentsHTML = recipe.comments.map(comment => {
+                const commentDate = new Date(comment.date);
+                const commentFormattedDate = commentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                return `
+                    <div class="comment-item">
+                        <img src="${comment.avatar}" alt="${comment.author}" class="comment-avatar">
+                        <div class="comment-content">
+                            <div class="comment-author">${comment.author} <span style="color: #b08261; font-weight: 600;">${comment.username}</span></div>
+                            <div class="comment-date">${commentFormattedDate}</div>
+                            <div class="comment-text">${comment.text}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Video section (if video exists)
+            const mediaSection = recipe.videoUrl ? `
+                <div class="media-section">
+                    <iframe class="recipe-video" src="${recipe.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            ` : '';
+            
+            container.innerHTML = `
+                <!-- HEADER -->
+                <div class="recipe-header">
+                    <h1 class="recipe-title">${recipe.title}</h1>
+                    
+                    <div class="recipe-meta">
+                        <div class="meta-badge">
+                            <i class="bi bi-tag-fill"></i>
+                            <span>${recipe.category}</span>
+                        </div>
+                        <div class="meta-badge">
+                            <i class="bi bi-clock-fill"></i>
+                            <span>${recipe.time}</span>
+                        </div>
+                        <div class="meta-badge">
+                            <i class="bi bi-people-fill"></i>
+                            <span>${recipe.servings} servings</span>
+                        </div>
+                        <div class="meta-badge">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>${recipe.difficulty}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="recipe-description">${recipe.description}</p>
+                    
+                    <div class="creator-info">
+                        <img src="${recipe.creator.avatar}" alt="${recipe.creator.name}" class="creator-avatar">
+                        <div class="creator-details">
+                            <div class="creator-name">${recipe.creator.name}</div>
+                            <div class="creator-date">Posted on ${formattedDate}</div>
+                        </div>
+                        
+                        <div class="recipe-actions">
+                            <button class="action-button btn-like" onclick="toggleLike()" id="likeBtn">
+                                <i class="bi bi-heart-fill"></i>
+                                <span class="action-count" id="likeCount">${recipe.stats.likes}</span>
+                            </button>
+                            <button class="action-button btn-save" onclick="toggleSave()" id="saveBtn">
+                                <i class="bi bi-bookmark-fill"></i>
+                                <span class="action-count" id="saveCount">${recipe.stats.saves}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IMAGE -->
+                <div class="media-section">
+                    <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                </div>
+                
+                <!-- VIDEO (if exists) -->
+                ${mediaSection}
+                
+                <!-- INGREDIENTS & INSTRUCTIONS -->
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h2 class="content-title">
+                            <i class="bi bi-list-check"></i>
+                            Ingredients
+                        </h2>
+                        ${ingredientsHTML}
+                    </div>
+                    
+                    <div class="content-card">
+                        <h2 class="content-title">
+                            <i class="bi bi-list-ol"></i>
+                            Instructions
+                        </h2>
+                        ${instructionsHTML}
+                    </div>
+                </div>
+                
+                <!-- COMMENTS -->
+                <div class="comments-section">
+                    <h2 class="content-title">
+                        <i class="bi bi-chat-dots-fill"></i>
+                        Comments (${recipe.stats.comments})
+                    </h2>
+                    
+                    <div class="comment-box">
+                        <img src="https://i.pravatar.cc/150?img=33" alt="You" class="comment-avatar">
+                        <div class="comment-input">
+                            <textarea placeholder="Share your thoughts about this recipe..." id="commentText"></textarea>
+                            <button class="comment-submit" onclick="postComment()">Post Comment</button>
+                        </div>
+                    </div>
+                    
+                    <div class="comments-list">
+                        ${commentsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize page
+        renderRecipe(recipeData);
+
+        // Back button
+        function goBack() {
+            window.history.back();
+        }
+
+        // Toggle like
+        function toggleLike() {
+            const btn = document.getElementById('likeBtn');
+            const count = document.getElementById('likeCount');
+            let currentCount = parseInt(count.textContent);
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                count.textContent = currentCount - 1;
+            } else {
+                btn.classList.add('active');
+                count.textContent = currentCount + 1;
+            }
+            
+            // In production: send to backend
+            // fetch('like-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeData.id }) });
+        }
+
+        // Toggle save
+        function toggleSave() {
+            const btn = document.getElementById('saveBtn');
+            const count = document.getElementById('saveCount');
+            let currentCount = parseInt(count.textContent);
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                count.textContent = currentCount - 1;
+            } else {
+                btn.classList.add('active');
+                count.textContent = currentCount + 1;
+            }
+            
+            // In production: send to backend
+            // fetch('save-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeData.id }) });
+        }
+
+        // Post comment
+        function postComment() {
+            const textarea = document.getElementById('commentText');
+            const text = textarea.value.trim();
+            
+            if (text) {
+                alert('Comment posted! (This will be handled by your backend)');
+                textarea.value = '';
+                
+                // In production: send to backend
+                // fetch('post-comment.php', { 
+                //     method: 'POST', 
+                //     body: JSON.stringify({ recipeId: recipeData.id, comment: text })
+                // }).then(() => {
+                //     // Refresh comments
+                // });
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -550,7 +550,7 @@
 
             <!-- LOGO -->
             <a class="navbar-brand me-auto" href="#">
-                <img src="Asset/Logo.png" alt="Sweet Creation Logo" width="120" height="110">
+                <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="120" height="110">
             </a>
 
             <!-- TOGGLER -->
@@ -820,31 +820,121 @@
     </section>
 
     <!-- footer-->
-    <footer class="custom-footer mt-5">
-        <div class="container">
-            <div class="row text-center text-md-start align-items-center">
-
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <img src="Asset/Logo.png" alt="Logo" height="200" width="200">
+    <footer class="custom-footer">
+        <div class="container py-5">
+            <div class="row">
+                
+                <!-- LOGO & ABOUT -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <img src="Asset/footerLogo.png" alt="Sweet Creation" height="120" class="mb-3">
+        
+                    <!-- Social Media -->
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-facebook" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-instagram" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-twitter" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-youtube" style="font-size: 18px;"></i>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h5 style="font-family: 'Fredoka'; font-weight: bold; font-size: 55px; color: white; text-align: center;">
-                        Contact Us
-                    </h5>
+                <!-- QUICK LINKS -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Quick Links</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="homepage.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Home</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="Recipes.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Recipes</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="YourCreation.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Your Creation</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="AboutUs.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">About Us</a>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="col-md-4">
-                    <p style="font-family: 'Fredoka'; font-size: 20px; color: white; text-align: center;">
-                        sweetcreation@gmail.com
-                        <br><br>
-                        +63 934 476 7596 <br><br>
-                    </p>
+                <!-- CATEGORIES -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Categories</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Cakes & Cupcakes</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Cookies & Bars</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Frozen Desserts</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Pies & Tarts</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Custards & Puddings</a>
+                        </li>
+                    </ul>
                 </div>
 
+                <!-- CONTACT INFO -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Contact Us</h5>
+                    <div style="margin-bottom: 15px;">
+                        <i class="bi bi-envelope-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <a href="mailto:sweetcreation@gmail.com" style="color: #fff3e0; text-decoration: none; font-size: 14px;">sweetcreation@gmail.com</a>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <i class="bi bi-telephone-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <a href="tel:+639344767596" style="color: #fff3e0; text-decoration: none; font-size: 14px;">+63 934 476 7596</a>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <i class="bi bi-geo-alt-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <span style="color: #fff3e0; font-size: 14px;">Binan, Laguna, PH</span>
+                    </div>
+
+            </div>
+
+            <!-- BOTTOM BAR -->
+            <div style="border-top: 2px solid rgba(255,255,255,0.2); margin-top: 30px; padding-top: 25px;">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <p style="color: #fff3e0; font-size: 13px; margin: 0;">
+                            © 2024 Sweet Creation. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Privacy Policy</a>
+                        <span style="color: #fff3e0;">•</span>
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Terms of Service</a>
+                        <span style="color: #fff3e0;">•</span>
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Cookie Policy</a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
+
+    <style>
+    .custom-footer a:hover {
+        color: #fff !important;
+        transform: translateX(3px);
+    }
+
+    .custom-footer .social-link:hover {
+        background: rgba(255,255,255,0.4) !important;
+        transform: scale(1.1) !important;
+    }
+    </style>
 
     <!-- Navbar script -->
     <script>
