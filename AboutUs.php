@@ -299,7 +299,7 @@
 
             <!-- LOGO -->
             <a class="navbar-brand me-auto" href="#">
-                <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="120" height="110">
+                <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
             <!-- TOGGLER -->

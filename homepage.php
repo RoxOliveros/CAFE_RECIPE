@@ -80,10 +80,10 @@
 
         /*home*/
         .bg-section {
-            max-width: 1100px;
+            max-width: 1300px;
             margin: 100px auto 0;
             overflow: hidden;
-            margin-top: 50px;
+            margin-top: 60px;
         }
 
         .home-bg {
@@ -91,7 +91,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            min-height: 610px;
+            min-height: 670px;
             position: relative;
         }
 
@@ -130,17 +130,6 @@
                 margin-bottom: 22px;
                 color: #4a2a14;
             }
-
-        .learnmore-btn {
-            border: 2px solid #6b300a;
-            background: transparent;
-            padding: 8px 24px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #6b300a;
-            margin-left: 325px;
-        }
 
 
         /*how it works*/
@@ -452,9 +441,9 @@
         }
 
         .people-img {
-            height: 300px;
+            height: 370px;
             position: absolute;
-            left: 40px;
+            left: 30px;
             bottom: 0;
         }
 
@@ -550,7 +539,7 @@
 
             <!-- LOGO -->
             <a class="navbar-brand me-auto" href="#">
-                <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="120" height="110">
+                <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
             <!-- TOGGLER -->
@@ -596,7 +585,6 @@
                     post their creations, discover new recipes, and save favorites.
                 </p>
 
-                <button class="learnmore-btn">LEARN MORE</button>
             </div>
         </div>
     </section>
@@ -773,7 +761,7 @@
                             <img src="Asset/von.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>RESMA<br><span>JESTER VON</span></h3>
-                                <p>FRONT END DEV</p>
+                                <p>BACK END DEV</p>
                             </div>
                         </div>
 
@@ -786,7 +774,7 @@
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/jobs.png" class="people-img" alt="Person">
+                            <img src="Asset/jobs1.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>ARAW<br><span>JOBEL</span></h3>
                                 <p>FRONT END DEV</p>
