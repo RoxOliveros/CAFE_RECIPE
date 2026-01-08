@@ -620,113 +620,124 @@
 
     <script>
         // Sample data structure - replace this with PHP/MySQL data
-        const recipesData = [
-            {
-                id: 1,
-                title: "Chocolate Delight Cake",
-                category: "cakes",
-                categoryLabel: "CAKE",
-                image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
-                creator: "@sarah_bakes",
-                creatorAvatar: "https://i.pravatar.cc/150?img=1",
-                likes: 234,
-                comments: 89,
-                description: "Rich, moist chocolate cake with silky ganache frosting",
-                time: "45 mins"
-            },
-            {
-                id: 2,
-                title: "Classic Chocolate Chip",
-                category: "cookies",
-                categoryLabel: "COOKIES",
-                image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400",
-                creator: "@cookie_master",
-                creatorAvatar: "https://i.pravatar.cc/150?img=5",
-                likes: 512,
-                comments: 203,
-                description: "Perfectly chewy cookies loaded with chocolate chips",
-                time: "25 mins"
-            },
-            {
-                id: 3,
-                title: "Vanilla Bean Dream",
-                category: "frozen",
-                categoryLabel: "FROZEN",
-                image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
-                creator: "@icecream_queen",
-                creatorAvatar: "https://i.pravatar.cc/150?img=9",
-                likes: 387,
-                comments: 145,
-                description: "Homemade ice cream with real vanilla beans",
-                time: "4 hours"
-            },
-            {
-                id: 4,
-                title: "Homemade Apple Pie",
-                category: "pies",
-                categoryLabel: "PIE",
-                image: "https://images.unsplash.com/photo-1535920527002-b35e96722eb9?w=400",
-                creator: "@pie_perfection",
-                creatorAvatar: "https://i.pravatar.cc/150?img=12",
-                likes: 456,
-                comments: 178,
-                description: "Traditional apple pie with flaky butter crust",
-                time: "1.5 hours"
-            },
-            {
-                id: 5,
-                title: "Silky Crème Brûlée",
-                category: "custards",
-                categoryLabel: "CUSTARD",
-                image: "https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=400",
-                creator: "@french_desserts",
-                creatorAvatar: "https://i.pravatar.cc/150?img=20",
-                likes: 298,
-                comments: 112,
-                description: "Classic French dessert with caramelized sugar top",
-                time: "50 mins"
-            },
-            {
-                id: 6,
-                title: "Rainbow Cupcakes",
-                category: "cakes",
-                categoryLabel: "CUPCAKE",
-                image: "https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=400",
-                creator: "@cupcake_dreams",
-                creatorAvatar: "https://i.pravatar.cc/150?img=25",
-                likes: 623,
-                comments: 287,
-                description: "Colorful vanilla cupcakes with buttercream frosting",
-                time: "35 mins"
-            },
-            {
-                id: 7,
-                title: "Fudgy Brownies",
-                category: "cookies",
-                categoryLabel: "BROWNIE",
-                image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
-                creator: "@brownie_addict",
-                creatorAvatar: "https://i.pravatar.cc/150?img=33",
-                likes: 789,
-                comments: 321,
-                description: "Dense, fudgy brownies with crackly tops",
-                time: "30 mins"
-            },
-            {
-                id: 8,
-                title: "Berry Fruit Tart",
-                category: "pies",
-                categoryLabel: "TART",
-                image: "https://images.unsplash.com/photo-1519915212116-7cfef71f1d3e?w=400",
-                creator: "@tart_lover",
-                creatorAvatar: "https://i.pravatar.cc/150?img=41",
-                likes: 345,
-                comments: 156,
-                description: "Fresh berries on vanilla cream in buttery crust",
-                time: "1 hour"
-            }
+        // const recipesData = [
+        //     {
+        //         id: 1,
+        //         title: "Chocolate Delight Cake",
+        //         category: "cakes",
+        //         categoryLabel: "CAKE",
+        //         image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
+        //         creator: "@sarah_bakes",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=1",
+        //         likes: 234,
+        //         comments: 89,
+        //         description: "Rich, moist chocolate cake with silky ganache frosting",
+        //         time: "45 mins"
+        //     },
+        //     {
+        //         id: 2,
+        //         title: "Classic Chocolate Chip",
+        //         category: "cookies",
+        //         categoryLabel: "COOKIES",
+        //         image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400",
+        //         creator: "@cookie_master",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=5",
+        //         likes: 512,
+        //         comments: 203,
+        //         description: "Perfectly chewy cookies loaded with chocolate chips",
+        //         time: "25 mins"
+        //     },
+        //     {
+        //         id: 3,
+        //         title: "Vanilla Bean Dream",
+        //         category: "frozen",
+        //         categoryLabel: "FROZEN",
+        //         image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
+        //         creator: "@icecream_queen",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=9",
+        //         likes: 387,
+        //         comments: 145,
+        //         description: "Homemade ice cream with real vanilla beans",
+        //         time: "4 hours"
+        //     },
+        //     {
+        //         id: 4,
+        //         title: "Homemade Apple Pie",
+        //         category: "pies",
+        //         categoryLabel: "PIE",
+        //         image: "https://images.unsplash.com/photo-1535920527002-b35e96722eb9?w=400",
+        //         creator: "@pie_perfection",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=12",
+        //         likes: 456,
+        //         comments: 178,
+        //         description: "Traditional apple pie with flaky butter crust",
+        //         time: "1.5 hours"
+        //     },
+        //     {
+        //         id: 5,
+        //         title: "Silky Crème Brûlée",
+        //         category: "custards",
+        //         categoryLabel: "CUSTARD",
+        //         image: "https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=400",
+        //         creator: "@french_desserts",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=20",
+        //         likes: 298,
+        //         comments: 112,
+        //         description: "Classic French dessert with caramelized sugar top",
+        //         time: "50 mins"
+        //     },
+        //     {
+        //         id: 6,
+        //         title: "Rainbow Cupcakes",
+        //         category: "cakes",
+        //         categoryLabel: "CUPCAKE",
+        //         image: "https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=400",
+        //         creator: "@cupcake_dreams",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=25",
+        //         likes: 623,
+        //         comments: 287,
+        //         description: "Colorful vanilla cupcakes with buttercream frosting",
+        //         time: "35 mins"
+        //     },
+        //     {
+        //         id: 7,
+        //         title: "Fudgy Brownies",
+        //         category: "cookies",
+        //         categoryLabel: "BROWNIE",
+        //         image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+        //         creator: "@brownie_addict",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=33",
+        //         likes: 789,
+        //         comments: 321,
+        //         description: "Dense, fudgy brownies with crackly tops",
+        //         time: "30 mins"
+        //     },
+        //     {
+        //         id: 8,
+        //         title: "Berry Fruit Tart",
+        //         category: "pies",
+        //         categoryLabel: "TART",
+        //         image: "https://images.unsplash.com/photo-1519915212116-7cfef71f1d3e?w=400",
+        //         creator: "@tart_lover",
+        //         creatorAvatar: "https://i.pravatar.cc/150?img=41",
+        //         likes: 345,
+        //         comments: 156,
+        //         description: "Fresh berries on vanilla cream in buttery crust",
+        //         time: "1 hour"
+        //     }
+
+            let recipesData = [];
+
+            fetch('get-recipes.php')
+                .then(response => response.json())
+                .then(data => {
+                    recipesData = data;
+                    renderRecipes(recipesData);
+                })
+                .catch(error => {
+                    console.error('Error loading recipes:', error);
+                });
             
-        ];
 
         // Function to create recipe card HTML
         function createRecipeCard(recipe) {

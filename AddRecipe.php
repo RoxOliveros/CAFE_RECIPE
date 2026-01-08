@@ -663,28 +663,43 @@
             }
         }
 
-        // Form submission
-        document.getElementById('createRecipeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            console.log('Form submitted!');
-            console.log('Video option:', currentVideoOption);
-            
+       // Form submission
+document.getElementById('createRecipeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Add video option to form data
+    formData.append('video_option', currentVideoOption);
+    
+    // Show loading message
+    const submitBtn = this.querySelector('.btn-submit');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Publishing...';
+    submitBtn.disabled = true;
+    
+    fetch('submit-recipe.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
             alert('Recipe created successfully! 🎉');
-            
-            // In production:
-            // fetch('submit-recipe.php', {
-            //     method: 'POST',
-            //     body: formData
-            // }).then(response => response.json())
-            //   .then(data => {
-            //       if(data.success) {
-            //           window.location.href = 'Recipes.php';
-            //       }
-            //   });
-        });
+            window.location.href = 'Recipes.php';
+        } else {
+            alert('Error: ' + data.message);
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the recipe.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
+});
     </script>
 
 </body>
