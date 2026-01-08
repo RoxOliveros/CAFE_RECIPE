@@ -581,9 +581,9 @@
                 <h1><span>SWEET</span> RECIPE</h1>
 
                 <p>
-                    Sweet Creation is a recipe community where bakers and food lovers
-                    post their creations, discover new recipes, and save favorites.
-                </p>
+                Sweet Creation is a recipe-sharing social platform designed specifically for dessert enthusiasts. Whether you're a professional pastry chef, a home baker, or someone who simply loves sweets, this is your space to express creativity through recipes.
+
+                 </p>
 
             </div>
         </div>
@@ -758,7 +758,7 @@
                         </button>
 
                         <div class="people-card">
-                            <img src="Asset/von.png" class="people-img" alt="Person">
+                            <img src="Asset/von1.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>RESMA<br><span>JESTER VON</span></h3>
                                 <p>BACK END DEV</p>
@@ -766,7 +766,7 @@
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/rox.png" class="people-img" alt="Person">
+                            <img src="Asset/rox1.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>OLIVEROS<br><span>ROXANNE</span></h3>
                                 <p>FRONT END DEV</p>

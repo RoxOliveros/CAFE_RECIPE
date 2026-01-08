@@ -650,7 +650,7 @@
     }
     </style>
 
-    <script>
+   <script>
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
@@ -661,74 +661,36 @@
             }
         });
 
-        // Sample user recipes data (replace with PHP/MySQL data)
-        const userRecipes = [
-            {
-                id: 1,
-                title: "Chocolate Delight Cake",
-                category: "Cakes & Cupcakes",
-                image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
-                time: "45 mins",
-                servings: 12,
-                likes: 234,
-                saves: 89,
-                comments: 45,
-                createdDate: "2024-01-15",
-                visibility: "public"
-            },
-            {
-                id: 2,
-                title: "Classic Chocolate Chip",
-                category: "Cookies & Bars",
-                image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400",
-                time: "25 mins",
-                servings: 24,
-                likes: 512,
-                saves: 203,
-                comments: 78,
-                createdDate: "2024-01-10",
-                visibility: "followers"
-            },
-            {
-                id: 3,
-                title: "Vanilla Bean Dream",
-                category: "Frozen Desserts",
-                image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
-                time: "4 hours",
-                servings: 8,
-                likes: 387,
-                saves: 145,
-                comments: 56,
-                createdDate: "2024-01-05",
-                visibility: "public"
-            },
-            {
-                id: 4,
-                title: "Homemade Apple Pie",
-                category: "Pies & Tarts",
-                image: "https://images.unsplash.com/photo-1535920527002-b35e96722eb9?w=400",
-                time: "1.5 hours",
-                servings: 8,
-                likes: 456,
-                saves: 178,
-                comments: 92,
-                createdDate: "2023-12-28",
-                visibility: "private"
-            },
-            {
-                id: 5,
-                title: "Rainbow Cupcakes",
-                category: "Cakes & Cupcakes",
-                image: "https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=400",
-                time: "35 mins",
-                servings: 12,
-                likes: 623,
-                saves: 287,
-                comments: 134,
-                createdDate: "2023-12-20",
-                visibility: "public"
-            }
-        ];
+        let userRecipes = [];
+
+        // Fetch user's recipes from database
+        fetch('get-user-recipes.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    alert('Failed to load recipes');
+                } else {
+                    userRecipes = data.recipes;
+                    
+                    // Update stats
+                    updateStats(data.stats);
+                    
+                    // Render recipes
+                    renderRecipes();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading recipes:', error);
+            });
+
+        // Update stats cards
+        function updateStats(stats) {
+            document.querySelector('.stats-container .stat-card:nth-child(1) .stat-number').textContent = stats.totalRecipes;
+            document.querySelector('.stats-container .stat-card:nth-child(2) .stat-number').textContent = stats.totalLikes;
+            document.querySelector('.stats-container .stat-card:nth-child(3) .stat-number').textContent = stats.totalSaves;
+            document.querySelector('.stats-container .stat-card:nth-child(4) .stat-number').textContent = stats.totalComments;
+        }
 
         // Function to create recipe card HTML
         function createRecipeCard(recipe) {
@@ -797,7 +759,7 @@
                             <button class="action-btn btn-edit" onclick="editRecipe(${recipe.id})" title="Edit Recipe">
                                 <i class="bi bi-pencil-fill"></i>
                             </button>
-                            <button class="action-btn btn-delete" onclick="deleteRecipe(${recipe.id}, '${recipe.title}')" title="Delete Recipe">
+                            <button class="action-btn btn-delete" onclick="deleteRecipe(${recipe.id}, '${recipe.title.replace(/'/g, "\\'")}')" title="Delete Recipe">
                                 <i class="bi bi-trash-fill"></i>
                             </button>
                         </div>
@@ -827,12 +789,9 @@
             }
         }
 
-        // Initialize page
-        renderRecipes();
-
         // Create new recipe
         function createNewRecipe() {
-            window.location.href = 'create-recipe.php';
+            window.location.href = 'AddRecipe.php';
         }
 
         // Edit recipe
@@ -845,29 +804,30 @@
         // Delete recipe
         function deleteRecipe(recipeId, recipeTitle) {
             if (confirm(`Are you sure you want to delete "${recipeTitle}"? This action cannot be undone.`)) {
-                console.log('Deleting recipe:', recipeId);
-                
-                // Remove from array (in production, this would be a backend call)
-                const index = userRecipes.findIndex(r => r.id === recipeId);
-                if (index > -1) {
-                    userRecipes.splice(index, 1);
-                    renderRecipes();
-                    alert('Recipe deleted successfully!');
-                }
-                
-                // In production:
-                // fetch('delete-recipe.php', {
-                //     method: 'POST',
-                //     body: JSON.stringify({ id: recipeId })
-                // }).then(response => response.json())
-                //   .then(data => {
-                //       if(data.success) {
-                //           renderRecipes();
-                //       }
-                //   });
+                // Send delete request to backend
+                fetch('delete-recipe.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: recipeId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Recipe deleted successfully!');
+                        // Reload recipes
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete recipe');
+                });
             }
         }
     </script>
-
 </body>
 </html>
