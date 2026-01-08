@@ -9,427 +9,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #f9f4e9;
-            font-family: 'Fredoka', sans-serif;
-        }
-
-        /*NAVBAR*/
-        .navbar {
-            background-color: transparent;
-            transition: all 0.4s ease-in-out;
-        }
-
-        .navbar.scrolled {
-            background-color: rgba(255, 243, 224, 0.9) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 5px 0;
-        }
-
-        .navbar-nav .nav-link {
-            color: #b08261 !important;
-            font-weight: 700;
-            font-size: 18px;
-            text-transform: uppercase;
-            padding: 8px 0 !important;
-            margin: 0 15px;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 0;
-            height: 3px;
-            background-color: #6b300a;
-            transition: width 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover::after,
-        .navbar-nav .nav-link.active::after {
-            width: 100%;
-        }
-
-        .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active {
-            color: #6b300a !important;
-            background-color: transparent !important;
-        }
-
-        .btn-login {
-            background-color: #a85a1a;
-            color: #fff;
-            border-radius: 999px;
-            padding: 10px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            transition: transform 0.2s ease;
-        }
-
-        .btn-login:hover {
-            background-color: #8f4a14;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* YOUR CREATION SECTION */
-        .creation-section {
-            padding-top: 150px;
-            padding-bottom: 80px;
-        }
-
-        .creation-title {
-            font-size: 52px;
-            font-weight: 900;
-            color: #8f4a14;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .creation-subtitle {
-            font-size: 16px;
-            color: #b08261;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        /* STATS CARDS */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto 50px;
-        }
-
-        .stat-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        .stat-icon {
-            font-size: 36px;
-            color: #c89b52;
-            margin-bottom: 10px;
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: #6b300a;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #8f4a14;
-            font-weight: 600;
-        }
-
-        /* CREATE NEW BUTTON */
-        .create-new-section {
-            max-width: 1200px;
-            margin: 0 auto 40px;
-        }
-
-        .create-new-btn {
-            width: 100%;
-            background: #c89b52;
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            padding: 25px;
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(200, 155, 82, 0.3);
-        }
-
-        .create-new-btn:hover {
-            background: #a85a1a;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(200, 155, 82, 0.4);
-        }
-
-        .create-new-btn i {
-            font-size: 28px;
-        }
-
-        /* MY RECIPES SECTION */
-        .my-recipes-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            font-size: 28px;
-            font-weight: 800;
-            color: #6b300a;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-header i {
-            color: #c89b52;
-        }
-
-        /* RECIPE CARD */
-        .my-recipe-card {
-            background: #fff;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-
-        .my-recipe-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .recipe-card-content {
-            display: flex;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .recipe-thumbnail {
-            width: 180px;
-            height: 140px;
-            border-radius: 12px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .recipe-details {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .recipe-card-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #6b300a;
-            margin-bottom: 8px;
-        }
-
-        .recipe-card-meta {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #8f4a14;
-        }
-
-        .meta-item i {
-            color: #c89b52;
-            font-size: 14px;
-        }
-
-        .recipe-card-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: auto;
-            padding-top: 12px;
-            border-top: 1px solid #f0e6d6;
-        }
-
-        .stat-mini {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            color: #8f4a14;
-            font-weight: 600;
-        }
-
-        .stat-mini i {
-            color: #c89b52;
-        }
-
-        /* VISIBILITY BADGE */
-        .visibility-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .visibility-public {
-            background: #e8f8f5;
-            color: #27ae60;
-        }
-
-        .visibility-followers {
-            background: #fef5e7;
-            color: #f39c12;
-        }
-
-        .visibility-private {
-            background: #f4ecf7;
-            color: #8e44ad;
-        }
-
-        .visibility-badge i {
-            font-size: 13px;
-        }
-
-        /* ACTIONS */
-        .recipe-actions {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-
-        .action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 18px;
-        }
-
-        .btn-edit {
-            background: #e8f4f8;
-            color: #3498db;
-        }
-
-        .btn-edit:hover {
-            background: #3498db;
-            color: #fff;
-            transform: scale(1.1);
-        }
-
-        .btn-delete {
-            background: #fde8e8;
-            color: #e74c3c;
-        }
-
-        .btn-delete:hover {
-            background: #e74c3c;
-            color: #fff;
-            transform: scale(1.1);
-        }
-
-        /* EMPTY STATE */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-
-        .empty-icon {
-            font-size: 80px;
-            color: #e6dcc8;
-            margin-bottom: 20px;
-        }
-
-        .empty-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #8f4a14;
-            margin-bottom: 10px;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            color: #b08261;
-            margin-bottom: 25px;
-        }
-
-        .empty-btn {
-            background: #c89b52;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .empty-btn:hover {
-            background: #a85a1a;
-            transform: translateY(-2px);
-        }
-
-        /* FOOTER */
-        .custom-footer {
-            background-color: #c79850;
-            border-radius: 50px 50px 0 0;
-            margin-top: 80px;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .creation-title {
-                font-size: 36px;
-            }
-
-            .stats-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .recipe-card-content {
-                flex-direction: column;
-            }
-
-            .recipe-thumbnail {
-                width: 100%;
-                height: 200px;
-            }
-
-            .recipe-actions {
-                margin-left: 0;
-                margin-top: 15px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="yourcreation-style.css">
 </head>
-
 <body>
 
     <!--navbar-->
@@ -464,11 +46,16 @@
                 </ul>
             </div>
 
-            <!-- LOGIN -->
-            <div class="d-none d-lg-block ms-auto">
-                <button class="btn-login">LOGIN</button>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
 
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <a href="AboutUs.php">About Us</a>
+                <a href="Login.php" class="login-link">Login</a>
+            </div>
         </div>
     </nav>
 
@@ -638,18 +225,6 @@
         </div>
     </footer>
 
-    <style>
-    .custom-footer a:hover {
-        color: #fff !important;
-        transform: translateX(3px);
-    }
-
-    .custom-footer .social-link:hover {
-        background: rgba(255,255,255,0.4) !important;
-        transform: scale(1.1) !important;
-    }
-    </style>
-
    <script>
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');
@@ -660,6 +235,21 @@
                 navbar.classList.remove('scrolled');
             }
         });
+
+        // menubar
+        function toggleMenu() {
+        const menu = document.getElementById("hamburgerMenu");
+        menu.classList.toggle("active");
+        }
+
+        // Close menu when a link is clicked
+        const links = document.querySelectorAll("#hamburgerMenu a");
+        links.forEach(link => {
+        link.addEventListener("click", () => {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+        });
+        });
+
 
         let userRecipes = [];
 

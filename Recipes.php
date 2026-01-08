@@ -9,538 +9,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #f9f4e9;
-            font-family: 'Fredoka', sans-serif;
-        }
-
-        /*NAVBAR*/
-        .navbar {
-            background-color: transparent;
-            transition: all 0.4s ease-in-out;
-        }
-
-        .navbar.scrolled {
-            background-color: rgba(255, 243, 224, 0.9) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 5px 0;
-        }
-
-        .navbar-nav .nav-link {
-            color: #b08261 !important;
-            font-weight: 700;
-            font-size: 18px;
-            text-transform: uppercase;
-            padding: 8px 0 !important;
-            margin: 0 15px;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 0;
-            height: 3px;
-            background-color: #6b300a;
-            transition: width 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover::after,
-        .navbar-nav .nav-link.active::after {
-            width: 100%;
-        }
-
-        .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active {
-            color: #6b300a !important;
-            background-color: transparent !important;
-        }
-
-        .btn-login {
-            background-color: #a85a1a;
-            color: #fff;
-            border-radius: 999px;
-            padding: 10px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            transition: transform 0.2s ease;
-        }
-
-        .btn-login:hover {
-            background-color: #8f4a14;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* RECIPES SECTION */
-        .recipes-section {
-            padding-top: 150px;
-            padding-bottom: 80px;
-        }
-
-        .recipes-title {
-            font-size: 52px;
-            font-weight: 900;
-            color: #8f4a14;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        /* SEARCH & FILTER */
-        .search-filter-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 50px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 14px 50px 14px 24px;
-            border: 2px solid #c89b52;
-            border-radius: 50px;
-            font-size: 16px;
-            background-color: #fff;
-            color: #6b300a;
-            font-family: 'Fredoka', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #8f4a14;
-            box-shadow: 0 0 0 3px rgba(200, 155, 82, 0.2);
-        }
-
-        .search-box input::placeholder {
-            color: #b08261;
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #8f4a14;
-            font-size: 20px;
-            pointer-events: none;
-        }
-
-        /* FILTER DROPDOWN */
-        .filter-dropdown {
-            position: relative;
-        }
-
-        .filter-btn {
-            background-color: #c89b52;
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            padding: 14px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            background-color: #8f4a14;
-            transform: translateY(-2px);
-        }
-
-        .filter-menu {
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background-color: #fff;
-            border: 2px solid #c89b52;
-            border-radius: 20px;
-            padding: 15px;
-            min-width: 220px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            z-index: 100;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-
-        .filter-menu.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .filter-option {
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 15px;
-            color: #6b300a;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .filter-option:hover {
-            background-color: #f9f4e9;
-            color: #8f4a14;
-            transform: translateX(5px);
-        }
-
-        .filter-option:last-child {
-            margin-bottom: 0;
-        }
-
-        /* RECIPE CARDS */
-        .recipes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 35px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .recipe-card {
-            background: #fff;
-            border-radius: 24px;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(139, 69, 19, 0.2);
-        }
-
-        .recipe-image-container {
-            position: relative;
-            width: 100%;
-            height: 240px;
-            overflow: hidden;
-        }
-
-        .recipe-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .recipe-card:hover .recipe-image {
-            transform: scale(1.08);
-        }
-
-        .recipe-category-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(200, 155, 82, 0.95);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .recipe-heart {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .recipe-heart:hover {
-            transform: scale(1.15);
-            background: #fff;
-            border-color: #e74c3c;
-        }
-
-        .recipe-heart i {
-            font-size: 18px;
-            color: #8f4a14;
-            transition: all 0.3s ease;
-        }
-
-        .recipe-heart.active {
-            background: #fff;
-            border-color: #e74c3c;
-        }
-
-        .recipe-heart.active i {
-            color: #e74c3c;
-        }
-
-
-        .recipe-content {
-            padding: 20px;
-        }
-
-        .recipe-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #6b300a;
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        .recipe-creator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .creator-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #c89b52;
-        }
-
-        .creator-name {
-            font-size: 13px;
-            color: #8f4a14;
-            font-weight: 600;
-        }
-
-        .recipe-stats {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding-top: 12px;
-            border-top: 1px solid #f0e6d6;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            color: #8f4a14;
-        }
-
-        .stat-item i {
-            font-size: 14px;
-            color: #c89b52;
-        }
-
-        .recipe-description {
-            font-size: 13px;
-            color: #8f4a14;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            opacity: 0.85;
-        }
-
-        .recipe-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .recipe-time {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            color: #8f4a14;
-            font-weight: 600;
-        }
-
-        .recipe-time i {
-            color: #c89b52;
-        }
-
-        .view-recipe-btn {
-            background-color: #c89b52;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 20px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .view-recipe-btn:hover {
-            background-color: #8f4a14;
-            transform: translateY(-2px);
-        }
-
-        
-        .custom-footer {
-            background-color: #c79850;
-            border-radius: 50px 50px 0 0;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .recipes-title {
-                font-size: 36px;
-            }
-
-            .search-filter-container {
-                flex-direction: column;
-                width: 100%;
-                padding: 0 20px;
-            }
-
-            .search-box {
-                max-width: 100%;
-            }
-
-            .filter-menu {
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%) translateY(-10px);
-            }
-
-            .filter-menu.active {
-                transform: translateX(-50%) translateY(0);
-            }
-
-            .recipes-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 25px;
-            }
-        }
-
-            /* Floating Action Button */
-            
-            .create-recipe-fab {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                width: 60px;
-                height: 60px;
-                background: #c89b52; /* Changed from gradient */
-                border: none;
-                border-radius: 50%;
-                color: #fff;
-                font-size: 24px;
-                box-shadow: 0 4px 20px rgba(200, 155, 82, 0.4);
-                cursor: pointer;
-                transition: all 0.3s ease;
-                z-index: 999;
-            }
-
-            .create-recipe-fab:hover {
-                background: #a85a1a; /* Darker on hover */
-                transform: scale(1.1) rotate(90deg);
-                box-shadow: 0 6px 30px rgba(200, 155, 82, 0.6);
-            }
-            /* Tooltip Popup */
-            .fab-tooltip {
-                position: fixed;
-                bottom: 100px;
-                right: 30px;
-                background: #fff;
-                color: #6b300a;
-                padding: 15px 20px;
-                border-radius: 16px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                font-size: 14px;
-                font-weight: 600;
-                white-space: nowrap;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(10px);
-                transition: all 0.3s ease;
-                z-index: 998;
-                border: 2px solid #c89b52;
-                max-width: 250px;
-                white-space: normal;
-                line-height: 1.5;
-            }
-
-            .fab-tooltip::after {
-                content: '';
-                position: absolute;
-                bottom: -10px;
-                right: 20px;
-                width: 0;
-                height: 0;
-                border-left: 10px solid transparent;
-                border-right: 10px solid transparent;
-                border-top: 10px solid #c89b52;
-            }
-
-            .fab-tooltip::before {
-                content: '';
-                position: absolute;
-                bottom: -7px;
-                right: 22px;
-                width: 0;
-                height: 0;
-                border-left: 8px solid transparent;
-                border-right: 8px solid transparent;
-                border-top: 8px solid #fff;
-                z-index: 1;
-            }
-
-            .fab-tooltip.show {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-
-            .fab-tooltip .tooltip-emoji {
-                font-size: 20px;
-                margin-right: 8px;
-            }
-
-            @media (max-width: 768px) {
-                .create-recipe-fab {
-                    bottom: 20px;
-                    right: 20px;
-                    width: 55px;
-                    height: 55px;
-                }
-                
-                .fab-tooltip {
-                    bottom: 85px;
-                    right: 20px;
-                    max-width: 220px;
-                    font-size: 13px;
-                    padding: 12px 16px;
-                }
-            }
-    </style>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="recipes-style.css">
 </head>
-
 <body>
 
     <!--navbar-->
@@ -575,11 +46,16 @@
                 </ul>
             </div>
 
-            <!-- LOGIN -->
-            <div class="d-none d-lg-block ms-auto">
-                <button class="btn-login">LOGIN</button>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
 
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <a href="AboutUs.php">About Us</a>
+                <a href="Login.php" class="login-link">Login</a>
+            </div>
         </div>
     </nav>
 
@@ -724,7 +200,7 @@
         //         comments: 156,
         //         description: "Fresh berries on vanilla cream in buttery crust",
         //         time: "1 hour"
-        //     }
+        //     }]
 
             let recipesData = [];
 
@@ -797,6 +273,21 @@
                 navbar.classList.remove('scrolled');
             }
         });
+
+        // menubar
+        function toggleMenu() {
+        const menu = document.getElementById("hamburgerMenu");
+        menu.classList.toggle("active");
+        }
+
+         // Close menu when a link is clicked
+        const links = document.querySelectorAll("#hamburgerMenu a");
+        links.forEach(link => {
+        link.addEventListener("click", () => {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+        });
+        });
+
 
         // Filter dropdown toggle
         function toggleFilter() {
@@ -1032,21 +523,5 @@
             </div>
         </div>
     </footer>
-
-    <style>
-    .custom-footer a:hover {
-        color: #fff !important;
-        transform: translateX(3px);
-    }
-
-    .custom-footer .social-link:hover {
-        background: rgba(255,255,255,0.4) !important;
-        transform: scale(1.1) !important;
-    }
-    </style>
-
-    
-
-
 </body>
 </html>

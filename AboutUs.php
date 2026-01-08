@@ -9,286 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #f9f4e9;
-            font-family: 'Fredoka', sans-serif;
-        }
-
-        /*NAVBAR*/
-        .navbar {
-            background-color: transparent;
-            transition: all 0.4s ease-in-out;
-        }
-
-        .navbar.scrolled {
-            background-color: rgba(255, 243, 224, 0.9) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 5px 0;
-        }
-
-        .navbar-nav .nav-link {
-            color: #b08261 !important;
-            font-weight: 700;
-            font-size: 18px;
-            text-transform: uppercase;
-            padding: 8px 0 !important;
-            margin: 0 15px;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 0;
-            height: 3px;
-            background-color: #6b300a;
-            transition: width 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover::after,
-        .navbar-nav .nav-link.active::after {
-            width: 100%;
-        }
-
-        .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active {
-            color: #6b300a !important;
-            background-color: transparent !important;
-        }
-
-        .btn-login {
-            background-color: #a85a1a;
-            color: #fff;
-            border-radius: 999px;
-            padding: 10px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            transition: transform 0.2s ease;
-        }
-
-        .btn-login:hover {
-            background-color: #8f4a14;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* ABOUT US SECTION */
-        .about-section {
-            padding-top: 150px;
-            padding-bottom: 80px;
-        }
-
-        .about-hero {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .about-title {
-            font-size: 58px;
-            font-weight: 900;
-            color: #8f4a14;
-            margin-bottom: 20px;
-        }
-
-        .about-subtitle {
-            font-size: 20px;
-            color: #b08261;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* CONTENT CARDS */
-        .content-container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .content-card {
-            background: #fff;
-            border-radius: 30px;
-            padding: 50px;
-            margin-bottom: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-
-        .content-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        }
-
-        .card-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #f9f4e9 0%, #faf7f2 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .card-icon i {
-            font-size: 40px;
-            color: #c89b52;
-        }
-
-        .card-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #6b300a;
-            margin-bottom: 20px;
-        }
-
-        .card-text {
-            font-size: 16px;
-            color: #8f4a14;
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        .card-text strong {
-            color: #6b300a;
-        }
-
-        /* HIGHLIGHT BOX */
-        .highlight-box {
-            background: #faf7f2;
-            border-left: 4px solid #c89b52;
-            padding: 20px 25px;
-            border-radius: 12px;
-            margin-top: 20px;
-        }
-
-        .highlight-box p {
-            margin: 0;
-            font-size: 15px;
-            color: #8f4a14;
-            font-style: italic;
-        }
-
-        /* FEATURES GRID */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .feature-item {
-            background: #faf7f2;
-            padding: 25px;
-            border-radius: 16px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .feature-item:hover {
-            transform: translateY(-3px);
-            background: #f9f4e9;
-        }
-
-        .feature-icon {
-            font-size: 36px;
-            color: #c89b52;
-            margin-bottom: 15px;
-        }
-
-        .feature-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #6b300a;
-            margin-bottom: 10px;
-        }
-
-        .feature-text {
-            font-size: 14px;
-            color: #8f4a14;
-            line-height: 1.6;
-        }
-
-        /* CTA SECTION */
-        .cta-section {
-            background: linear-gradient(135deg, #c89b52 0%, #a85a1a 100%);
-            border-radius: 30px;
-            padding: 60px 40px;
-            text-align: center;
-            margin-top: 60px;
-            box-shadow: 0 8px 30px rgba(200, 155, 82, 0.3);
-        }
-
-        .cta-title {
-            font-size: 36px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 15px;
-        }
-
-        .cta-text {
-            font-size: 18px;
-            color: #fff3e0;
-            margin-bottom: 30px;
-        }
-
-        .cta-btn {
-            background: #fff;
-            color: #8f4a14;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        /* FOOTER */
-        .custom-footer {
-            background-color: #c79850;
-            border-radius: 50px 50px 0 0;
-            margin-top: 80px;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .about-title {
-                font-size: 40px;
-            }
-
-            .content-card {
-                padding: 30px 25px;
-            }
-
-            .card-title {
-                font-size: 26px;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .cta-section {
-                padding: 40px 25px;
-            }
-
-            .cta-title {
-                font-size: 28px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="aboutus-style.css"> 
 </head>
 
 <body>
@@ -325,11 +47,16 @@
                 </ul>
             </div>
 
-            <!-- LOGIN -->
-            <div class="d-none d-lg-block ms-auto">
-                <button class="btn-login">LOGIN</button>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
 
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <a href="AboutUs.php">About Us</a>
+                <a href="Login.php" class="login-link">Login</a>
+            </div>
         </div>
     </nav>
 
@@ -574,18 +301,6 @@
         </div>
     </footer>
 
-    <style>
-    .custom-footer a:hover {
-        color: #fff !important;
-        transform: translateX(3px);
-    }
-
-    .custom-footer .social-link:hover {
-        background: rgba(255,255,255,0.4) !important;
-        transform: scale(1.1) !important;
-    }
-    </style>
-
     <script>
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');
@@ -596,7 +311,20 @@
                 navbar.classList.remove('scrolled');
             }
         });
-    </script>
 
+    // menubar
+    function toggleMenu() {
+    const menu = document.getElementById("hamburgerMenu");
+    menu.classList.toggle("active");
+    }
+
+    // Close menu when a link is clicked
+    const links = document.querySelectorAll("#hamburgerMenu a");
+    links.forEach(link => {
+    link.addEventListener("click", () => {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+    });
+    });
+</script>
 </body>
 </html>
