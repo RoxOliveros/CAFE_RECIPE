@@ -439,72 +439,30 @@
     </section>
 
     <script>
-        // In production, get recipe ID from URL: const urlParams = new URLSearchParams(window.location.search); const recipeId = urlParams.get('id');
-        // Then fetch from PHP: fetch('get-recipe.php?id=' + recipeId)
+        // Get recipe ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
 
-        // Sample recipe data - replace with PHP/MySQL data
-        const recipeData = {
-            id: 1,
-            title: "Chocolate Delight Cake",
-            description: "A rich, moist chocolate cake with layers of silky ganache frosting. Perfect for special occasions or when you need a chocolate fix. This recipe has been passed down through generations and never fails to impress!",
-            category: "Cakes & Cupcakes",
-            time: "45 mins",
-            servings: 12,
-            difficulty: "Medium",
-            image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800",
-            videoUrl: null, // or YouTube URL if available
-            creator: {
-                name: "Sarah Chen",
-                username: "@sarah_bakes",
-                avatar: "https://i.pravatar.cc/150?img=1",
-                createdDate: "2024-01-15"
-            },
-            stats: {
-                likes: 234,
-                saves: 89,
-                comments: 12
-            },
-            ingredients: [
-                "2 cups all-purpose flour",
-                "1¾ cups granulated sugar",
-                "¾ cup unsweetened cocoa powder",
-                "2 teaspoons baking soda",
-                "1 teaspoon baking powder",
-                "1 teaspoon salt",
-                "2 large eggs",
-                "1 cup buttermilk",
-                "1 cup strong black coffee, cooled",
-                "½ cup vegetable oil",
-                "2 teaspoons vanilla extract"
-            ],
-            instructions: [
-                "Preheat your oven to 350°F (175°C). Grease and flour two 9-inch round cake pans.",
-                "In a large mixing bowl, sift together flour, sugar, cocoa powder, baking soda, baking powder, and salt.",
-                "Add eggs, buttermilk, coffee, oil, and vanilla. Beat on medium speed for 2 minutes until well combined.",
-                "Pour batter evenly into prepared pans. Bake for 30-35 minutes or until a toothpick inserted in center comes out clean.",
-                "Cool in pans for 10 minutes, then remove to wire racks to cool completely.",
-                "Once cooled, frost with your favorite chocolate ganache or buttercream frosting.",
-                "Decorate as desired and serve! Store leftover cake covered at room temperature for up to 3 days."
-            ],
-            comments: [
-                {
-                    id: 1,
-                    author: "Mike Johnson",
-                    username: "@mike_cooks",
-                    avatar: "https://i.pravatar.cc/150?img=12",
-                    date: "2024-01-20",
-                    text: "Made this for my daughter's birthday and it was a huge hit! The coffee really enhances the chocolate flavor. Will definitely make again!"
-                },
-                {
-                    id: 2,
-                    author: "Emily Rodriguez",
-                    username: "@emily_bakes",
-                    avatar: "https://i.pravatar.cc/150?img=25",
-                    date: "2024-01-18",
-                    text: "This is now my go-to chocolate cake recipe. So moist and delicious! Thank you for sharing!"
+        if (!recipeId) {
+            alert('Recipe not found');
+            window.location.href = 'Recipes.php';
+        }
+
+        // Fetch recipe from database
+        fetch('get-recipe.php?id=' + recipeId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    window.location.href = 'Recipes.php';
+                } else {
+                    renderRecipe(data);
                 }
-            ]
-        };
+            })
+            .catch(error => {
+                console.error('Error loading recipe:', error);
+                alert('Failed to load recipe');
+            });
 
         // Function to render recipe
         function renderRecipe(recipe) {
@@ -548,11 +506,25 @@
             }).join('');
             
             // Video section (if video exists)
-            const mediaSection = recipe.videoUrl ? `
-                <div class="media-section">
-                    <iframe class="recipe-video" src="${recipe.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            ` : '';
+            let mediaSection = '';
+            if (recipe.videoUrl) {
+                if (recipe.videoUrl.includes('youtube.com') || recipe.videoUrl.includes('youtu.be')) {
+                    mediaSection = `
+                        <div class="media-section">
+                            <iframe class="recipe-video" src="${recipe.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    `;
+                } else {
+                    mediaSection = `
+                        <div class="media-section">
+                            <video class="recipe-video" controls>
+                                <source src="${recipe.videoUrl}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    `;
+                }
+            }
             
             container.innerHTML = `
                 <!-- HEADER -->
@@ -649,9 +621,6 @@
             `;
         }
 
-        // Initialize page
-        renderRecipe(recipeData);
-
         // Back button
         function goBack() {
             window.history.back();
@@ -671,8 +640,8 @@
                 count.textContent = currentCount + 1;
             }
             
-            // In production: send to backend
-            // fetch('like-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeData.id }) });
+            // Send to backend (implement later)
+            // fetch('like-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeId }) });
         }
 
         // Toggle save
@@ -688,9 +657,6 @@
                 btn.classList.add('active');
                 count.textContent = currentCount + 1;
             }
-            
-            // In production: send to backend
-            // fetch('save-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeData.id }) });
         }
 
         // Post comment
@@ -699,19 +665,34 @@
             const text = textarea.value.trim();
             
             if (text) {
-                alert('Comment posted! (This will be handled by your backend)');
-                textarea.value = '';
-                
-                // In production: send to backend
-                // fetch('post-comment.php', { 
-                //     method: 'POST', 
-                //     body: JSON.stringify({ recipeId: recipeData.id, comment: text })
-                // }).then(() => {
-                //     // Refresh comments
-                // });
+                // Send to backend
+                fetch('post-comment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        recipe_id: recipeId, 
+                        comment: text 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Comment posted successfully!');
+                        textarea.value = '';
+                        // Reload recipe to show new comment
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to post comment');
+                });
             }
         }
     </script>
-
 </body>
 </html>
