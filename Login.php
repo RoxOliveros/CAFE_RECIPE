@@ -40,13 +40,48 @@
     </div>
 
     <script>
-    function showSignup() {
-        window.location.href = 'Signup.php';
-    }
-    
-    function goHome() {
-        window.location.href = 'homepage.php';
-    }
+        function showSignup() {
+            window.location.href = 'Signup.php';
+        }
+        
+        function goHome() {
+            window.location.href = 'homepage.php';
+        }
+
+        // For logging in
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Show loading message
+            const loginBtn = this.querySelector('.submit-btn');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+        
+            fetch('login-account.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('You have logged in successfully! 🎉');
+                    window.location.href = 'homepage.php';
+                } else {
+                    alert('Error: ' + data.message);
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while logging in.');
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            });
+        });
     </script>
 </body>
 </html>

@@ -4,7 +4,10 @@ session_start();
 require_once 'config/database.php';
 
 // For now, use demo user ID
-$user_id = 1;
+// $user_id = 1;
+
+// Changed to user currently logged in
+$user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);

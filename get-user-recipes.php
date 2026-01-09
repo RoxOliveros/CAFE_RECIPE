@@ -6,7 +6,10 @@ ini_set('display_errors', 1);
 require_once 'config/database.php';
 
 // For now, use demo user ID (replace with actual logged-in user later)
-$user_id = 1;
+// $user_id = 1;
+
+// Changed to user currently logged in
+$user_id = $_SESSION['user_id'];
 
 try {
     // Get user's recipes with stats
