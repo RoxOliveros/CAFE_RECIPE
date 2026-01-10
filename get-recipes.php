@@ -20,7 +20,7 @@ try {
                 r.created_at,
                 u.username,
                 u.display_name,
-                u.avatar_url
+                u.avatar_img
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.visibility = 'public'
@@ -51,7 +51,7 @@ try {
                 'categoryLabel' => $categoryLabels[$row['category']] ?? strtoupper($row['category']),
                 'image' => $row['thumbnail_url'],
                 'creator' => '@' . $row['username'],
-                'creatorAvatar' => $row['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1',
+                'creatorAvatar' => $row['avatar_img'] ?? 'Asset/no-profile.jpg',
                 'likes' => (int)$row['likes_count'],
                 'comments' => (int)$row['comments_count'],
                 'description' => $row['description'],

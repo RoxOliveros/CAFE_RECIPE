@@ -30,7 +30,7 @@ try {
                 r.created_at,
                 u.username,
                 u.display_name,
-                u.avatar_url
+                u.avatar_img
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.recipe_id = ?";
@@ -93,7 +93,7 @@ try {
                         c.created_at,
                         u.username,
                         u.display_name,
-                        u.avatar_url
+                        u.avatar_img
                      FROM comments c
                      JOIN users u ON c.user_id = u.user_id
                      WHERE c.recipe_id = ?
@@ -115,7 +115,7 @@ try {
             'id' => $row['comment_id'],
             'author' => $row['display_name'] ?? $row['username'],
             'username' => '@' . $row['username'],
-            'avatar' => $row['avatar_url'] ?? 'https://i.pravatar.cc/150?img=33',
+            'avatar' => $row['avatar_img'] ?? 'Asset/no-profile.jpg',
             'date' => date('Y-m-d', strtotime($row['created_at'])),
             'text' => $row['comment_text']
         ];
@@ -147,7 +147,7 @@ try {
         'creator' => [
             'name' => $recipe['display_name'] ?? $recipe['username'],
             'username' => '@' . $recipe['username'],
-            'avatar' => $recipe['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1',
+            'avatar' => $recipe['avatar_img'] ?? 'Asset/no-profile.jpg',
             'createdDate' => date('Y-m-d', strtotime($recipe['created_at']))
         ],
         'stats' => [

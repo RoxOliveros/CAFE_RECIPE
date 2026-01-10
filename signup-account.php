@@ -9,29 +9,55 @@ require_once 'config/database.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
-        // Get input
-        $username = trim($_POST['username']);
-        $password = trim($_POST['password']);
 
-        if (empty($username) || empty($password)) {
-            throw new Exception("Username and password are required");
+        $conn->begin_transaction();
+
+        // Get input
+        $display_name = trim($_POST['display_name']);
+        $username = trim($_POST['username']);
+        $email = trim($_POST['email']);
+        $password = trim($_POST['password']);
+        $conf_password = trim($_POST['confirm_password']);
+        $avatar = "Asset/no-profile.jpg";
+
+        $hashed_pass = null;
+        if ($password !== $conf_password) {
+            throw new Exception("Passwords does not match");
+        } else {
+            $hashed_pass = password_hash($password, PASSWORD_BCRYPT);
         }
 
-        // 1. Select user by username only (don't check password in SQL)
-        $sql = "SELECT user_id, username, password_hash, display_name, avatar_img FROM users WHERE username = ?";
+        // For signing up
+        $sql = "INSERT INTO users (username, email, password_hash, display_name, avatar_img) VALUES (?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->bind_param("s", $username);
+        $stmt->bind_param("sssss", $username, $email, $hashed_pass, $display_name, $avatar);
         
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        $result = $stmt->get_result();
+        $stmt->close();
+
+        // For logging in after sign up
+        $login_sql = "SELECT user_id, username, password_hash, display_name, avatar_img FROM users WHERE username = ?";
+
+        $login_stmt = $conn->prepare($login_sql);
+        if (!$login_stmt) {
+            throw new Exception("Prepare failed: " . $conn->error);
+        }
+
+        $login_stmt->bind_param("s", $username);
+        
+        if (!$login_stmt->execute()) {
+            throw new Exception("Execute failed: " . $login_stmt->error);
+        }
+
+        $result = $login_stmt->get_result();
 
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
@@ -45,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['display_name'] = $user['display_name'];
                 $_SESSION['avatar_img'] = $user['avatar_img'];
                 
+                $conn->commit();
+
                 echo json_encode([
                     'success' => true,
                     'message' => 'Logged in successfully!'
@@ -56,9 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Invalid username or password");
         }
         
-        $stmt->close();
+        $login_stmt->close();
 
     } catch (Exception $e) {
+        $conn->rollback();
+        
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()

@@ -607,7 +607,7 @@
                     </h2>
                     
                     <div class="comment-box">
-                        <img src="https://i.pravatar.cc/150?img=33" alt="You" class="comment-avatar">
+                        <img id="avatar_img" src="placeholder.png" alt="You" class="comment-avatar">
                         <div class="comment-input">
                             <textarea placeholder="Share your thoughts about this recipe..." id="commentText"></textarea>
                             <button class="comment-submit" onclick="postComment()">Post Comment</button>
@@ -619,6 +619,7 @@
                     </div>
                 </div>
             `;
+            loadProfile();
         }
 
         // Back button
@@ -691,6 +692,20 @@
                     console.error('Error:', error);
                     alert('Failed to post comment');
                 });
+            }
+        }
+
+        // Fetch avatar image
+        async function loadProfile() {
+            try {
+                // Fetch JSON data from backend
+                const response = await fetch('get-user-profile.php');
+                const data = await response.json();
+
+                // Find the image element by id, and set the receive image
+                document.getElementById('avatar_img').src = data.avatar_img;
+            } catch (error) {
+                console.error('Error loading user profile: ', error);
             }
         }
     </script>

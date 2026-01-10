@@ -12,25 +12,25 @@
 <body>
     <div class="auth-container">
     <!-- SIGNUP FORM -->
-        <form id="signupForm">
+        <form id="signupForm" autocomplete="off">
             <div class="auth-header">
                 <h2>Create Account</h2>
                 <p>Join Sweet Creation today</p>
             </div>
 
             <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="display_name" placeholder="Enter name" required>
+                <label>Display Name</label>
+                <input type="text" name="display_name" placeholder="Enter display name" required>
             </div>
 
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" placeholder="Enter Username" required>
+                <input type="text" name="username" placeholder="Enter username" required>
             </div>
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" id="email" placeholder="Enter Email" required>
+                <input type="email" name="email" id="email" placeholder="Enter email" required>
             </div>
 
             <div class="form-group">
@@ -43,7 +43,7 @@
                 <input type="password" name="confirm_password" id="confirmPassword" placeholder="Confirm password" required>
             </div>
 
-            <button type="submit" class="submit-btn">Sign Up</button>
+            <button type="submit" class="submit-btn"">Sign Up</button>
 
             <div class="auth-switch">
                 Already have an account? <a onclick="showLogin()">Login</a>
@@ -57,13 +57,48 @@
     </div>
 
     <script>
-    function showLogin() {
-            window.location.href = 'Login.php';
-        }
+        function showLogin() {
+                window.location.href = 'Login.php';
+            }
 
-    function goHome() {
-            window.location.href = 'homepage.php';
-    }
+        function goHome() {
+                window.location.href = 'homepage.php';
+        }
+    
+        // For signing up
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Show loading message
+            const loginBtn = this.querySelector('.submit-btn');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Signing up...';
+            loginBtn.disabled = true;
+        
+            fetch('signup-account.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('You have signed up successfully! 🎉');
+                    window.location.href = 'homepage.php';
+                } else {
+                    alert('Error: ' + data.message);
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while signing up.');
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            });
+        });
     </script>
 
 </body>
