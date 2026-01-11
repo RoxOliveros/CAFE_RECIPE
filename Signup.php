@@ -6,7 +6,7 @@
     <title>Login & Sign Up - Sweet Creation</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="LoginSignup-style.css">
+    <link rel="stylesheet" href="LoginSignup-style.css?v=<?php echo time(); ?>">
 
 </head>
 <body>
@@ -43,7 +43,25 @@
                 <input type="password" name="confirm_password" id="confirmPassword" placeholder="Confirm password" required>
             </div>
 
-            <button type="submit" class="submit-btn"">Sign Up</button>
+           <div class="form-group">
+                <label>Choose Avatar</label>
+
+                <input type="hidden" name="avatar_img" id="selectedAvatar" value="Asset/no-profile.jpg">
+
+                <div class="avatar-grid">
+                    <img src="Asset/avatar1.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar2.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar3.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar4.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar5.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar6.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar7.jpg" class="avatar-option" onclick="selectAvatar(this)">
+                    <img src="Asset/avatar8.jpg" class="avatar-option" onclick="selectAvatar(this)">
+
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Sign Up</button>
 
             <div class="auth-switch">
                 Already have an account? <a onclick="showLogin()">Login</a>
@@ -99,6 +117,14 @@
                 loginBtn.disabled = false;
             });
         });
+
+        function selectAvatar(img) {
+            document.querySelectorAll('.avatar-option')
+                .forEach(a => a.classList.remove('selected'));
+
+            img.classList.add('selected');
+            document.getElementById('selectedAvatar').value = img.src;
+        }
     </script>
 
 </body>

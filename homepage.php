@@ -1,3 +1,26 @@
+<?php
+// Include database connection and fetch top contributors
+require_once 'config/database.php';
+require_once 'getTopContributors.php';
+
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: Login.php");
+    exit;
+}
+
+// Fetch current user info
+$user_id = $_SESSION['user_id'];
+
+$stmt = $conn->prepare("SELECT username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$currentUser = $result->fetch_assoc();
+$stmt->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +32,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="navbar.css">
-    <link rel="stylesheet" href="homepage-style.css">
+    <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="homepage-style.css?v=<?php echo time(); ?>">
+
 </head>
 
 <body>
@@ -53,10 +77,20 @@
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-                <a href="AboutUs.php">About Us</a>
-                <a href="Login.php" class="login-link">Login</a>
-            </div>
+             <!-- Current User Display -->
+                <a href="Profile.php" class="current-user profile-link">
+                    <img src="<?php 
+                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                    ?>" alt="Avatar" class="navbar-avatar">
+                    <span class="navbar-username">
+                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                    </span>
+                    </a>
 
+                <a href="AboutUs.php">About Us</a>
+                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
+            </div>
         </div>
     </nav>
 
@@ -101,33 +135,88 @@
                     </ul>
                 </div>
 
-                <!-- RIGHT CONTENT -->
-                <div class="col-lg-6">
-                    <p class="top-subtitle">UPDATED DAILY BY THE COMMUNITY</p>
-                    <h2 class="top-title"><span>TOP</span> CONTRIBUTORS</h2>
+        <!-- RIGHT CONTENT - TOP CONTRIBUTORS -->
+        <!-- RIGHT CONTENT - TOP CONTRIBUTORS -->
+<div class="col-lg-6">
+    <p class="top-subtitle">UPDATED DAILY BY THE COMMUNITY</p>
+    <h2 class="top-title"><span>TOP</span> CONTRIBUTORS</h2>
 
-                    <div class="top-list">
-                        <div class="top-item">
-                            <span class="num">1</span>
-                            <button class="bar" onclick=""></button>
-                        </div>
-                        <div class="top-item">
-                            <span class="num">2</span>
-                            <button class="bar" onclick=""></button>
-                        </div>
-                        <div class="top-item">
-                            <span class="num">3</span>
-                            <button class="bar" onclick=""></button>
+    <div class="top-list">
+        <?php if ($contributorCount === 0): ?>
+            <!-- No contributors yet -->
+            <div class="no-contributors">
+                <i class="bi bi-trophy"></i>
+                <p>
+                    No contributors yet.<br>
+                    Be the first to <a href="YourCreation.php">create a recipe</a>!
+                </p>
+            </div>
+        <?php else: ?>
+            <?php 
+            // Show top 3 slots (fill empty ones with placeholders)
+            for ($i = 0; $i < 3; $i++): 
+                if ($i < $contributorCount):
+                    $contributor = $topContributors[$i];
+                    $barWidth = ($contributor['recipe_count'] / $maxCount) * 100;
+                    $barWidth = max($barWidth, 30);
+                    
+                    $avatar = !empty($contributor['avatar_img'])
+                        ? htmlspecialchars($contributor['avatar_img'])
+                        : 'https://ui-avatars.com/api/?name=' 
+                            . urlencode($contributor['display_name'] ?? $contributor['username']) 
+                            . '&background=ff6b9d&color=fff&bold=true&size=128';
+
+                    $displayName = htmlspecialchars($contributor['display_name'] ?? $contributor['username']);
+            ?>
+                    <div class="top-item" data-rank="<?php echo $i + 1; ?>">
+                        <span class="num"><?php echo $i + 1; ?></span>
+                        <button 
+                            class="bar rank-<?php echo $i + 1; ?>" 
+                            style="width: <?php echo $barWidth; ?>%;"
+                            onclick="viewProfile(<?php echo $contributor['user_id']; ?>)"
+                            title="View <?php echo $displayName; ?>'s profile">
+
+                            <img src="<?php echo $avatar; ?>" 
+                                 alt="<?php echo $displayName; ?>" 
+                                 class="contributor-avatar"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($displayName); ?>&background=ff6b9d&color=fff&bold=true';">
+                            <span class="contributor-name"><?php echo $displayName; ?></span>
+                            <span class="recipe-count">
+                                <?php echo $contributor['recipe_count']; ?> 
+                                <?php echo $contributor['recipe_count'] == 1 ? 'recipe' : 'recipes'; ?>
+                            </span>
+                        </button>
+                    </div>
+            <?php else: ?>
+                    <div class="top-item top-item-empty" data-rank="<?php echo $i + 1; ?>">
+                        <span class="num num-empty"><?php echo $i + 1; ?></span>
+                        <div class="bar bar-empty rank-<?php echo $i + 1; ?>">
+                            <div class="contributor-avatar-placeholder">
+                                <i class="bi bi-question-circle"></i>
+                            </div>
+                            <span class="contributor-name">
+                                <?php 
+                                    if ($contributorCount === 1) {
+                                        echo $i === 1 ? "Second place awaits..." : "Third place awaits...";
+                                    } else {
+                                        echo "Third place awaits...";
+                                    }
+                                ?>
+                            </span>
+                            <span class="recipe-count">0 recipes</span>
                         </div>
                     </div>
-                    <div class="pagination">
-                        <span>&lt;</span>
-                        <strong>1</strong>
-                        <span>20</span>
-                        <span>&gt;</span>
-                    </div>
-                </div>
-    </section>
+            <?php 
+                endif;
+            endfor; 
+            ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+</div>
+</div>
+</section>
 
     <!-- creator recommendation-->
     <section class="creator-reco-section">
@@ -136,100 +225,46 @@
                 <h2 class="creator-reco-title">
                     <span>CREATOR'S</span> RECOMMENDATIONS
                 </h2>
-                </h2>
             </div>
 
-            <div class="carousel-wrapper">
-                <!-- LEFT ARROW -->
-                <button class="nav-btn left" onclick="moveSlide(-1)">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <div class="carousel-viewport">
-                    <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-wrapper">
 
-                        <div class="food-card">
-                            <img src="Asset/sweetcreation1.jpg" alt="Sweet Creation">
-                            <h5 class="card-title mt-3">Sweet Creation</h5>
-                            <button class="readmore-btn" onclick="">Read More</button>
-                            <div class="card-actions">
-                                <button class="favorite-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                        </div>
+                    <button class="nav-btn left" onclick="moveSlide(-1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
 
-                        <div class="food-card active">
-                            <img src="Asset/sweetcreation1.jpg" alt="Sweet Creation">
-                            <h5 class="card-title mt-3">Sweet Creation</h5>
-                            <button class="readmore-btn" onclick="">Read More</button>
-                            <div class="card-actions">
-                                <button class="favorite-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <div class="food-card">
-                            <img src="Asset/sweetcreation1.jpg" alt="Sweet Creation">
-                            <h5 class="card-title mt-3">Sweet Creation</h5>
-                            <button class="readmore-btn" onclick="">Read More</button>
-                            <div class="card-actions">
-                                <button class="favorite-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="food-card">
-                            <img src="Asset/sweetcreation1.jpg" alt="Sweet Creation">
-                            <h5 class="card-title mt-3">Sweet Creation</h5>
-                            <button class="readmore-btn" onclick="">Read More</button>
-                            <div class="card-actions">
-                                <button class="favorite-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="food-card">
-                            <img src="Asset/sweetcreation1.jpg" alt="Sweet Creation">
-                            <h5 class="card-title mt-3">Sweet Creation</h5>
-                            <button class="readmore-btn" onclick="">Read More</button>
-                            <div class="card-actions">
-                                <button class="favorite-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="carousel-viewport">
+                        <div class="carousel-track" id="carouselTrack"></div>
+                        <div id="noRecipesMessage" class="no-recipes-message" style="display:none;"></div>
                     </div>
+
+                    <button class="nav-btn right" onclick="moveSlide(1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
                 </div>
-                <!-- RIGHT ARROW -->
-                <button class="nav-btn right" onclick="moveSlide(1)">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
 
             <!-- btns for desserts -->
-            <div class="carousel-icons">
-                <button class="icon-btn">
-                    <img src="Asset/cupcake.png" alt="Cupcake/Cake">
-                </button>
-                <button class="icon-btn">
-                    <img src="Asset/pie.png" alt="Pie/Tart">
-                </button>
-                <button class="icon-btn">
-                    <img src="Asset/frozen.png" alt="Ice Cream">
-                </button>
-                <button class="icon-btn">
-                    <img src="Asset/pudding.png" alt="Pudding">
-                </button>
-                <button class="icon-btn">
-                    <img src="Asset/cookies.png" alt="Cookie">
-                </button>
-            </div>
-
-    </section>
+            <!-- btns for desserts -->
+                <div class="carousel-icons">
+                    <button class="icon-btn" data-category="cakes" data-tooltip="Cakes & Cupcakes">
+                        <img src="Asset/cupcake.png" alt="Cupcake/Cake">
+                    </button>
+                    <button class="icon-btn" data-category="pies" data-tooltip="Pies & Tarts">
+                        <img src="Asset/pie.png" alt="Pie/Tart">
+                    </button>
+                    <button class="icon-btn" data-category="frozen" data-tooltip="Frozen Desserts">
+                        <img src="Asset/frozen.png" alt="Ice Cream">
+                    </button>
+                    <button class="icon-btn" data-category="custards" data-tooltip="Custards & Puddings">
+                        <img src="Asset/pudding.png" alt="Pudding">
+                    </button>
+                    <button class="icon-btn" data-category="cookies" data-tooltip="Cookies & Bars">
+                        <img src="Asset/cookies.png" alt="Cookie">
+                    </button>
+</div>
+</div>
+</section>
 
     <!-- our people section-->
     <section class="our-people-section">
@@ -253,7 +288,7 @@
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/rox1.png" class="people-img" alt="Person">
+                            <img src="Asset/rox.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>OLIVEROS<br><span>ROXANNE</span></h3>
                                 <p>FRONT END DEV</p>
@@ -261,7 +296,7 @@
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/jobs1.png" class="people-img" alt="Person">
+                            <img src="Asset/jobs.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>ARAW<br><span>JOBEL</span></h3>
                                 <p>FRONT END DEV</p>
@@ -277,19 +312,19 @@
 
                 <!-- RIGHT : TEXT + AVATARS -->
                 <div class="col-lg-5">
-                    <h2 class="our-people-title">OUR PEOPLE</h2>
-                    <p class="our-people-text">
-                        Start Saving These Sweets! Start Saving These Sweets!
-                        Start Saving These Sweets! Start Saving These Sweets!
-                    </p>
+                    <h2 class="our-people-title">OUR <span>PEOPLE</span></h2>
+                    <div class="people-texts">
+                        <p class="our-people-text" data-index="0">Hi, I'm Von!</p>
+                        <p class="our-people-text" data-index="1">Hi, I'm Rox!</p>
+                        <p class="our-people-text" data-index="2">Hi, I'm Jobs!</p>
+                    </div>
 
                     <div class="people-avatars">
-                        <img src="Asset/people circle.jpg">
-                        <img src="Asset/people circle.jpg">
-                        <img src="Asset/people circle.jpg">
+                        <img src="Asset/vonavatar.jpg" alt="Von">
+                        <img src="Asset/roxavatar.jpg" alt="Rox">
+                        <img src="Asset/jobsavatar.jpg" alt="Jobs">
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
@@ -413,117 +448,240 @@
 
     
     // menubar
-    function toggleMenu() {
+    // Close hamburger menu
+function toggleMenu() {
     const menu = document.getElementById("hamburgerMenu");
     menu.classList.toggle("active");
-    }
+}
 
-    // Close menu when a link is clicked
-    const links = document.querySelectorAll("#hamburgerMenu a");
-    links.forEach(link => {
+// Logout function (GLOBAL)
+function logoutUser() {
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    
+    if (confirmLogout) {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+        window.location.href = "Logout.php";
+    }
+}
+
+// Close menu when clicking any menu link EXCEPT logout
+document.querySelectorAll("#hamburgerMenu a").forEach(link => {
     link.addEventListener("click", () => {
         document.getElementById("hamburgerMenu").classList.remove("active");
     });
+});
+
+    
+
+// carousel script
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('carouselTrack');
+    const gap = 30;
+    let cards = [];
+    let isMoving = false;
+    let autoplayInterval;
+
+    let allRecipes = [];
+    let currentCategory = 'all';
+
+    const categoryButtons = document.querySelectorAll('.carousel-icons .icon-btn');
+
+    // Fetch recipes
+    fetch('get-recipes.php')
+        .then(res => res.json())
+        .then(data => {
+            allRecipes = data;
+            renderCarousel(filterRecipes(currentCategory));
+        })
+        .catch(err => console.error(err));
+
+    // Category button click
+    categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentCategory = btn.getAttribute('data-category');
+            categoryButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCarousel(filterRecipes(currentCategory));
+        });
     });
 
+    function filterRecipes(category) {
+        return category === 'all' ? allRecipes : allRecipes.filter(r => r.category === category);
+    }
 
-        // Carousel script
-        const track = document.getElementById("carouselTrack");
-        const gap = 30;
+    function renderCarousel(recipes) {
+        const messageEl = document.getElementById('noRecipesMessage');
+        track.innerHTML = ''; // clear cards
+        messageEl.style.display = 'none'; // hide message by default
 
-        let cards = [...document.querySelectorAll(".food-card")];
-        let isMoving = false;
-
-        function cardWidth() {
-            return cards[0].offsetWidth + gap;
+        if (recipes.length === 0) {
+            messageEl.innerHTML = `
+                No recipes yet for this category. 
+                <a href="YourCreation.php">Add your recipe!</a>
+            `;
+            messageEl.style.display = 'block';
+            cards = []; // carousel knows there's nothing to scroll
+            return;
         }
 
-        function setActive() {
-            cards.forEach(card => card.classList.remove("active"));
-            cards[1].classList.add("active"); // ALWAYS center card
-        }
+        recipes.forEach(recipe => {
+            const card = document.createElement('div');
+            card.className = 'food-card';
+            card.innerHTML = `
+                <img src="${recipe.image}" alt="${recipe.title}">
+                <h5 class="card-title mt-3">${recipe.title}</h5>
+                <button class="readmore-btn" onclick="viewRecipe(${recipe.id})">Read More</button>
+                <button class="favorite-btn"><i class="bi bi-heart"></i></button>
+            `;
+            track.appendChild(card);
+        });
 
-        function moveNext() {
-            if (isMoving) return;
-            isMoving = true;
+        cards = [...track.children];
+        
+        // Initialize position to 0
+        track.style.transform = 'translateX(0)';
+        track.style.transition = 'none';
+        
+        startAutoplay();
+    }
 
-            track.style.transform = `translateX(-${cardWidth()}px)`;
-            track.addEventListener("transitionend", () => {
-                track.style.transition = "none";
-                track.appendChild(cards[0]);
-                track.style.transform = "translateX(0)";
+    function cardWidth() {
+        return cards[0] ? cards[0].offsetWidth + gap : 0;
+    }
 
-                cards = [...document.querySelectorAll(".food-card")];
-                setActive();
+    function moveNext() {
+        if (isMoving || cards.length === 0) return;
+        isMoving = true;
+        
+        const w = cardWidth();
+        
+        // Smoothly slide left
+        track.style.transition = 'transform 0.5s ease';
+        track.style.transform = `translateX(-${w}px)`;
 
-                track.offsetHeight;
-                track.style.transition = "transform 0.5s ease";
+        setTimeout(() => {
+            // Move first card to end
+            track.appendChild(track.firstElementChild);
+            cards = [...track.children];
+            
+            // Reset position instantly (no transition)
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0)';
+            
+            // Allow next move
+            setTimeout(() => {
                 isMoving = false;
-            }, { once: true });
-        }
+            }, 50);
+        }, 500);
+    }
 
-        function movePrev() {
-            if (isMoving) return;
-            isMoving = true;
+    function movePrev() {
+        if (isMoving || cards.length === 0) return;
+        isMoving = true;
 
-            track.style.transition = "none";
-            track.prepend(cards[cards.length - 1]);
-            track.style.transform = `translateX(-${cardWidth()}px)`;
+        const w = cardWidth();
+        
+        // Move last card to front instantly
+        track.style.transition = 'none';
+        track.prepend(track.lastElementChild);
+        cards = [...track.children];
+        
+        // Position track to show the prepended card is off-screen to the left
+        track.style.transform = `translateX(-${w}px)`;
 
-            track.offsetHeight;
-            track.style.transition = "transform 0.5s ease";
-            track.style.transform = "translateX(0)";
+        // Force reflow to ensure the instant position change is applied
+        track.offsetHeight;
 
-            track.addEventListener("transitionend", () => {
-                cards = [...document.querySelectorAll(".food-card")];
-                setActive();
+        setTimeout(() => {
+            // Smoothly slide right to show the prepended card
+            track.style.transition = 'transform 0.5s ease';
+            track.style.transform = 'translateX(0)';
+            
+            setTimeout(() => {
                 isMoving = false;
-            }, { once: true });
-        }
-        setActive();
+            }, 500);
+        }, 50);
+    }
 
-        function moveSlide(dir) {
-            dir === 1 ? moveNext() : movePrev();
-        }
-        setInterval(moveNext, 6000);
+    function startAutoplay() {
+        stopAutoplay();
+        autoplayInterval = setInterval(moveNext, 5000);
+    }
+
+    function stopAutoplay() {
+        if (autoplayInterval) clearInterval(autoplayInterval);
+    }
+
+    window.moveSlide = function(dir) {
+        stopAutoplay();
+        dir === 1 ? moveNext() : movePrev();
+        setTimeout(startAutoplay, 500);
+    }
+
+    window.viewRecipe = function(id) {
+        window.location.href = `ViewRecipe.php?id=${id}`;
+    }
+
+    track.addEventListener('mouseenter', stopAutoplay);
+    track.addEventListener('mouseleave', startAutoplay);
+    window.addEventListener('resize', () => {
+        // Reset position on resize
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+    });
+});
 
 
         /* our people script */
-        const avatarButtons = document.querySelectorAll(".people-avatars img");
-        const peopleCards = document.querySelectorAll(".people-card");
+const avatarButtons = document.querySelectorAll(".people-avatars img");
+const peopleCards = document.querySelectorAll(".people-card");
+const peopleTexts = document.querySelectorAll(".our-people-text");
 
-        let currentIndex = 0;
+let currentIndex = 0;
 
-        function showPerson(index) {
-            peopleCards.forEach((card, i) => {
-                card.style.display = i === index ? "flex" : "none";
-            });
+function showPerson(index) {
+    // Show the correct card
+    peopleCards.forEach((card, i) => {
+        card.style.display = i === index ? "block" : "none";
+    });
 
-            avatarButtons.forEach((avatar, i) => {
-                avatar.style.opacity = i === index ? "1" : "0.5";
-                avatar.style.transform = i === index ? "scale(1.1)" : "scale(1)";
-            });
+    // Highlight the avatar
+    avatarButtons.forEach((avatar, i) => {
+        avatar.style.opacity = i === index ? "1" : "0.5";
+        avatar.style.transform = i === index ? "scale(1.1)" : "scale(1)";
+    });
 
-            currentIndex = index;
-        }
+    // Show the correct text
+    peopleTexts.forEach((text, i) => {
+        text.style.display = i === index ? "block" : "none";
+    });
 
-        avatarButtons.forEach((avatar, index) => {
-            avatar.style.cursor = "pointer";
-            avatar.addEventListener("click", () => {
-                showPerson(index);
-            });
-        });
+    currentIndex = index;
+}
 
-        function peopleNext() {
-            currentIndex = (currentIndex + 1) % peopleCards.length;
-            showPerson(currentIndex);
-        }
 
-        function peoplePrev() {
-            currentIndex = (currentIndex - 1 + peopleCards.length) % peopleCards.length;
-            showPerson(currentIndex);
-        }
-        showPerson(0);
+// Click avatars to change person
+avatarButtons.forEach((avatar, index) => {
+    avatar.style.cursor = "pointer";
+    avatar.addEventListener("click", () => {
+        showPerson(index);
+    });
+});
+
+// Carousel buttons
+function peopleNext() {
+    currentIndex = (currentIndex + 1) % peopleCards.length;
+    showPerson(currentIndex);
+}
+
+function peoplePrev() {
+    currentIndex = (currentIndex - 1 + peopleCards.length) % peopleCards.length;
+    showPerson(currentIndex);
+}
+
+// Initial display
+showPerson(0);
+
     </script>
 </body>
 </html>

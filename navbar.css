@@ -53,6 +53,10 @@
                 cursor: pointer;
             }
 
+            .navbar-toggler {
+                display: none !important;
+            }
+
             .hamburger span {
                 height: 4px;
                 width: 100%;
@@ -64,7 +68,7 @@
             .hamburger-menu {
                 position: absolute;
                 top: 80px;
-                right: 30px;
+                right: 80px;
                 background: #ffffff;
                 border-radius: 15px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -100,3 +104,33 @@
                 background: rgba(255,255,255,0.4) !important;
                 transform: scale(1.1) !important;
             }
+
+            /* Navbar user display */
+            .current-user {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 0;
+            }
+
+            .current-user:hover {
+                cursor: pointer;
+            }
+
+            .navbar-avatar {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .navbar-username {
+                color: #6b300a;
+                font-weight: 500;
+                font-size: 14px;
+            }
+
+            .current-user:hover {
+                cursor: pointer;
+            }
+

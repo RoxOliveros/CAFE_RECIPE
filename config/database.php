@@ -2,7 +2,7 @@
 // Database configuration
 $DBHost = 'localhost';
 $DBUser = 'root';
-$DBPass = 'roxie_123';
+$DBPass = '';
 $DBName = 'sweet_creation';
 
 // Create connection

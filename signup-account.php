@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $conf_password = trim($_POST['confirm_password']);
-        $avatar = "Asset/no-profile.jpg";
+        $avatar = $_POST['avatar_img'] ?? "Asset/no-profile.jpg";
 
         $hashed_pass = null;
         if ($password !== $conf_password) {

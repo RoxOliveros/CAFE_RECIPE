@@ -1,3 +1,26 @@
+<?php
+// Include database connection and fetch top contributors
+require_once 'config/database.php';
+require_once 'getTopContributors.php';
+
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: Login.php");
+    exit;
+}
+
+// Fetch current user info
+$user_id = $_SESSION['user_id'];
+
+$stmt = $conn->prepare("SELECT username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$currentUser = $result->fetch_assoc();
+$stmt->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +32,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="aboutus-style.css"> 
 </head>
 
@@ -54,8 +77,19 @@
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
+             <!-- Current User Display -->
+                <a href="Profile.php" class="current-user profile-link">
+                    <img src="<?php 
+                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                    ?>" alt="Avatar" class="navbar-avatar">
+                    <span class="navbar-username">
+                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                    </span>
+                    </a>
+
                 <a href="AboutUs.php">About Us</a>
-                <a href="Login.php" class="login-link">Login</a>
+                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
             </div>
         </div>
     </nav>
@@ -312,19 +346,29 @@
             }
         });
 
-    // menubar
-    function toggleMenu() {
+     // menubar
+    // Close hamburger menu
+function toggleMenu() {
     const menu = document.getElementById("hamburgerMenu");
     menu.classList.toggle("active");
-    }
+}
 
-    // Close menu when a link is clicked
-    const links = document.querySelectorAll("#hamburgerMenu a");
-    links.forEach(link => {
+// Logout function (GLOBAL)
+function logoutUser() {
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    
+    if (confirmLogout) {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+        window.location.href = "Logout.php";
+    }
+}
+
+// Close menu when clicking any menu link EXCEPT logout
+document.querySelectorAll("#hamburgerMenu a").forEach(link => {
     link.addEventListener("click", () => {
         document.getElementById("hamburgerMenu").classList.remove("active");
     });
-    });
+});
 </script>
 </body>
 </html>

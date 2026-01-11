@@ -1,15 +1,18 @@
 <?php
+session_start(); // ✅ REQUIRED
 header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once 'config/database.php';
 
-// For now, use demo user ID (replace with actual logged-in user later)
-// $user_id = 1;
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['error' => 'User not logged in']);
+    exit;
+}
 
-// Changed to user currently logged in
 $user_id = $_SESSION['user_id'];
+
 
 try {
     // Get user's recipes with stats
@@ -54,11 +57,11 @@ try {
                 'id' => (int)$row['recipe_id'],
                 'title' => $row['title'],
                 'category' => $categoryMap[$row['category']] ?? ucfirst($row['category']),
-                'image' => $row['thumbnail_url'],
-                'time' => $row['cooking_time'],
+                'image' => $row['thumbnail_url'] ?: 'Asset/default-recipe.jpg',
+                'time' => $row['cooking_time'] . ' mins',
                 'servings' => (int)$row['servings'],
                 'likes' => (int)$row['likes_count'],
-                'saves' => 0, // Add saves logic later if needed
+                'saves' => 0,
                 'comments' => (int)$row['comments_count'],
                 'createdDate' => date('Y-m-d', strtotime($row['created_at'])),
                 'visibility' => $row['visibility']

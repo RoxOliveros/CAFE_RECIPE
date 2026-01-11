@@ -35,7 +35,7 @@ if ($result->num_rows === 1) {
     $_SESSION['username'] = $user['username'];
     $_SESSION['email'] = $user['email'];
     $_SESSION['display_name'] = $user['display_name'];
-    $_SESSION['avatar_img'] = $user['avatar_img'];
+    $_SESSION['avatar_url'] = $user['avatar_img'];
     $_SESSION['bio'] = $user['bio'];
     $_SESSION['created_at'] = $user['created_at'];
     
