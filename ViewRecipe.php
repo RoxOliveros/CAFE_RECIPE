@@ -152,7 +152,7 @@
         }
 
         .btn-like {
-            background: #fde8e8;
+            background: #fde8e8; 
             color: #e74c3c;
         }
 
@@ -440,6 +440,7 @@
 
     <script>
         // Get recipe ID from URL
+
         const urlParams = new URLSearchParams(window.location.search);
         const recipeId = urlParams.get('id');
 
@@ -525,6 +526,9 @@
                     `;
                 }
             }
+
+            // Check the liked state from the database
+            const likedClass = recipe.isLiked ? 'active' : '';
             
             container.innerHTML = `
                 <!-- HEADER -->
@@ -560,7 +564,7 @@
                         </div>
                         
                         <div class="recipe-actions">
-                            <button class="action-button btn-like" onclick="toggleLike()" id="likeBtn">
+                            <button class="action-button btn-like ${likedClass}" onclick="toggleLike()" id="likeBtn">
                                 <i class="bi bi-heart-fill"></i>
                                 <span class="action-count" id="likeCount">${recipe.stats.likes}</span>
                             </button>
@@ -631,15 +635,32 @@
         function toggleLike() {
             const btn = document.getElementById('likeBtn');
             const count = document.getElementById('likeCount');
+
             let currentCount = parseInt(count.textContent);
+            let action = '';
             
             if (btn.classList.contains('active')) {
                 btn.classList.remove('active');
                 count.textContent = currentCount - 1;
+                action = 'remove-like';
             } else {
                 btn.classList.add('active');
                 count.textContent = currentCount + 1;
+                action = 'add-like';
             }
+            
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            }
+
+            fetch('add-remove-like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
             
             // Send to backend (implement later)
             // fetch('like-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeId }) });

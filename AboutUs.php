@@ -1,26 +1,3 @@
-<?php
-// Include database connection and fetch top contributors
-require_once 'config/database.php';
-require_once 'getTopContributors.php';
-
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Login.php");
-    exit;
-}
-
-// Fetch current user info
-$user_id = $_SESSION['user_id'];
-
-$stmt = $conn->prepare("SELECT username, display_name, avatar_img FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$currentUser = $result->fetch_assoc();
-$stmt->close();
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,12 +56,12 @@ $stmt->close();
             <div class="hamburger-menu" id="hamburgerMenu">
              <!-- Current User Display -->
                 <a href="Profile.php" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                    <img src="<?php session_start();
+                        echo !empty($_SESSION['avatar_img']) ? htmlspecialchars($_SESSION['avatar_img']) : 
+                            'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['display_name'] ?? $_SESSION['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
                     ?>" alt="Avatar" class="navbar-avatar">
                     <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                        <?php echo htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']); ?>
                     </span>
                     </a>
 

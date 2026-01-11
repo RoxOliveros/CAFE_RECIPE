@@ -36,10 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($delete_stmt->execute()) {
             echo json_encode(['success' => true]);
+            
+            // Reset AUTO_INCREMENT in recipe, instructions, and ingredients
+            $conn->query("ALTER TABLE recipes AUTO_INCREMENT = 1");
+            $conn->query("ALTER TABLE instructions AUTO_INCREMENT = 1");
+            $conn->query("ALTER TABLE ingredients AUTO_INCREMENT = 1");
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to delete recipe']);
         }
-        
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }

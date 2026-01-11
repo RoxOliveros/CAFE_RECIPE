@@ -3,7 +3,10 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+session_start();
 require_once 'config/database.php';
+
+$user_id = $_SESSION['user_id'];
 
 // Get recipe ID from URL
 $recipe_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -30,7 +33,8 @@ try {
                 r.created_at,
                 u.username,
                 u.display_name,
-                u.avatar_img
+                u.avatar_img,
+                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.recipe_id = ?";
@@ -41,7 +45,7 @@ try {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     
-    $stmt->bind_param("i", $recipe_id);
+    $stmt->bind_param("ii", $user_id, $recipe_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -157,7 +161,8 @@ try {
         ],
         'ingredients' => $ingredients,
         'instructions' => $instructions,
-        'comments' => $comments
+        'comments' => $comments,
+        'isLiked' => (bool)$recipe['user_liked']
     ];
     
     // Handle video URL

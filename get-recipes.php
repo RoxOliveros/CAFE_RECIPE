@@ -3,7 +3,10 @@ header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+session_start();
 require_once 'config/database.php';
+
+$user_id = $_SESSION['user_id'];
 
 try {
     // Get all public recipes with user info
@@ -20,17 +23,17 @@ try {
                 r.created_at,
                 u.username,
                 u.display_name,
-                u.avatar_img
+                u.avatar_img,
+                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.visibility = 'public'
-            ORDER BY r.created_at DESC";
+            ORDER BY user_liked DESC, r.created_at DESC";
 
-    $result = $conn->query($sql);
-
-    if (!$result) {
-        throw new Exception($conn->error);
-    }
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     $recipes = [];
     if ($result->num_rows > 0) {
@@ -55,7 +58,8 @@ try {
                 'likes' => (int)$row['likes_count'],
                 'comments' => (int)$row['comments_count'],
                 'description' => $row['description'],
-                'time' => $row['cooking_time']
+                'time' => $row['cooking_time'],
+                'isLiked' => (bool)$row['user_liked']
             ];
         }
     }

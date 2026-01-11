@@ -1,25 +1,3 @@
-<?php
-// Include database connection and fetch top contributors
-require_once 'config/database.php';
-require_once 'getTopContributors.php';
-
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Login.php");
-    exit;
-}
-
-// Fetch current user info
-$user_id = $_SESSION['user_id'];
-
-$stmt = $conn->prepare("SELECT username, display_name, avatar_img FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$currentUser = $result->fetch_assoc();
-$stmt->close();
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,12 +55,12 @@ $stmt->close();
             <div class="hamburger-menu" id="hamburgerMenu">
              <!-- Current User Display -->
                 <a href="Profile.php" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                    <img src="<?php session_start();
+                        echo !empty($_SESSION['avatar_img']) ? htmlspecialchars($_SESSION['avatar_img']) : 
+                            'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['display_name'] ?? $_SESSION['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
                     ?>" alt="Avatar" class="navbar-avatar">
                     <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                        <?php echo htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']); ?>
                     </span>
                     </a>
 
@@ -250,13 +228,17 @@ $stmt->close();
 
         // Function to create recipe card HTML
         function createRecipeCard(recipe) {
+            // Check the liked state from the database
+            const likedClass = recipe.isLiked ? 'active' : '';
+            const heartIcon = recipe.isLiked ? 'bi-heart-fill' : 'bi-heart';
+
             return `
                 <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
                     <div class="recipe-image-container">
                         <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
                         <span class="recipe-category-badge">${recipe.categoryLabel}</span>
-                        <div class="recipe-heart" onclick="toggleHeart(event, this)">
-                            <i class="bi bi-heart"></i>
+                        <div class="recipe-heart ${likedClass}" onclick="toggleHeart(event, this)">
+                            <i class="bi ${heartIcon}"></i>
                         </div>
                     </div>
                     <div class="recipe-content">
@@ -308,28 +290,28 @@ $stmt->close();
         });
 
         // menubar
-    // Close hamburger menu
-function toggleMenu() {
-    const menu = document.getElementById("hamburgerMenu");
-    menu.classList.toggle("active");
-}
+        // Close hamburger menu
+        function toggleMenu() {
+            const menu = document.getElementById("hamburgerMenu");
+            menu.classList.toggle("active");
+        }
 
-// Logout function (GLOBAL)
-function logoutUser() {
-    const confirmLogout = confirm("Are you sure you want to logout?");
-    
-    if (confirmLogout) {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-        window.location.href = "Logout.php";
-    }
-}
+        // Logout function (GLOBAL)
+        function logoutUser() {
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            
+            if (confirmLogout) {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+                window.location.href = "Logout.php";
+            }
+        }
 
-// Close menu when clicking any menu link EXCEPT logout
-document.querySelectorAll("#hamburgerMenu a").forEach(link => {
-    link.addEventListener("click", () => {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-    });
-});
+        // Close menu when clicking any menu link EXCEPT logout
+        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+            });
+        });
 
 
         // Filter dropdown toggle
@@ -407,17 +389,32 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
             const icon = element.querySelector('i');
             const card = element.closest('.recipe-card');
             const likesElement = card.querySelector('.likes-count');
+            const recipeId = card.getAttribute('data-id');
+
             let currentLikes = parseInt(likesElement.textContent);
-            
-            if (element.classList.contains('active')) {
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill');
+            let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
+
+            // Update UI immediately for responsiveness
+            if (action === 'add-like') {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
                 likesElement.textContent = currentLikes + 1;
             } else {
-                icon.classList.remove('bi-heart-fill');
-                icon.classList.add('bi-heart');
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
                 likesElement.textContent = currentLikes - 1;
             }
+            
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            }
+
+            fetch('add-remove-like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
         }
 
         // View recipe function (you can implement this later)
