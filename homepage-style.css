@@ -248,7 +248,11 @@
     padding: 0 26px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;  /* ADD THIS */
+    border: none;        /* ADD THIS */
+    cursor: pointer;     /* Optional: makes it clear it's clickable */
 }
+
 
 /* Rank Colors */
 
