@@ -79,7 +79,7 @@
             <!-- STATS CARDS -->
             <div class="stats-container">
                 <div class="stat-card">
-                    <i class="bi bi-file-earmark-text stat-icon"></i>
+                    <i class="bi bi-file-earmark-text-fill stat-icon"></i>
                     <div class="stat-number">5</div>
                     <div class="stat-label">Total Recipes</div>
                 </div>
@@ -121,11 +121,34 @@
                 </div>
 
                 <!-- Empty State (shown when no recipes) -->
-                <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state" id="emptyRecipe" style="display: none;">
                     <i class="bi bi-inbox empty-icon"></i>
                     <h3 class="empty-title">No Recipes Yet</h3>
                     <p class="empty-text">Start creating your first recipe and share it with the community!</p>
                     <button class="empty-btn" onclick="createNewRecipe()">Create Your First Recipe</button>
+                </div>
+            </div>
+
+            <br>
+
+            <!-- BOOKMARKS -->
+            <div class="my-recipes-container">
+                <h2 class="section-header">
+                    <i class="bi bi-journal-bookmark"></i>
+                    Bookmarks
+                </h2>
+
+                <!-- Bookmark Cards -->
+                <div id="bookmarksList">
+                    <!-- Cards will be generated here -->
+                </div>
+
+                <!-- Empty State (shown when no recipes) -->
+                <div class="empty-state" id="emptyBookmark" style="display: none;">
+                    <i class="bi bi-bookmark empty-icon"></i>
+                    <h3 class="empty-title">No Bookmarks Yet</h3>
+                    <p class="empty-text">Start saving your first recipe and look it up later!</p>
+                    <button class="empty-btn" onclick="saveNewRecipe()">Save Your First Recipe</button>
                 </div>
             </div>
         </div>
@@ -248,28 +271,28 @@
         });
 
         // menubar
-    // Close hamburger menu
-function toggleMenu() {
-    const menu = document.getElementById("hamburgerMenu");
-    menu.classList.toggle("active");
-}
+        // Close hamburger menu
+        function toggleMenu() {
+            const menu = document.getElementById("hamburgerMenu");
+            menu.classList.toggle("active");
+        }
 
-// Logout function (GLOBAL)
-function logoutUser() {
-    const confirmLogout = confirm("Are you sure you want to logout?");
-    
-    if (confirmLogout) {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-        window.location.href = "Logout.php";
-    }
-}
+        // Logout function (GLOBAL)
+        function logoutUser() {
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            
+            if (confirmLogout) {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+                window.location.href = "Logout.php";
+            }
+        }
 
-// Close menu when clicking any menu link EXCEPT logout
-document.querySelectorAll("#hamburgerMenu a").forEach(link => {
-    link.addEventListener("click", () => {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-    });
-});
+        // Close menu when clicking any menu link EXCEPT logout
+        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+            });
+        });
 
 
         let userRecipes = [];
@@ -280,13 +303,30 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
             .then(data => {
                 if (data.error) {
                     console.error(data.error);
-                    document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('emptyRecipe').style.display = 'block';
                     return;
                 }
 
                 userRecipes = data.recipes;
                 updateStats(data.stats);
                 renderRecipes();
+            })
+            .catch(err => console.error(err));
+            
+        let userBookmarks = [];
+
+        // Fetch user's bookmarked recipes from database
+        fetch('get-user-bookmarks.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyBookmark').style.display = 'block';
+                    return;
+                }
+
+                userBookmarks = data.bookmarks;
+                renderBookmarks();
             })
             .catch(err => console.error(err));
 
@@ -374,6 +414,116 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
                 </div>
             `;
         }
+        
+        // Function to create bookmarked recipe card HTML
+        function createBookmarkCard(recipe) {
+            const visibilityConfig = {
+                public: { icon: 'bi-globe', label: 'Public', class: 'visibility-public' },
+                followers: { icon: 'bi-people-fill', label: 'Followers Only', class: 'visibility-followers' },
+                private: { icon: 'bi-lock-fill', label: 'Private', class: 'visibility-private' }
+            };
+            
+            const visibility = visibilityConfig[recipe.visibility] || visibilityConfig.public;
+            const isPrivate = recipe.visibility === 'private';
+            
+            // Only show stats for public and followers recipes
+            const statsHTML = !isPrivate ? `
+                <div class="recipe-card-stats">
+                    <div class="stat-mini">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>${recipe.likes}</span>
+                    </div>
+                    <div class="stat-mini">
+                        <i class="bi bi-bookmark-fill"></i>
+                        <span>${recipe.saves}</span>
+                    </div>
+                    <div class="stat-mini">
+                        <i class="bi bi-chat-fill"></i>
+                        <span>${recipe.comments}</span>
+                    </div>
+                </div>
+            ` : '';
+
+            return `
+                <div class="my-recipe-card">
+                    <div class="recipe-card-content">
+                        <img src="${recipe.image}" alt="${recipe.title}" class="recipe-thumbnail">
+                        
+                        <div class="recipe-details">
+                            <div class="visibility-badge ${visibility.class}">
+                                <i class="bi ${visibility.icon}"></i>
+                                <span>${visibility.label}</span>
+                            </div>
+                            <h3 class="recipe-card-title">${recipe.title}</h3>
+                            
+                            <div class="recipe-card-meta">
+                                <div class="meta-item">
+                                    <i class="bi bi-tag"></i>
+                                    <span>${recipe.category}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>${recipe.time}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-people"></i>
+                                    <span>${recipe.servings} servings</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>${formatDate(recipe.createdDate)}</span>
+                                </div>
+                            </div>
+                            
+                            ${statsHTML}
+                        </div>
+
+                        <div class="recipe-actions">
+                            <button class="action-btn btn-edit" onclick="viewRecipe(${recipe.id})" title="View Recipe">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                            <button class="action-btn btn-edit active" onclick="toggleSave(${recipe.id})" id="saveBtn-${recipe.id}" title="Unsave Recipe" style="background-color: #3498db; color: #fff;">
+                                <i class="bi bi-bookmark-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // For bookmark and unbookmark
+        function toggleSave(recipeId) {
+            const btn = document.getElementById('saveBtn-' + recipeId);
+
+            let action = '';
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                btn.title = "Save Recipe";
+                btn.style.backgroundColor = "#e8f4f8";
+                btn.style.color = "#3498db";
+                action = 'remove-save';
+            } else {
+                btn.classList.add('active');
+                btn.title = "Unsave Recipe";
+                btn.style.backgroundColor = "#3498db";
+                btn.style.color = "#fff";
+                action = 'add-save';
+            }
+            
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            }
+
+            fetch('add-remove-bookmark.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+        }
 
         // Format date
         function formatDate(dateString) {
@@ -385,14 +535,28 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
         // Render recipes
         function renderRecipes() {
             const container = document.getElementById('recipesList');
-            const emptyState = document.getElementById('emptyState');
+            const emptyRecipe = document.getElementById('emptyRecipe');
 
             if (userRecipes.length === 0) {
                 container.innerHTML = '';
-                emptyState.style.display = 'block';
+                emptyRecipe.style.display = 'block';
             } else {
-                emptyState.style.display = 'none';
+                emptyRecipe.style.display = 'none';
                 container.innerHTML = userRecipes.map(recipe => createRecipeCard(recipe)).join('');
+            }
+        }
+
+        // Render bookmakrs
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarksList');
+            const emptyBookmark = document.getElementById('emptyBookmark');
+
+            if (userBookmarks.length === 0) {
+                container.innerHTML = '';
+                emptyBookmark.style.display = 'block';
+            } else {
+                emptyBookmark.style.display = 'none';
+                container.innerHTML = userBookmarks.map(bookmark => createBookmarkCard(bookmark)).join('');
             }
         }
 
@@ -401,11 +565,19 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
             window.location.href = 'AddRecipe.php';
         }
 
+        // Create new recipe
+        function saveNewRecipe() {
+            window.location.href = 'Recipes.php';
+        }
+
         // Edit recipe
         function editRecipe(recipeId) {
-            console.log('Editing recipe:', recipeId);
-            // window.location.href = 'edit-recipe.php?id=' + recipeId;
-            alert('Edit functionality will be implemented with your backend!');
+            window.location.href = 'EditRecipe.php?id=' + recipeId;
+        }
+        
+        // View recipe
+       function viewRecipe(recipeId) {
+            window.location.href = 'ViewRecipe.php?id=' + recipeId;
         }
 
         // Delete recipe
@@ -422,7 +594,7 @@ document.querySelectorAll("#hamburgerMenu a").forEach(link => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Recipe deleted successfully!');
+                        alert('Recipe deleted successfully! 🎉');
                         // Reload recipes
                         window.location.reload();
                     } else {

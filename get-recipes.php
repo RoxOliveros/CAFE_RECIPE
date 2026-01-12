@@ -40,11 +40,11 @@ try {
         while ($row = $result->fetch_assoc()) {
             // Map category to label
             $categoryLabels = [
-                'cakes' => 'CAKE',
-                'cookies' => 'COOKIES',
+                'cakes' => 'CAKE / CUPCAKES',
+                'cookies' => 'COOKIES / BARS',
                 'frozen' => 'FROZEN',
-                'pies' => 'PIE',
-                'custards' => 'CUSTARD'
+                'pies' => 'PIES / TARTS',
+                'custards' => 'CUSTARD / PUDDING'
             ];
             
             $recipes[] = [

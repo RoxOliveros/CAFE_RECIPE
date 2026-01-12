@@ -13,7 +13,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-
 try {
     // Get user's recipes with stats
     $sql = "SELECT 
@@ -27,9 +26,11 @@ try {
                 r.saves_count,
                 r.comments_count,
                 r.visibility,
-                r.created_at
+                r.created_at,
+                s.save_id
             FROM recipes r
-            WHERE r.user_id = ?
+            JOIN recipe_saves s ON r.recipe_id = s.recipe_id
+            WHERE s.user_id = ? AND visibility = 'public'
             ORDER BY r.created_at DESC";
 
     $stmt = $conn->prepare($sql);
@@ -51,10 +52,10 @@ try {
         'custards' => 'Custards & Puddings'
     ];
     
-    $recipes = [];
+    $bookmarks = [];
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            $recipes[] = [
+            $bookmarks[] = [
                 'id' => (int)$row['recipe_id'],
                 'title' => $row['title'],
                 'category' => $categoryMap[$row['category']] ?? ucfirst($row['category']),
@@ -65,20 +66,21 @@ try {
                 'saves' => (int)$row['saves_count'],
                 'comments' => (int)$row['comments_count'],
                 'createdDate' => date('Y-m-d', strtotime($row['created_at'])),
-                'visibility' => $row['visibility']
+                'visibility' => $row['visibility'],
+                'isSaved' => (bool)$row['save_id']
             ];
         }
     }
     
     // Calculate total stats
-    $totalRecipes = count($recipes);
-    $totalLikes = array_sum(array_column($recipes, 'likes'));
-    $totalSaves = array_sum(array_column($recipes, 'saves'));
-    $totalComments = array_sum(array_column($recipes, 'comments'));
+    $totalLikes = array_sum(array_column($bookmarks, 'likes'));
+    $totalComments = array_sum(array_column($bookmarks, 'comments'));
+    $totalRecipes = count($bookmarks);
+    $totalSaves = count($bookmarks);
     
     $response = [
-        'recipes' => $recipes,
-        'stats' => [
+        'bookmarks' => $bookmarks,
+        'saved_stats' => [
             'totalRecipes' => $totalRecipes,
             'totalLikes' => $totalLikes,
             'totalSaves' => $totalSaves,

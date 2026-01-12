@@ -399,11 +399,11 @@
     <!-- CREATE RECIPE SECTION -->
     <section class="create-section">
         <div class="container">
-            <h1 class="create-title">Create Your Recipe</h1>
+            <h1 class="create-title">Edit Your Recipe</h1>
             <p class="create-subtitle">Share your delicious creation with the community!</p>
 
             <div class="create-form-container">
-                <form id="createRecipeForm" enctype="multipart/form-data">
+                <form id="updateRecipeForm" enctype="multipart/form-data">
                     
                     <!-- BASIC INFO -->
                     <div class="form-section">
@@ -476,7 +476,7 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="file" id="thumbnailInput" name="thumbnail" accept="image/*" style="display: none;" onchange="previewImage(event)" required>
+                        <input type="file" id="thumbnailInput" name="thumbnail" accept="image/*" style="display: none;" onchange="previewImage(event)">
                     </div>
 
                     <!-- VIDEO SECTION -->
@@ -523,9 +523,9 @@
                         <div id="ingredientsList">
                             <div class="input-group-item">
                                 <input type="text" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
-                                <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
+                                <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
-                                </button> -->
+                                </button>
                             </div>
                         </div>
 
@@ -560,15 +560,121 @@
                     <!-- FORM ACTIONS -->
                     <div class="form-actions">
                         <button type="button" class="btn-cancel" onclick="cancelForm()">Cancel</button>
-                        <button type="submit" class="btn-submit">Publish Recipe</button>
+                        <button type="submit" class="btn-submit">Update Recipe</button>
                     </div>
-
+                    
                 </form>
             </div>
         </div>
     </section>
 
     <script>
+
+        // Get recipe ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
+
+        if (!recipeId) {
+            alert('Recipe not found');
+            window.location.href = 'Recipes.php';
+        }
+
+        // Fetch recipe from database
+        fetch('get-recipe.php?id=' + recipeId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    window.location.href = 'Recipes.php';
+                } else {
+                    renderRecipe(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading recipe:', error);
+                alert('Failed to load recipe');
+            });
+
+        function renderRecipe(recipe) {
+
+            const form = document.getElementById('updateRecipeForm');
+            
+            const categoryMap = {
+                'Cakes & Cupcakes': 'cakes',
+                'Cookies & Bars': 'cookies',
+                'Frozen Desserts': 'frozen',
+                'Pies & Tarts': 'pies',
+                'Custards & Puddings': 'custards'
+            };
+
+            // Apply the mapped values
+            form.querySelector('[name="category"]').value = categoryMap[recipe.category] || '';
+            form.querySelector('[name="visibility"]').value = recipe.visibility || '';
+            
+            // Fill remaining basic fields
+            form.querySelector('[name="title"]').value = recipe.title;
+            form.querySelector('[name="description"]').value = recipe.description;
+            form.querySelector('[name="time"]').value = recipe.time;
+            form.querySelector('[name="servings"]').value = recipe.servings;
+
+            // Thumbnail Preview
+            if (recipe.image) {
+                document.getElementById('previewImg').src = recipe.image;
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('thumbnailUpload').classList.add('has-image');
+                // Note: You cannot programmatically set the value of a file input for security reasons,
+                // but the preview shows the user what is currently saved.
+            }
+
+            // Video Options
+            if (recipe.videoUrl) {
+                if (recipe.videoUrl.includes('youtube.com') || recipe.videoUrl.includes('youtu.be')) {
+                    selectVideoOption('youtube');
+                    form.querySelector('[name="youtube_url"]').value = recipe.videoUrl;
+                } else {
+                    selectVideoOption('upload');
+                    // We show that a video exists, but browser security prevents filling file inputs
+                }
+            } else {
+                selectVideoOption('none');
+            }
+
+            // Ingredients
+            const ingredientsContainer = document.getElementById('ingredientsList');
+            ingredientsContainer.innerHTML = ''; // Clear the default single input
+            recipe.ingredients.forEach((ing, index) => {
+                const div = document.createElement('div');
+                div.className = 'input-group-item';
+                div.innerHTML = `
+                    <input type="text" class="form-control" name="ingredients[]" value="${ing}" required>
+                    ${index === 0 ? '' : `
+                        <button type="button" class="btn-remove-item" onclick="removeItem(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    `}
+                `;
+                ingredientsContainer.appendChild(div);
+            });
+
+            // Instructions
+            const instructionsContainer = document.getElementById('instructionsList');
+            instructionsContainer.innerHTML = ''; // Clear default
+            recipe.instructions.forEach((step, index) => {
+                const div = document.createElement('div');
+                div.className = 'input-group-item';
+                div.innerHTML = `
+                    <input type="text" class="form-control" name="instructions[]" value="${step}" required>
+                    ${index === 0 ? '' : `
+                        <button type="button" class="btn-remove-item" onclick="removeItem(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    `}
+                `;
+                instructionsContainer.appendChild(div);
+            });
+        }
+        
         // Back button
         function goBack() {
             window.history.back();
@@ -665,30 +771,33 @@
             }
         }
 
-       // Form submission
-        document.getElementById('createRecipeForm').addEventListener('submit', function(e) {
+        // Form submission
+        document.getElementById('updateRecipeForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             
+            // IMPORTANT: Add the recipeId we got from the URL earlier
+            formData.append('recipe_id', recipeId);
+            
             // Add video option to form data
             formData.append('video_option', currentVideoOption);
             
-            // Show loading message
             const submitBtn = this.querySelector('.btn-submit');
             const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Publishing...';
+            submitBtn.textContent = 'Updating...'; // Change "Publishing" to "Updating"
             submitBtn.disabled = true;
             
-            fetch('submit-recipe.php', {
+            // Change target to update-recipe.php
+            fetch('update-recipe.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Recipe created successfully! 🎉');
-                    window.location.href = 'Recipes.php';
+                    alert('Recipe updated successfully! 🎉');
+                    window.location.href = 'YourCreation.php'; // Redirect back to management
                 } else {
                     alert('Error: ' + data.message);
                     submitBtn.textContent = originalText;
@@ -697,7 +806,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while creating the recipe.');
+                alert('An error occurred while updating the recipe.');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             });

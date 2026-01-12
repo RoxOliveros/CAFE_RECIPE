@@ -401,6 +401,44 @@
             line-height: 1.6;
         }
 
+        /* COMMENT BTN DROPDOWN */
+        .comment-btn-dropdown {
+            position: absolute;
+            top: 25px; /* Adjust based on icon size */
+            right: 0;
+            background: #fff;
+            border: 1px solid #e6dcc8;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            min-width: 100px;
+            z-index: 100;
+            display: none;
+        }
+
+        .comment-btn-dropdown.active {
+            display: block;
+        }
+
+        .comment-btn-dropdown button {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            background: none;
+            color: #e74c3c;
+            text-align: right;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Fredoka', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comment-btn-dropdown button:hover {
+            background: #fde8e8;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 968px) {
             .content-grid {
@@ -439,8 +477,15 @@
     </section>
 
     <script>
-        // Get recipe ID from URL
 
+        // Fetch current user
+        let currentUserId = null;
+
+        fetch('get-user-profile.php')
+            .then(res => res.json())
+            .then(data => { currentUserId = data.user_id; });
+
+        // Get recipe ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const recipeId = urlParams.get('id');
 
@@ -494,11 +539,32 @@
                 const commentDate = new Date(comment.date);
                 const commentFormattedDate = commentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 
+                const isAuthor = (currentUserId && parseInt(comment.authorId) === parseInt(currentUserId));
+
+                // Only generate the icon and dropdown if isAuthor is true
+                const actionMenu = isAuthor ? `
+                    <div style="float: right; position: relative;">
+                        <i class="bi bi-three-dots-vertical" 
+                        onclick="toggleCommentBtnDropdown(event, ${comment.id})" 
+                        style="cursor: pointer;"></i>
+                        
+                        <div class="comment-btn-dropdown" id="dropdown-${comment.id}">
+                            <button onclick="deleteComment(${comment.id})">
+                                <i class="bi bi-trash-fill"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                ` : '';
+
                 return `
                     <div class="comment-item">
                         <img src="${comment.avatar}" alt="${comment.author}" class="comment-avatar">
                         <div class="comment-content">
-                            <div class="comment-author">${comment.author} <span style="color: #b08261; font-weight: 600;">${comment.username}</span></div>
+                            <div class="comment-author" style="position: relative;">
+                                ${comment.author}
+                                <span style="color: #b08261; font-weight: 600;">${comment.username}</span>
+                                ${actionMenu}
+                            </div>
                             <div class="comment-date">${commentFormattedDate}</div>
                             <div class="comment-text">${comment.text}</div>
                         </div>
@@ -528,7 +594,10 @@
             }
 
             // Check the liked state from the database
-            const likedClass = recipe.isLiked ? 'active' : '';
+            const likedRecipe = recipe.isLiked ? 'active' : '';
+            
+            // Check the saved state from the database
+            const savedRecipe = recipe.isSaved ? 'active' : '';
             
             container.innerHTML = `
                 <!-- HEADER -->
@@ -564,11 +633,11 @@
                         </div>
                         
                         <div class="recipe-actions">
-                            <button class="action-button btn-like ${likedClass}" onclick="toggleLike()" id="likeBtn">
+                            <button class="action-button btn-like ${likedRecipe}" onclick="toggleLike()" id="likeBtn">
                                 <i class="bi bi-heart-fill"></i>
                                 <span class="action-count" id="likeCount">${recipe.stats.likes}</span>
                             </button>
-                            <button class="action-button btn-save" onclick="toggleSave()" id="saveBtn">
+                            <button class="action-button btn-save ${savedRecipe}" onclick="toggleSave()" id="saveBtn">
                                 <i class="bi bi-bookmark-fill"></i>
                                 <span class="action-count" id="saveCount">${recipe.stats.saves}</span>
                             </button>
@@ -611,9 +680,9 @@
                     </h2>
                     
                     <div class="comment-box">
-                        <img id="avatar_img" src="placeholder.png" alt="You" class="comment-avatar">
+                        <img id="avatar_img" alt="You" class="comment-avatar">
                         <div class="comment-input">
-                            <textarea placeholder="Share your thoughts about this recipe..." id="commentText"></textarea>
+                            <textarea placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
                             <button class="comment-submit" onclick="postComment()">Post Comment</button>
                         </div>
                     </div>
@@ -661,24 +730,38 @@
                 },
                 body: JSON.stringify(requestData)
             });
-            
-            // Send to backend (implement later)
-            // fetch('like-recipe.php', { method: 'POST', body: JSON.stringify({ recipeId: recipeId }) });
         }
 
         // Toggle save
         function toggleSave() {
             const btn = document.getElementById('saveBtn');
             const count = document.getElementById('saveCount');
+
             let currentCount = parseInt(count.textContent);
+            let action = '';
             
             if (btn.classList.contains('active')) {
                 btn.classList.remove('active');
                 count.textContent = currentCount - 1;
+                action = 'remove-save';
             } else {
                 btn.classList.add('active');
                 count.textContent = currentCount + 1;
+                action = 'add-save';
             }
+            
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            }
+
+            fetch('add-remove-bookmark.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
         }
 
         // Post comment
@@ -701,7 +784,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Comment posted successfully!');
+                        alert('Comment posted successfully! 🎉');
                         textarea.value = '';
                         // Reload recipe to show new comment
                         window.location.reload();
@@ -727,6 +810,51 @@
                 document.getElementById('avatar_img').src = data.avatar_img;
             } catch (error) {
                 console.error('Error loading user profile: ', error);
+            }
+        }
+
+        // Toggle comment dropdown
+        function toggleCommentBtnDropdown(event, commentId) {
+            event.stopPropagation(); // Prevent the global click listener from immediately closing it
+            
+            // Close all other open dropdowns first
+            document.querySelectorAll('.comment-btn-dropdown').forEach(dropdown => {
+                if (dropdown.id !== `dropdown-${commentId}`) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked one
+            const currentDropdown = document.getElementById(`dropdown-${commentId}`);
+            currentDropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.comment-btn-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+
+        // For deleting a comment
+        function deleteComment(commentId) {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                fetch('delete-comment.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comment_id: commentId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Comment deleted successfully! 🎉');
+                        // Smoothly reload to update comment count and list
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(err => console.error('Error deleting comment:', err));
             }
         }
     </script>

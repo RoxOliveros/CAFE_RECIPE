@@ -23,18 +23,21 @@ try {
                 r.title,
                 r.description,
                 r.category,
+                r.visibility,
                 r.thumbnail_url,
                 r.cooking_time,
                 r.servings,
                 r.video_type,
                 r.video_url,
                 r.likes_count,
+                r.saves_count,
                 r.views_count,
                 r.created_at,
                 u.username,
                 u.display_name,
                 u.avatar_img,
-                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked
+                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked,
+                (SELECT COUNT(*) FROM recipe_saves WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_saved
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.recipe_id = ?";
@@ -45,7 +48,7 @@ try {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     
-    $stmt->bind_param("ii", $user_id, $recipe_id);
+    $stmt->bind_param("iii", $user_id, $user_id, $recipe_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -92,6 +95,7 @@ try {
     
     // Get comments
     $comments_sql = "SELECT 
+                        c.user_id,
                         c.comment_id,
                         c.comment_text,
                         c.created_at,
@@ -121,7 +125,8 @@ try {
             'username' => '@' . $row['username'],
             'avatar' => $row['avatar_img'] ?? 'Asset/no-profile.jpg',
             'date' => date('Y-m-d', strtotime($row['created_at'])),
-            'text' => $row['comment_text']
+            'text' => $row['comment_text'],
+            'authorId' => $row['user_id']
         ];
     }
     
@@ -143,6 +148,7 @@ try {
         'title' => $recipe['title'],
         'description' => $recipe['description'],
         'category' => $categoryMap[$recipe['category']] ?? ucfirst($recipe['category']),
+        'visibility' => $recipe['visibility'],
         'time' => $recipe['cooking_time'],
         'servings' => (int)$recipe['servings'],
         'difficulty' => 'Medium',
@@ -156,13 +162,14 @@ try {
         ],
         'stats' => [
             'likes' => (int)$recipe['likes_count'],
-            'saves' => 0,
+            'saves' => (int)$recipe['saves_count'],
             'comments' => $comments_count
         ],
         'ingredients' => $ingredients,
         'instructions' => $instructions,
         'comments' => $comments,
-        'isLiked' => (bool)$recipe['user_liked']
+        'isLiked' => (bool)$recipe['user_liked'],
+        'isSaved' => (bool)$recipe['user_saved']
     ];
     
     // Handle video URL

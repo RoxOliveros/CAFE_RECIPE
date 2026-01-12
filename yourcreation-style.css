@@ -100,7 +100,7 @@
             font-size: 28px;
         }
 
-        /* MY RECIPES SECTION */
+        /* MY RECIPES & BOOKMARKS SECTION */
         .my-recipes-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -276,6 +276,20 @@
             transform: scale(1.1);
         }
 
+        /* .btn-save {
+            background: #e8f4f8;
+            color: #3498db;
+        }
+
+        .btn-save.active {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-save:hover {
+            transform: scale(1.1);
+        } */
+
         /* EMPTY STATE */
         .empty-state {
             text-align: center;
@@ -283,6 +297,7 @@
             background: #fff;
             border-radius: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
 
         .empty-icon {
