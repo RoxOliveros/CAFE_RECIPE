@@ -149,7 +149,7 @@ try {
         'description' => $recipe['description'],
         'category' => $categoryMap[$recipe['category']] ?? ucfirst($recipe['category']),
         'visibility' => $recipe['visibility'],
-        'time' => $recipe['cooking_time'],
+        'time' => (int)$recipe['cooking_time'],
         'servings' => (int)$recipe['servings'],
         'difficulty' => 'Medium',
         'image' => $recipe['thumbnail_url'],

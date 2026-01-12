@@ -414,8 +414,21 @@
 
                         <div class="mb-3">
                             <label class="form-label">Recipe Title <span class="required">*</span></label>
-                            <input type="text" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
+                            <input list="recipe-title" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
                         </div>
+
+                        <datalist id="recipe-title">
+                            <option value="Apple Cinnamon Galette">
+                            <option value="Blueberry Lemon Parfait">
+                            <option value="Chocolate Lava Cake">
+                            <option value="Dulce de Leche Flan">
+                            <option value="Espresso Tiramisu">
+                            <option value="Frozen Strawberry Mousse">
+                            <option value="Ginger Pear Crisp">
+                            <option value="Honey Walnut Baklava">
+                            <option value="Italian Panna Cotta">
+                            <option value="Japanese Matcha Mochi">
+                        </datalist>
 
                         <div class="mb-3">
                             <label class="form-label">Category <span class="required">*</span></label>
@@ -446,12 +459,12 @@
 
                         <div class="input-row">
                             <div>
-                                <label class="form-label">Cooking Time <span class="required">*</span></label>
-                                <input type="text" class="form-control" name="time" placeholder="e.g., 45 mins" required>
+                                <label class="form-label">Cooking Time (minutes) <span class="required">*</span></label>
+                                <input type="number" oninput="if(this.value > 1440) this.value = 1440;" min="1" class="form-control" name="time" placeholder="e.g., 45" required>
                             </div>
                             <div>
                                 <label class="form-label">Servings <span class="required">*</span></label>
-                                <input type="number" class="form-control" name="servings" placeholder="e.g., 12" min="1" required>
+                                <input type="number" oninput="if(this.value > 99) this.value = 99;" min="1" class="form-control" name="servings" placeholder="e.g., 12" required>
                             </div>
                         </div>
                     </div>
@@ -522,12 +535,25 @@
 
                         <div id="ingredientsList">
                             <div class="input-group-item">
-                                <input type="text" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
+                                <input list="ingredient-list" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
                             </div>
                         </div>
+
+                        <datalist id="ingredient-list">
+                            <option value="1 cup sugar">
+                            <option value="2 cups all-purpose flour">
+                            <option value="1/2 cup unsalted butter, softened">
+                            <option value="2 large eggs">
+                            <option value="1 tsp vanilla extract">
+                            <option value="1/2 tsp baking soda">
+                            <option value="1/4 tsp salt">
+                            <option value="1 cup chocolate chips">
+                            <option value="1/2 cup milk">
+                            <option value="1 tbsp olive oil">
+                        </datalist>
 
                         <button type="button" class="btn-add-item" onclick="addIngredient()">
                             <i class="bi bi-plus-circle"></i>
@@ -544,12 +570,25 @@
 
                         <div id="instructionsList">
                             <div class="input-group-item">
-                                <input type="text" class="form-control" name="instructions[]" placeholder="Step 1: Preheat oven to 350°F" required>
+                                <input list="instruction-list" class="form-control" name="instructions[]" placeholder="Step 1: Preheat oven to 350°F" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
                             </div>
                         </div>
+
+                        <datalist id="instruction-list">
+                            <option value="Preheat oven to 350°F">
+                            <option value="Mix dry ingredients together">
+                            <option value="Cream butter and sugar">
+                            <option value="Add eggs one at a time">
+                            <option value="Fold in wet and dry ingredients">
+                            <option value="Pour batter into prepared pan">
+                            <option value="Bake for 25-30 minutes">
+                            <option value="Let cool before frosting">
+                            <option value="Prepare frosting while cake cools">
+                            <option value="Decorate as desired">
+                        </datalist>
 
                         <button type="button" class="btn-add-item" onclick="addInstruction()">
                             <i class="bi bi-plus-circle"></i>
@@ -628,7 +667,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input type="text" class="form-control" name="ingredients[]" placeholder="..." required>
+                <input list="ingredient-list" class="form-control" name="ingredients[]" placeholder="..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -644,7 +683,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input type="text" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
+                <input list="instruction-list" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -702,6 +741,7 @@
                 submitBtn.disabled = false;
             });
         });
+
     </script>
 
 </body>

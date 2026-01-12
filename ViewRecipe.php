@@ -611,7 +611,7 @@
                         </div>
                         <div class="meta-badge">
                             <i class="bi bi-clock-fill"></i>
-                            <span>${recipe.time}</span>
+                            <span>${recipe.time + ' mins'}</span>
                         </div>
                         <div class="meta-badge">
                             <i class="bi bi-people-fill"></i>

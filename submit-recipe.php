@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = $conn->real_escape_string(trim($_POST['title']));
         $category = $conn->real_escape_string(trim($_POST['category']));
         $description = $conn->real_escape_string(trim($_POST['description']));
-        $cooking_time = $conn->real_escape_string(trim($_POST['time']));
+        $cooking_time = $conn->real_escape_string(trim($_POST['time'])) . ' mins';
         $servings = intval($_POST['servings']);
         $visibility = $conn->real_escape_string(trim($_POST['visibility']));
         
