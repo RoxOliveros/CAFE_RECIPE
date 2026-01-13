@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($delete_stmt->execute()) {
             echo json_encode(['success' => true]);
             
-            // Reset AUTO_INCREMENT in recipe, instructions, and ingredients
+            // Reset AUTO_INCREMENT in recipes, instructions, and ingredients
             $conn->query("ALTER TABLE recipes AUTO_INCREMENT = 1");
             $conn->query("ALTER TABLE instructions AUTO_INCREMENT = 1");
             $conn->query("ALTER TABLE ingredients AUTO_INCREMENT = 1");

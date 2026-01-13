@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Get form data
-        $title = $conn->real_escape_string(trim($_POST['title']));
+        $title = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucwords(strtolower($_POST['title'])))));
         $category = $conn->real_escape_string(trim($_POST['category']));
-        $description = $conn->real_escape_string(trim($_POST['description']));
+        $description = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucfirst($_POST['description']))));
         $cooking_time = $conn->real_escape_string(trim($_POST['time'])) . ' mins';
         $servings = intval($_POST['servings']);
         $visibility = $conn->real_escape_string(trim($_POST['visibility']));
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['video_option']) && $_POST['video_option'] !== 'none') {
             if ($_POST['video_option'] === 'youtube' && !empty($_POST['youtube_url'])) {
                 $video_type = 'youtube';
-                $video_url = $conn->real_escape_string($_POST['youtube_url']);
+                $video_url = $conn->real_escape_string(trim($_POST['youtube_url'])); 
             } elseif ($_POST['video_option'] === 'upload' && isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
                 $video_type = 'upload';
                 $video_upload_dir = 'uploads/videos/';
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ingredient_stmt = $conn->prepare($ingredient_sql);
             
             foreach ($_POST['ingredients'] as $index => $ingredient) {
-                $ingredient = trim($ingredient);
+                $ingredient = preg_replace('/\s+/', ' ', trim($ingredient));
                 if (!empty($ingredient)) {
                     $ingredient_stmt->bind_param("isi", $recipe_id, $ingredient, $index);
                     $ingredient_stmt->execute();
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $instruction_stmt = $conn->prepare($instruction_sql);
             
             foreach ($_POST['instructions'] as $index => $instruction) {
-                $instruction = trim($instruction);
+                $instruction = preg_replace('/\s+/', ' ', trim($instruction));
                 if (!empty($instruction)) {
                     $step_number = $index + 1;
                     $instruction_stmt->bind_param("iis", $recipe_id, $step_number, $instruction);

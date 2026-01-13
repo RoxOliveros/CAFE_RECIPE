@@ -149,6 +149,7 @@ try {
         'difficulty' => 'Medium',
         'image' => $recipe['thumbnail_url'],
         'videoUrl' => null,
+        'origVideoUrl' => $recipe['video_url'],
         'creator' => [
             'name' => $recipe['display_name'] ?? $recipe['username'],
             'username' => '@' . $recipe['username'],

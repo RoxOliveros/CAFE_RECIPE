@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Collect and Validate form data
-        $title = $conn->real_escape_string(trim($_POST['title']));
+        $title = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucwords(strtolower($_POST['title'])))));
         $category = $conn->real_escape_string(trim($_POST['category']));
-        $description = $conn->real_escape_string(trim($_POST['description']));
+        $description = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucfirst($_POST['description']))));
         $cooking_time = $conn->real_escape_string(trim($_POST['time'])) . ' mins';
         $servings = intval($_POST['servings']);
         $visibility = $conn->real_escape_string(trim($_POST['visibility']));
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($video_option === 'youtube' && !empty($_POST['youtube_url'])) {
             $video_type = 'youtube';
-            $video_url = $conn->real_escape_string($_POST['youtube_url']);
+            $video_url = $conn->real_escape_string(trim($_POST['youtube_url']));
         } elseif ($video_option === 'upload' && isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
             $video_type = 'upload';
             $video_upload_dir = 'uploads/videos/';
@@ -95,9 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("DELETE FROM ingredients WHERE recipe_id = $recipe_id");
         if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
             $ing_stmt = $conn->prepare("INSERT INTO ingredients (recipe_id, ingredient_text, order_index) VALUES (?, ?, ?)");
-            foreach ($_POST['ingredients'] as $index => $text) {
-                if (!empty(trim($text))) {
-                    $ing_stmt->bind_param("isi", $recipe_id, $text, $index);
+            foreach ($_POST['ingredients'] as $index => $ingredient) {
+                $ingredient = preg_replace('/\s+/', ' ', trim($ingredient));
+                if (!empty(trim($ingredient))) {
+                    $ing_stmt->bind_param("isi", $recipe_id, $ingredient, $index);
                     $ing_stmt->execute();
                 }
             }
@@ -108,10 +109,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("DELETE FROM instructions WHERE recipe_id = $recipe_id");
         if (isset($_POST['instructions']) && is_array($_POST['instructions'])) {
             $ins_stmt = $conn->prepare("INSERT INTO instructions (recipe_id, step_number, instruction_text) VALUES (?, ?, ?)");
-            foreach ($_POST['instructions'] as $index => $text) {
-                if (!empty(trim($text))) {
+            foreach ($_POST['instructions'] as $index => $instruction) {
+                $instruction = preg_replace('/\s+/', ' ', trim($instruction));
+                if (!empty(trim($instruction))) {
                     $step_num = $index + 1;
-                    $ins_stmt->bind_param("iis", $recipe_id, $step_num, $text);
+                    $ins_stmt->bind_param("iis", $recipe_id, $step_num, $instruction);
                     $ins_stmt->execute();
                 }
             }

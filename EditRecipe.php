@@ -415,21 +415,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Recipe Title <span class="required">*</span></label>
-                            <input list="recipe-title" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
+                            <input type="text" list="recipe-title-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" id="recipe-title" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
                         </div>
 
-                        <datalist id="recipe-title">
-                            <option value="Apple Cinnamon Galette">
-                            <option value="Blueberry Lemon Parfait">
-                            <option value="Chocolate Lava Cake">
-                            <option value="Dulce de Leche Flan">
-                            <option value="Espresso Tiramisu">
-                            <option value="Frozen Strawberry Mousse">
-                            <option value="Ginger Pear Crisp">
-                            <option value="Honey Walnut Baklava">
-                            <option value="Italian Panna Cotta">
-                            <option value="Japanese Matcha Mochi">
-                        </datalist>
+                        <datalist id="recipe-title-list"></datalist>
 
                         <div class="mb-3">
                             <label class="form-label">Category <span class="required">*</span></label>
@@ -523,7 +512,7 @@
 
                         <div id="youtubeContainer" class="video-input-container">
                             <label class="form-label">YouTube Video URL</label>
-                            <input type="url" class="form-control" name="youtube_url" placeholder="https://youtube.com/watch?v=...">
+                            <input type="url" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" class="form-control" name="youtube_url" placeholder="https://youtube.com/watch?v=...">
                         </div>
                     </div>
 
@@ -536,25 +525,14 @@
 
                         <div id="ingredientsList">
                             <div class="input-group-item">
-                                <input type="text" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
+                                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
                             </div>
                         </div>
 
-                        <datalist id="ingredient-list">
-                            <option value="1 cup sugar">
-                            <option value="2 cups all-purpose flour">
-                            <option value="1/2 cup unsalted butter, softened">
-                            <option value="2 large eggs">
-                            <option value="1 tsp vanilla extract">
-                            <option value="1/2 tsp baking soda">
-                            <option value="1/4 tsp salt">
-                            <option value="1 cup chocolate chips">
-                            <option value="1/2 cup milk">
-                            <option value="1 tbsp olive oil">
-                        </datalist>
+                        <datalist id="ingredient-list"></datalist>
 
                         <button type="button" class="btn-add-item" onclick="addIngredient()">
                             <i class="bi bi-plus-circle"></i>
@@ -571,25 +549,14 @@
 
                         <div id="instructionsList">
                             <div class="input-group-item">
-                                <input type="text" class="form-control" name="instructions[]" placeholder="Step 1: Preheat oven to 350°F" required>
+                                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" value="${ing}" placeholder="Step 1: Preheat oven to 350°F" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
                             </div>
                         </div>
 
-                        <datalist id="instruction-list">
-                            <option value="Preheat oven to 350°F">
-                            <option value="Mix dry ingredients together">
-                            <option value="Cream butter and sugar">
-                            <option value="Add eggs one at a time">
-                            <option value="Fold in wet and dry ingredients">
-                            <option value="Pour batter into prepared pan">
-                            <option value="Bake for 25-30 minutes">
-                            <option value="Let cool before frosting">
-                            <option value="Prepare frosting while cake cools">
-                            <option value="Decorate as desired">
-                        </datalist>
+                        <datalist id="instruction-list"></datalist>
 
                         <button type="button" class="btn-add-item" onclick="addInstruction()">
                             <i class="bi bi-plus-circle"></i>
@@ -668,10 +635,10 @@
             }
 
             // Video Options
-            if (recipe.videoUrl) {
-                if (recipe.videoUrl.includes('youtube.com') || recipe.videoUrl.includes('youtu.be')) {
+            if (recipe.origVideoUrl) {
+                if (recipe.origVideoUrl.includes('youtube.com') || recipe.origVideoUrl.includes('youtu.be')) {
                     selectVideoOption('youtube');
-                    form.querySelector('[name="youtube_url"]').value = recipe.videoUrl;
+                    form.querySelector('[name="youtube_url"]').value = recipe.origVideoUrl;
                 } else {
                     selectVideoOption('upload');
                     // We show that a video exists, but browser security prevents filling file inputs
@@ -687,7 +654,7 @@
                 const div = document.createElement('div');
                 div.className = 'input-group-item';
                 div.innerHTML = `
-                    <input type="text" class="form-control" name="ingredients[]" value="${ing}" required>
+                    <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" value="${ing}" placeholder="..." required>
                     ${index === 0 ? '' : `
                         <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                             <i class="bi bi-trash"></i>
@@ -704,7 +671,7 @@
                 const div = document.createElement('div');
                 div.className = 'input-group-item';
                 div.innerHTML = `
-                    <input type="text" class="form-control" name="instructions[]" value="${step}" required>
+                    <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" class="form-control" name="instructions[]" value="${step}" placeholder="..." required>
                     ${index === 0 ? '' : `
                         <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                             <i class="bi bi-trash"></i>
@@ -774,7 +741,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input list="ingredient-list" class="form-control" name="ingredients[]" placeholder="..." required>
+                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" placeholder="..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -790,7 +757,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input list="instruction-list" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
+                <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -865,6 +832,121 @@
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             });
+        });
+
+        const  recipeTitleOptions = [
+            // CAKES & CUPCAKES
+            "Lemon Chiffon Cake", "Double Chocolate Cake", "Classic Yellow Cake", "Carrot Walnut Cake", 
+            "Confetti Birthday Cupcakes", "Mocha Latte Cupcakes", "Marble Bundt Cake", "Red Velvet Cupcakes", 
+            "Angel Food Cake", "Hummingbird Cake", "Flourless Chocolate Cake", "Sticky Toffee Pudding",
+
+            // COOKIES & BARS
+            "Oatmeal Raisin Cookies", "Peanut Butter Cookies", "Sugar Cookie Bars", "Chocolate Chunk Cookies", 
+            "Pistachio Shortbread", "Chewy Ginger Molasses", "Magic Cookie Bars", "Espresso Brownies", "Glazed Donuts",
+            "White Chocolate Blondies", "Seven Layer Bars", "Lemon Glaze Bars", "Rocky Road Brownies",
+
+            // PIES & TARTS
+            "Dutch Apple Pie", "Blueberry Galette", "Key Lime Pie", "Chocolate Silk Pie", 
+            "Fresh Strawberry Tart", "Banana Cream Pie", "Pumpkin Spice Pie", "Pear Frangipane Tart", 
+            "Mixed Berry Crostata", "Cherry Lattice Pie", "Lemon Meringue Pie", "Rustic Peach Tart",
+
+            // FROZEN & CUSTARDS
+            "Vanilla Bean Gelato", "Mango Sorbet", "Mint Chocolate Chip", "Salted Caramel Swirl", 
+            "Vanilla Crème Brûlée", "Chocolate Pot Crème", "Classic Rice Pudding", "Mixed Berry Sorbet", 
+            "Strawberry Cheesecake Icecream", "Toasted Coconut Parfait", "Coffee Panna Cotta", "Chocolate Mousse"
+        ];
+        document.getElementById('recipe-title').addEventListener('input', function() {
+            const val = this.value.toLowerCase();
+
+            const dataList = document.getElementById('recipe-title-list');
+            dataList.innerHTML = ''; // Clear current suggestions
+
+            if (val.length > 0) {
+                // Filter options that match and limit to 5
+                const filtered = recipeTitleOptions
+                    .filter(opt => opt.toLowerCase().includes(val))
+                    .slice(0, 5); 
+
+                filtered.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    dataList.appendChild(option);
+                });
+            }
+        });
+        
+        const commonIngredients = [
+            "2 cups of white sugar", "1/2 cup of milk", "1/4 cup of cocoa powder", "1 pinch of cinnamon", 
+            "1/4 cup of flour", "1/2 cup of greek yogurt", "100g of dark chocolate", "1/2 teaspoon of salt", 
+            "1 cup of chocolate chips", "1/4 cup of butter", "1/2 cup of sour cream", "1 teaspoon of baking soda", 
+            "1 cup of butter", "1/4 cup of white sugar", "2 teaspoons of baking powder", "1/4 cup of brown sugar", 
+            "2 cups of chocolate chips", "3 large eggs", "1 1/2 cups of flour", "1 teaspoon of baking powder", 
+            "1 tablespoon of vanilla", "1/2 cup of butter", "1/4 cup of oil", "1/2 cup of chocolate chips", 
+            "1/4 teaspoon of nutmeg", "4 large eggs", "1 cup of flour", "1/2 teaspoon of cinnamon", 
+            "1/2 teaspoon of baking powder", "1 teaspoon of salt", "1/2 cup of chopped pecans", "1/4 cup of honey", 
+            "1/2 cup of oil", "1/2 teaspoon of vanilla", "200g of dark chocolate", "1 teaspoon of vanilla", 
+            "1/4 teaspoon of salt", "canola oil", "1 cup of white sugar", "1/2 cup of white sugar", 
+            "1/2 teaspoon of baking soda", "1 drop of vanilla", "1 cup of milk", "1 tablespoon of lemon juice", 
+            "1/4 cup of milk", "1/2 cup of flour", "2 cups of flour", "1/2 cup of brown sugar", 
+            "1 tablespoon of honey", "1 teaspoon of lemon zest", "1 large egg", "vegetable oil", 
+            "3/4 cup of butter", "2 tablespoons of honey", "buttermilk", "coconut oil", 
+            "1 egg yolk", "2 egg whites", "whole milk", "1/2 cup of sliced almonds", 
+            "packed brown sugar", "1 cup of brown sugar"
+        ];
+        document.getElementById('ingredientsList').addEventListener('input', function(e) {
+            if (e.target && e.target.name === "ingredients[]") {
+                const val = e.target.value.toLowerCase();
+                const dataList = document.getElementById('ingredient-list');
+                
+                dataList.innerHTML = ''; 
+
+                if (val.length > 0) {
+                    // Filter options that match and limit to 5
+                    const filtered = commonIngredients
+                        .filter(opt => opt.toLowerCase().includes(val))
+                        .slice(0, 5); 
+
+                    filtered.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        dataList.appendChild(option);
+                    });
+                }
+            }
+        });
+        
+        const commonInstructions = [
+            "Bake for 15 to 20 minutes", "Preheat oven to 375°F", "Whisk until stiff peaks form", "Beat on medium speed", 
+            "Preheat oven to 325°F", "Line the pan with parchment paper", "Cool in the pan for 10 minutes", "Check with a toothpick", 
+            "Preheat oven to 400°F", "Sift the cocoa powder", "Dust with powdered sugar", "Cream the butter and sugar", 
+            "Fold in the chocolate chips", "Grease the baking dish", "Do not overmix the batter", "Transfer to a wire rack", 
+            "Preheat oven to 350°F", "Mix until just combined", "Bake for 45 minutes", "Add eggs one at a time", 
+            "Stir until smooth", "Whisk the dry ingredients together", "Beat on high speed", "Bake for 25 to 30 minutes", 
+            "Melt in 30 second intervals", "Sift the flour and salt", "Fold in the dry ingredients", "Preheat oven to 300°F", 
+            "Chill in the fridge overnight", "Cool completely before frosting", "Butter and flour the cake pan", 
+            "Rotate the pan halfway through", "Mix dry ingredients together", "Bake for 10 to 12 minutes", 
+            "Drizzle with caramel sauce", "Store in an airtight container", "Beat until light and fluffy", "Fold in the nuts"
+        ];
+        document.getElementById('instructionsList').addEventListener('input', function(e) {
+            if (e.target && e.target.name === "instructions[]") {
+                const val = e.target.value.toLowerCase();
+                const dataList = document.getElementById('instruction-list');
+                
+                dataList.innerHTML = ''; 
+
+                if (val.length > 0) {
+                    // Filter options that match and limit to 5
+                    const filtered = commonInstructions
+                        .filter(opt => opt.toLowerCase().includes(val))
+                        .slice(0, 5); 
+
+                    filtered.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        dataList.appendChild(option);
+                    });
+                }
+            }
         });
     </script>
 
