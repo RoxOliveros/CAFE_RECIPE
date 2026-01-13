@@ -619,20 +619,24 @@ $stmt->close();
                 .then(response => response.json())
                 .then(data => {
                     // Close loading toast
-                    loadingToast.close();
+                    setTimeout(() => {
+                        loadingToast.close();
+                    }, 1500);
                     
-                    if (data.success) {
-                        // Show success toast
-                        showSuccess('Recipe deleted successfully! 🎉');
-                        
-                        // Reload recipes after a short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Show error toast
-                        showError(data.message || 'Failed to delete recipe');
-                    }
+                    setTimeout(() => {
+                        if (data.success) {
+                            // Show success toast
+                            showSuccess('Recipe deleted successfully! 🎉');
+                            
+                            // Reload recipes after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Show error toast
+                            showError(data.message || 'Failed to delete recipe');
+                        }
+                    }, 1500);
                 })
                 .catch(error => {
                     // Close loading toast
