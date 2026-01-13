@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 // Fetch current user info
 $user_id = $_SESSION['user_id'];
 
-$stmt = $conn->prepare("SELECT username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -77,8 +77,8 @@ $stmt->close();
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-             <!-- Current User Display -->
-                <a href="Profile.php" class="current-user profile-link">
+                <!-- Current User Display -->
+                <a href="Profile.php?id=<?php echo $currentUser['user_id'] ?? $_SESSION['user_id']; ?>" class="current-user profile-link">
                     <img src="<?php 
                         echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
                             'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
@@ -86,7 +86,7 @@ $stmt->close();
                     <span class="navbar-username">
                         <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
                     </span>
-                    </a>
+                </a>
 
                 <a href="AboutUs.php">About Us</a>
                 <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
@@ -460,6 +460,10 @@ $stmt->close();
                 document.getElementById("hamburgerMenu").classList.remove("active");
                 window.location.href = "Logout.php";
             }
+        }
+
+        function viewProfile(userId) {
+            window.location.href = `Profile.php?id=${userId}`;
         }
 
         // Close menu when clicking any menu link EXCEPT logout

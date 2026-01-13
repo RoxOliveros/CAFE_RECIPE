@@ -1,0 +1,509 @@
+body {
+    background-color: #f9f4e9;
+    font-family: 'Fredoka', sans-serif;
+    padding-top: 80px;
+}
+
+/* Profile Header */
+.profile-header {
+    padding: 40px 0 30px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.profile-cover {
+    height: 200px;
+    background: linear-gradient(135deg, #d08f43 0%, #c89b52 50%, #b15b22 100%);
+    position: relative;
+}
+
+.profile-info-wrapper {
+    padding: 0 40px 40px;
+    position: relative;
+}
+
+.profile-avatar-section {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-top: -80px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 6px solid white;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Profile Actions */
+.profile-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.follow-btn {
+    padding: 12px 28px;
+    border-radius: 25px;
+    border: 2px solid #6b300a;
+    background: #6b300a;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.follow-btn:hover {
+    background: #8b4012;
+    border-color: #8b4012;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 48, 10, 0.3);
+}
+
+.follow-btn.following {
+    background: transparent;
+    color: #6b300a;
+}
+
+.follow-btn.following:hover {
+    background: #f9f4e9;
+    border-color: #6b300a;
+}
+
+.more-options-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #e0d5c7;
+    background: white;
+    color: #6b300a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 20px;
+}
+
+.more-options-btn:hover {
+    background: #f9f4e9;
+    border-color: #c89b52;
+    transform: scale(1.05);
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    border-radius: 15px;
+    border: 2px solid #e0d5c7;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b300a;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item:hover {
+    background: #f9f4e9;
+    color: #6b300a;
+}
+
+.dropdown-item.text-danger {
+    color: #dc3545;
+}
+
+.dropdown-item.text-danger:hover {
+    background: #fff5f5;
+    color: #dc3545;
+}
+
+.dropdown-item i {
+    font-size: 16px;
+}
+
+/* Profile Details */
+.profile-details {
+    max-width: 700px;
+}
+
+.profile-name {
+    font-size: 32px;
+    font-weight: 700;
+    color: #6b300a;
+    margin-bottom: 5px;
+}
+
+.profile-username {
+    font-size: 18px;
+    color: #999;
+    margin-bottom: 15px;
+}
+
+.profile-bio {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.profile-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.profile-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-meta i {
+    color: #c89b52;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 40px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6b300a;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #999;
+}
+
+/* Profile Content */
+.profile-content {
+    padding: 30px 0 80px;
+}
+
+.profile-tabs {
+    border-bottom: 2px solid #e0d5c7;
+    margin-bottom: 30px;
+}
+
+.profile-tabs .nav-link {
+    color: #999;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-tabs .nav-link:hover {
+    color: #6b300a;
+    border-color: #d08f43;
+}
+
+.profile-tabs .nav-link.active {
+    color: #6b300a;
+    border-color: #6b300a;
+    background: transparent;
+}
+
+.profile-tabs .nav-link i {
+    font-size: 18px;
+}
+
+/* Recipes Grid */
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.recipe-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.recipe-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.recipe-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 20px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.recipe-card:hover .recipe-overlay {
+    opacity: 1;
+}
+
+.recipe-overlay h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.recipe-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+}
+
+.recipe-stats span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.recipe-stats i {
+    font-size: 16px;
+}
+
+/* No Recipes State */
+.no-recipes {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.no-recipes-content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.no-recipes i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: #d08f43;
+    opacity: 0.7;
+}
+
+.no-recipes h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6b300a;
+    margin-bottom: 10px;
+}
+
+.no-recipes p {
+    font-size: 16px;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #d08f43 0%, #c89b52 50%, #b15b22 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 30px;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body {
+    padding: 30px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Follow User Item */
+.follow-user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.follow-user-item:hover {
+    background: #f9f4e9;
+}
+
+.follow-user-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #c89b52;
+}
+
+.follow-user-info {
+    flex: 1;
+}
+
+.follow-user-name {
+    font-weight: 600;
+    color: #6b300a;
+    font-size: 15px;
+}
+
+.follow-user-username {
+    font-size: 13px;
+    color: #999;
+}
+
+/* Footer */
+.custom-footer {
+    background-color: #c79850;
+    border-radius: 50px 50px 0 0;
+}
+
+.custom-footer a:hover {
+    color: #fff !important;
+    transform: translateX(3px);
+}
+
+.custom-footer .social-link:hover {
+    background: rgba(255,255,255,0.4) !important;
+    transform: scale(1.1) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-info-wrapper {
+        padding: 0 20px 30px;
+    }
+    
+    .profile-avatar-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .profile-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .follow-btn {
+        flex: 1;
+    }
+    
+    .profile-details {
+        text-align: center;
+    }
+    
+    .profile-meta {
+        justify-content: center;
+    }
+    
+    .profile-stats {
+        justify-content: center;
+    }
+    
+    .profile-name {
+        font-size: 26px;
+    }
+    
+    .profile-username {
+        font-size: 16px;
+    }
+    
+    .profile-bio {
+        font-size: 15px;
+    }
+    
+    .recipes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-stats {
+        gap: 20px;
+    }
+    
+    .stat-number {
+        font-size: 20px;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+    }
+    
+    .recipes-grid {
+        grid-template-columns: 1fr;
+    }
+}

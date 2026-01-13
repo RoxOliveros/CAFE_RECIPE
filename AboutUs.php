@@ -1,3 +1,23 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: Login.php");
+    exit;
+}
+
+// Include database connection
+require_once 'config/database.php';
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch current user info
+$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$currentUser = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="aboutus-style.css"> 
+    <link rel="stylesheet" href="aboutus-style.css?v=<?php echo time(); ?>"> 
 </head>
 
 <body>
@@ -20,7 +40,7 @@
         <div class="container d-flex align-items-center">
 
             <!-- LOGO -->
-            <a class="navbar-brand me-auto" href="#">
+            <a class="navbar-brand me-auto" href="homepage.php">
                 <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
@@ -54,16 +74,16 @@
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-             <!-- Current User Display -->
-                <a href="Profile.php" class="current-user profile-link">
-                    <img src="<?php session_start();
-                        echo !empty($_SESSION['avatar_img']) ? htmlspecialchars($_SESSION['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['display_name'] ?? $_SESSION['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                <!-- Current User Display -->
+                <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                    <img src="<?php 
+                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                            'Asset/no-profile.jpg'; 
                     ?>" alt="Avatar" class="navbar-avatar">
                     <span class="navbar-username">
-                        <?php echo htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']); ?>
+                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
                     </span>
-                    </a>
+                </a>
 
                 <a href="AboutUs.php">About Us</a>
                 <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
@@ -77,10 +97,35 @@
             
             <!-- HERO -->
             <div class="about-hero">
-                <h1 class="about-title">About Sweet Creation</h1>
+                <div class="hero-badge">ABOUT SWEET CREATION</div>
+                <h1 class="about-title">Bringing Bakers Together</h1>
                 <p class="about-subtitle">
-                    A community-driven platform where bakers and dessert lovers come together to share, discover, and celebrate the art of sweet making.
+                    A community-driven platform where bakers and dessert enthusiasts share, discover, and celebrate the art of sweet making.
                 </p>
+            </div>
+
+            <!-- STATS BAR -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="bi bi-people-fill stat-icon"></i>
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Community Members</div>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-journal-bookmark-fill stat-icon"></i>
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Recipes Shared</div>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-heart-fill stat-icon"></i>
+                    <div class="stat-number">1M+</div>
+                    <div class="stat-label">Recipe Saves</div>
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-star-fill stat-icon"></i>
+                    <div class="stat-number">4.8/5</div>
+                    <div class="stat-label">User Rating</div>
+                </div>
             </div>
 
             <!-- CONTENT CARDS -->
@@ -88,119 +133,184 @@
                 
                 <!-- WHAT IS SWEET CREATION -->
                 <div class="content-card">
-                    <div class="card-icon">
-                        <i class="bi bi-cake2"></i>
+                    <div class="card-header">
+                        <div class="card-icon-wrapper">
+                            <i class="bi bi-cake2-fill"></i>
+                        </div>
+                        <h2 class="card-title">What is Sweet Creation?</h2>
                     </div>
-                    <h2 class="card-title">What is Sweet Creation?</h2>
                     <p class="card-text">
-                        Sweet Creation is a <strong>recipe-sharing social platform</strong> designed specifically for dessert enthusiasts. Whether you're a professional pastry chef, a home baker, or someone who simply loves sweets, this is your space to express creativity through recipes.
+                        Sweet Creation is a dedicated recipe-sharing platform designed specifically for dessert enthusiasts. Whether you're a professional pastry chef, a home baker, or someone who simply loves sweets, this is your space to express creativity through recipes.
                     </p>
                     <p class="card-text">
-                        Our platform allows you to <strong>post your original recipes</strong>, complete with photos and videos, share them with the community, and discover countless delicious creations from bakers around the world. From classic chocolate chip cookies to elaborate wedding cakes, every sweet creation has a home here.
+                        Our platform empowers you to post your original recipes complete with photos and videos, share them with a passionate community, and discover countless delicious creations from bakers worldwide. From classic chocolate chip cookies to elaborate wedding cakes, every sweet creation has a home here.
                     </p>
                     
                     <div class="features-grid">
-                        <div class="feature-item">
-                            <div class="feature-icon">📝</div>
-                            <div class="feature-title">Create & Share</div>
-                            <div class="feature-text">Post your recipes with detailed instructions and beautiful photos</div>
+                        <div class="feature-card">
+                            <div class="feature-icon-box">
+                                <i class="bi bi-pencil-square"></i>
+                            </div>
+                            <h3 class="feature-title">Create & Share</h3>
+                            <p class="feature-text">Post your recipes with detailed instructions, beautiful photos, and step-by-step guides</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🔍</div>
-                            <div class="feature-title">Discover</div>
-                            <div class="feature-text">Browse thousands of sweet recipes from the community</div>
+                        <div class="feature-card">
+                            <div class="feature-icon-box">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h3 class="feature-title">Discover</h3>
+                            <p class="feature-text">Browse thousands of sweet recipes from our global community of bakers</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-title">Connect</div>
-                            <div class="feature-text">Engage with fellow bakers through comments and likes</div>
+                        <div class="feature-card">
+                            <div class="feature-icon-box">
+                                <i class="bi bi-chat-dots-fill"></i>
+                            </div>
+                            <h3 class="feature-title">Connect</h3>
+                            <p class="feature-text">Engage with fellow bakers through comments, ratings, and collaborative feedback</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">📚</div>
-                            <div class="feature-title">Save</div>
-                            <div class="feature-text">Bookmark your favorite recipes to try later</div>
+                        <div class="feature-card">
+                            <div class="feature-icon-box">
+                                <i class="bi bi-bookmark-fill"></i>
+                            </div>
+                            <h3 class="feature-title">Save & Organize</h3>
+                            <p class="feature-text">Bookmark your favorite recipes and create personalized collections to try later</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- WHY DOES IT EXIST -->
-                <div class="content-card">
-                    <div class="card-icon">
-                        <i class="bi bi-lightbulb"></i>
+                <div class="content-card mission-card">
+                    <div class="card-header">
+                        <div class="card-icon-wrapper">
+                            <i class="bi bi-lightbulb-fill"></i>
+                        </div>
+                        <h2 class="card-title">Our Mission</h2>
                     </div>
-                    <h2 class="card-title">Why Does It Exist?</h2>
                     <p class="card-text">
-                        We created Sweet Creation because we believe that <strong>every baker deserves a platform</strong> to showcase their talents and passion. Too often, amazing recipes get lost in general cooking websites or buried in social media feeds.
+                        We created Sweet Creation because we believe every baker deserves a dedicated platform to showcase their talents and passion. Too often, amazing recipes get lost in general cooking websites or buried in social media feeds.
                     </p>
-                    <p class="card-text">
-                        Sweet Creation exists to:
-                    </p>
-                    <div class="card-text" style="padding-left: 25px;">
-                        • <strong>Preserve culinary creativity</strong> - Your recipes deserve to be documented and shared properly<br>
-                        • <strong>Build community</strong> - Connect with others who share your passion for baking<br>
-                        • <strong>Inspire innovation</strong> - Discover new techniques and flavor combinations<br>
-                        • <strong>Make baking accessible</strong> - Help beginners learn from experienced bakers<br>
-                        • <strong>Celebrate sweet moments</strong> - Because desserts bring joy to life's special occasions
+                    
+                    <div class="mission-grid">
+                        <div class="mission-item">
+                            <div class="mission-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div class="mission-content">
+                                <h3>Preserve Culinary Creativity</h3>
+                                <p>Your recipes deserve to be properly documented and shared with those who appreciate them</p>
+                            </div>
+                        </div>
+                        <div class="mission-item">
+                            <div class="mission-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div class="mission-content">
+                                <h3>Build Community</h3>
+                                <p>Connect with others who share your passion for baking and sweet creation</p>
+                            </div>
+                        </div>
+                        <div class="mission-item">
+                            <div class="mission-icon">
+                                <i class="bi bi-lightbulb"></i>
+                            </div>
+                            <div class="mission-content">
+                                <h3>Inspire Innovation</h3>
+                                <p>Discover new techniques, flavor combinations, and creative approaches to desserts</p>
+                            </div>
+                        </div>
+                        <div class="mission-item">
+                            <div class="mission-icon">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <div class="mission-content">
+                                <h3>Make Baking Accessible</h3>
+                                <p>Help beginners learn from experienced bakers through detailed, easy-to-follow recipes</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="highlight-box">
-                        <p>"We believe that sharing recipes is sharing love, and every sweet creation has a story worth telling."</p>
+                    <div class="quote-box">
+                        <div class="quote-icon">
+                            <i class="bi bi-quote"></i>
+                        </div>
+                        <p class="quote-text">We believe that sharing recipes is sharing love, and every sweet creation has a story worth telling.</p>
                     </div>
                 </div>
 
                 <!-- WHO IS IT FOR -->
                 <div class="content-card">
-                    <div class="card-icon">
-                        <i class="bi bi-people"></i>
+                    <div class="card-header">
+                        <div class="card-icon-wrapper">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <h2 class="card-title">Who is Sweet Creation For?</h2>
                     </div>
-                    <h2 class="card-title">Who is it for?</h2>
                     <p class="card-text">
-                        Sweet Creation is designed for <strong>everyone who loves desserts</strong>, regardless of skill level or experience:
+                        Our platform is designed for everyone who loves desserts, regardless of skill level or experience. Sweet Creation welcomes:
                     </p>
                     
-                    <div class="features-grid">
-                        <div class="feature-item">
-                            <div class="feature-icon">👨‍🍳</div>
-                            <div class="feature-title">Professional Bakers</div>
-                            <div class="feature-text">Share your expertise and build your personal brand in the baking community</div>
+                    <div class="audience-grid">
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-award-fill"></i>
+                            </div>
+                            <h3 class="audience-title">Professional Bakers</h3>
+                            <p class="audience-text">Share your expertise, build your brand, and connect with clients in the baking community</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🏠</div>
-                            <div class="feature-title">Home Bakers</div>
-                            <div class="feature-text">Document your favorite family recipes and discover new ones to try</div>
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-house-heart-fill"></i>
+                            </div>
+                            <h3 class="audience-title">Home Bakers</h3>
+                            <p class="audience-text">Document your favorite family recipes and discover new ones to master in your kitchen</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🌟</div>
-                            <div class="feature-title">Beginners</div>
-                            <div class="feature-text">Learn from the community and build confidence with step-by-step recipes</div>
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                            <h3 class="audience-title">Beginners</h3>
+                            <p class="audience-text">Learn from the community and build confidence with clear, step-by-step recipes</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🍰</div>
-                            <div class="feature-title">Dessert Lovers</div>
-                            <div class="feature-text">Find and save recipes for every occasion, from simple treats to show-stoppers</div>
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-heart-fill"></i>
+                            </div>
+                            <h3 class="audience-title">Dessert Enthusiasts</h3>
+                            <p class="audience-text">Find and save recipes for every occasion, from simple treats to show-stopping centerpieces</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">📸</div>
-                            <div class="feature-title">Food Bloggers</div>
-                            <div class="feature-text">Expand your reach and connect with a dedicated baking audience</div>
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-camera-fill"></i>
+                            </div>
+                            <h3 class="audience-title">Content Creators</h3>
+                            <p class="audience-text">Expand your reach and connect with a dedicated audience passionate about baking</p>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🎓</div>
-                            <div class="feature-title">Students</div>
-                            <div class="feature-text">Practice your skills and get feedback from experienced bakers</div>
+                        <div class="audience-card">
+                            <div class="audience-icon">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <h3 class="audience-title">Culinary Students</h3>
+                            <p class="audience-text">Practice your skills, build your portfolio, and get feedback from experienced professionals</p>
                         </div>
-                    </div>
-
-                    <div class="highlight-box" style="margin-top: 30px;">
-                        <p>"Whether you're baking for a special occasion, running a bakery, or just exploring a new hobby - Sweet Creation is your community."</p>
                     </div>
                 </div>
 
                 <!-- CTA -->
                 <div class="cta-section">
-                    <h2 class="cta-title">Ready to Share Your Sweet Creations?</h2>
-                    <p class="cta-text">Join our community of passionate bakers and dessert lovers today!</p>
-                    <button class="cta-btn" onclick="window.location.href='Recipes.php'">Explore Recipes</button>
+                    <div class="cta-content">
+                        <h2 class="cta-title">Ready to Share Your Sweet Creations?</h2>
+                        <p class="cta-text">Join our community of passionate bakers and dessert lovers today</p>
+                        <div class="cta-buttons">
+                            <button class="cta-btn primary" onclick="window.location.href='AddRecipe.php'">
+                                <i class="bi bi-plus-circle"></i>
+                                Create Recipe
+                            </button>
+                            <button class="cta-btn secondary" onclick="window.location.href='Recipes.php'">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                                Explore Recipes
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -208,7 +318,7 @@
     </section>
 
     <!-- footer-->
-        <footer class="custom-footer">
+    <footer class="custom-footer">
         <div class="container py-5">
             <div class="row">
                 
@@ -289,7 +399,7 @@
                         <i class="bi bi-geo-alt-fill" style="color: #fff3e0; margin-right: 10px;"></i>
                         <span style="color: #fff3e0; font-size: 14px;">Binan, Laguna, PH</span>
                     </div>
-
+                </div>
             </div>
 
             <!-- BOTTOM BAR -->
@@ -323,29 +433,28 @@
             }
         });
 
-     // menubar
-    // Close hamburger menu
-function toggleMenu() {
-    const menu = document.getElementById("hamburgerMenu");
-    menu.classList.toggle("active");
-}
+        // Hamburger menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById("hamburgerMenu");
+            menu.classList.toggle("active");
+        }
 
-// Logout function (GLOBAL)
-function logoutUser() {
-    const confirmLogout = confirm("Are you sure you want to logout?");
-    
-    if (confirmLogout) {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-        window.location.href = "Logout.php";
-    }
-}
+        // Logout function
+        function logoutUser() {
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            
+            if (confirmLogout) {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+                window.location.href = "Logout.php";
+            }
+        }
 
-// Close menu when clicking any menu link EXCEPT logout
-document.querySelectorAll("#hamburgerMenu a").forEach(link => {
-    link.addEventListener("click", () => {
-        document.getElementById("hamburgerMenu").classList.remove("active");
-    });
-});
-</script>
+        // Close menu when clicking any menu link EXCEPT logout
+        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+            });
+        });
+    </script>
 </body>
 </html>

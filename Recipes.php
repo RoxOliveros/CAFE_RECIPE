@@ -1,3 +1,23 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: Login.php");
+    exit;
+}
+
+// Include database connection
+require_once 'config/database.php';
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch current user info
+$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$currentUser = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +30,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="recipes-style.css">
+    <link rel="stylesheet" href="recipe-style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="toast.css?v=<?php echo time(); ?>">
 </head>
+
 <body>
 
     <!--navbar-->
@@ -19,7 +41,7 @@
         <div class="container d-flex align-items-center">
 
             <!-- LOGO -->
-            <a class="navbar-brand me-auto" href="#">
+            <a class="navbar-brand me-auto" href="homepage.php">
                 <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
@@ -53,16 +75,16 @@
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-             <!-- Current User Display -->
-                <a href="Profile.php" class="current-user profile-link">
-                    <img src="<?php session_start();
-                        echo !empty($_SESSION['avatar_img']) ? htmlspecialchars($_SESSION['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['display_name'] ?? $_SESSION['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                <!-- Current User Display -->
+                <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                    <img src="<?php 
+                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                            'Asset/no-profile.jpg'; 
                     ?>" alt="Avatar" class="navbar-avatar">
                     <span class="navbar-username">
-                        <?php echo htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']); ?>
+                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
                     </span>
-                    </a>
+                </a>
 
                 <a href="AboutUs.php">About Us</a>
                 <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
@@ -105,331 +127,6 @@
         </div>
     </section>
 
-    <script>
-        // Sample data structure - replace this with PHP/MySQL data
-        // const recipesData = [
-        //     {
-        //         id: 1,
-        //         title: "Chocolate Delight Cake",
-        //         category: "cakes",
-        //         categoryLabel: "CAKE",
-        //         image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",
-        //         creator: "@sarah_bakes",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=1",
-        //         likes: 234,
-        //         comments: 89,
-        //         description: "Rich, moist chocolate cake with silky ganache frosting",
-        //         time: "45 mins"
-        //     },
-        //     {
-        //         id: 2,
-        //         title: "Classic Chocolate Chip",
-        //         category: "cookies",
-        //         categoryLabel: "COOKIES",
-        //         image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400",
-        //         creator: "@cookie_master",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=5",
-        //         likes: 512,
-        //         comments: 203,
-        //         description: "Perfectly chewy cookies loaded with chocolate chips",
-        //         time: "25 mins"
-        //     },
-        //     {
-        //         id: 3,
-        //         title: "Vanilla Bean Dream",
-        //         category: "frozen",
-        //         categoryLabel: "FROZEN",
-        //         image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
-        //         creator: "@icecream_queen",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=9",
-        //         likes: 387,
-        //         comments: 145,
-        //         description: "Homemade ice cream with real vanilla beans",
-        //         time: "4 hours"
-        //     },
-        //     {
-        //         id: 4,
-        //         title: "Homemade Apple Pie",
-        //         category: "pies",
-        //         categoryLabel: "PIE",
-        //         image: "https://images.unsplash.com/photo-1535920527002-b35e96722eb9?w=400",
-        //         creator: "@pie_perfection",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=12",
-        //         likes: 456,
-        //         comments: 178,
-        //         description: "Traditional apple pie with flaky butter crust",
-        //         time: "1.5 hours"
-        //     },
-        //     {
-        //         id: 5,
-        //         title: "Silky Crème Brûlée",
-        //         category: "custards",
-        //         categoryLabel: "CUSTARD",
-        //         image: "https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=400",
-        //         creator: "@french_desserts",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=20",
-        //         likes: 298,
-        //         comments: 112,
-        //         description: "Classic French dessert with caramelized sugar top",
-        //         time: "50 mins"
-        //     },
-        //     {
-        //         id: 6,
-        //         title: "Rainbow Cupcakes",
-        //         category: "cakes",
-        //         categoryLabel: "CUPCAKE",
-        //         image: "https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=400",
-        //         creator: "@cupcake_dreams",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=25",
-        //         likes: 623,
-        //         comments: 287,
-        //         description: "Colorful vanilla cupcakes with buttercream frosting",
-        //         time: "35 mins"
-        //     },
-        //     {
-        //         id: 7,
-        //         title: "Fudgy Brownies",
-        //         category: "cookies",
-        //         categoryLabel: "BROWNIE",
-        //         image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
-        //         creator: "@brownie_addict",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=33",
-        //         likes: 789,
-        //         comments: 321,
-        //         description: "Dense, fudgy brownies with crackly tops",
-        //         time: "30 mins"
-        //     },
-        //     {
-        //         id: 8,
-        //         title: "Berry Fruit Tart",
-        //         category: "pies",
-        //         categoryLabel: "TART",
-        //         image: "https://images.unsplash.com/photo-1519915212116-7cfef71f1d3e?w=400",
-        //         creator: "@tart_lover",
-        //         creatorAvatar: "https://i.pravatar.cc/150?img=41",
-        //         likes: 345,
-        //         comments: 156,
-        //         description: "Fresh berries on vanilla cream in buttery crust",
-        //         time: "1 hour"
-        //     }]
-
-            let recipesData = [];
-
-            fetch('get-recipes.php')
-                .then(response => response.json())
-                .then(data => {
-                    recipesData = data;
-                    renderRecipes(recipesData);
-                })
-                .catch(error => {
-                    console.error('Error loading recipes:', error);
-                });
-            
-
-        // Function to create recipe card HTML
-        function createRecipeCard(recipe) {
-            // Check the liked state from the database
-            const likedClass = recipe.isLiked ? 'active' : '';
-            const heartIcon = recipe.isLiked ? 'bi-heart-fill' : 'bi-heart';
-
-            return `
-                <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
-                    <div class="recipe-image-container">
-                        <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
-                        <span class="recipe-category-badge">${recipe.categoryLabel}</span>
-                        <div class="recipe-heart ${likedClass}" onclick="toggleHeart(event, this)">
-                            <i class="bi ${heartIcon}"></i>
-                        </div>
-                    </div>
-                    <div class="recipe-content">
-                        <h3 class="recipe-title">${recipe.title}</h3>
-                        <div class="recipe-creator">
-                            <img src="${recipe.creatorAvatar}" alt="Creator" class="creator-avatar">
-                            <span class="creator-name">${recipe.creator}</span>
-                        </div>
-                        <div class="recipe-stats">
-                            <div class="stat-item">
-                                <i class="bi bi-heart-fill"></i>
-                                <span class="likes-count">${recipe.likes}</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="bi bi-chat-fill"></i>
-                                <span>${recipe.comments}</span>
-                            </div>
-                        </div>
-                        <p class="recipe-description">${recipe.description}</p>
-                        <div class="recipe-footer">
-                            <div class="recipe-time">
-                                <i class="bi bi-clock"></i>
-                                <span>${recipe.time}</span>
-                            </div>
-                            <button class="view-recipe-btn" onclick="viewRecipe(${recipe.id})">View Recipe</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Function to render all recipes
-        function renderRecipes(recipes) {
-            const grid = document.getElementById('recipesGrid');
-            grid.innerHTML = recipes.map(recipe => createRecipeCard(recipe)).join('');
-        }
-
-        // Initialize - render all recipes on page load
-        renderRecipes(recipesData);
-
-        // Navbar scroll effect
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // menubar
-        // Close hamburger menu
-        function toggleMenu() {
-            const menu = document.getElementById("hamburgerMenu");
-            menu.classList.toggle("active");
-        }
-
-        // Logout function (GLOBAL)
-        function logoutUser() {
-            const confirmLogout = confirm("Are you sure you want to logout?");
-            
-            if (confirmLogout) {
-                document.getElementById("hamburgerMenu").classList.remove("active");
-                window.location.href = "Logout.php";
-            }
-        }
-
-        // Close menu when clicking any menu link EXCEPT logout
-        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
-            link.addEventListener("click", () => {
-                document.getElementById("hamburgerMenu").classList.remove("active");
-            });
-        });
-
-
-        // Filter dropdown toggle
-        function toggleFilter() {
-            const filterMenu = document.getElementById('filterMenu');
-            filterMenu.classList.toggle('active');
-        }
-
-        // Close filter when clicking outside
-        document.addEventListener('click', function(event) {
-            const filterDropdown = document.querySelector('.filter-dropdown');
-            const filterMenu = document.getElementById('filterMenu');
-            
-            if (!filterDropdown.contains(event.target)) {
-                filterMenu.classList.remove('active');
-            }
-        });
-
-        // Filter recipes
-        function filterRecipes(category) {
-            const cards = document.querySelectorAll('.recipe-card');
-            
-            cards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                    }, 300);
-                }
-            });
-
-            document.getElementById('filterMenu').classList.remove('active');
-        }
-
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.recipe-card');
-
-            cards.forEach(card => {
-                const title = card.querySelector('.recipe-title').textContent.toLowerCase();
-                const creator = card.querySelector('.creator-name').textContent.toLowerCase();
-                const description = card.querySelector('.recipe-description').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || creator.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'block';
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                    }, 300);
-                }
-            });
-        });
-
-        
-        // Toggle heart/favorite
-        function toggleHeart(event, element) {
-            event.stopPropagation();
-            element.classList.toggle('active');
-            
-            const icon = element.querySelector('i');
-            const card = element.closest('.recipe-card');
-            const likesElement = card.querySelector('.likes-count');
-            const recipeId = card.getAttribute('data-id');
-
-            let currentLikes = parseInt(likesElement.textContent);
-            let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
-
-            // Update UI immediately for responsiveness
-            if (action === 'add-like') {
-                icon.classList.replace('bi-heart', 'bi-heart-fill');
-                likesElement.textContent = currentLikes + 1;
-            } else {
-                icon.classList.replace('bi-heart-fill', 'bi-heart');
-                likesElement.textContent = currentLikes - 1;
-            }
-            
-            const requestData = {
-                action: action,
-                recipe_id: recipeId
-            }
-
-            fetch('add-remove-like.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-        }
-
-        // View recipe function (you can implement this later)
-       function viewRecipe(recipeId) {
-            window.location.href = 'ViewRecipe.php?id=' + recipeId;
-        }
-
-        // Add transition styles for cards
-        document.querySelectorAll('.recipe-card').forEach(card => {
-            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        });
-
-       
-    </script>
-
     <button class="create-recipe-fab" id="createFab" onclick="openCreateRecipe()">
         <i class="bi bi-plus-lg"></i>
     </button>
@@ -439,28 +136,8 @@
         Want to share your sweet creation? Click here to create your own recipe!
     </div>
 
-    <script>
-        // FAB tooltip functionality
-        const createFab = document.getElementById('createFab');
-        const fabTooltip = document.getElementById('fabTooltip');
-
-        if (createFab && fabTooltip) {
-            createFab.addEventListener('mouseenter', function() {
-                fabTooltip.classList.add('show');
-            });
-
-            createFab.addEventListener('mouseleave', function() {
-                fabTooltip.classList.remove('show');
-            });
-
-            function openCreateRecipe() {
-                window.location.href = 'AddRecipe.php'; 
-            }
-        }
-    </script>
-
     <!-- footer-->
-        <footer class="custom-footer">
+    <footer class="custom-footer">
         <div class="container py-5">
             <div class="row">
                 
@@ -541,7 +218,7 @@
                         <i class="bi bi-geo-alt-fill" style="color: #fff3e0; margin-right: 10px;"></i>
                         <span style="color: #fff3e0; font-size: 14px;">Binan, Laguna, PH</span>
                     </div>
-
+                </div>
             </div>
 
             <!-- BOTTOM BAR -->
@@ -563,5 +240,228 @@
             </div>
         </div>
     </footer>
+
+    <script src="toast.js"></script>
+    <script>
+        let recipesData = [];
+
+        fetch('get-recipes.php')
+            .then(response => response.json())
+            .then(data => {
+                recipesData = data;
+                renderRecipes(recipesData);
+            })
+            .catch(error => {
+                console.error('Error loading recipes:', error);
+            });
+
+        function createRecipeCard(recipe) {
+    return `
+        <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
+            <div class="recipe-image-container">
+                <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                <span class="recipe-category-badge">${recipe.categoryLabel}</span>
+                <div class="recipe-heart" onclick="toggleHeart(event, this)">
+                    <i class="bi bi-heart"></i>
+                </div>
+            </div>
+            <div class="recipe-content">
+                <h3 class="recipe-title">${recipe.title}</h3>
+                <div class="recipe-creator">
+                    <img src="${recipe.creatorAvatar}" alt="Creator" class="creator-avatar" onclick="viewProfile(event, ${recipe.creatorId})">
+                    <span class="creator-name" onclick="viewProfile(event, ${recipe.creatorId})">${recipe.creator}</span>
+                </div>
+                <div class="recipe-stats">
+                    <div class="stat-item">
+                        <i class="bi bi-heart-fill"></i>
+                        <span class="likes-count">${recipe.likes}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-chat-fill"></i>
+                        <span>${recipe.comments}</span>
+                    </div>
+                </div>
+                <p class="recipe-description">${recipe.description}</p>
+                <div class="recipe-footer">
+                    <div class="recipe-time">
+                        <i class="bi bi-clock"></i>
+                        <span>${recipe.time}</span>
+                    </div>
+                    <button class="view-recipe-btn" onclick="viewRecipe(${recipe.id})">View Recipe</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Add this new function to handle profile viewing
+function viewProfile(event, userId) {
+    event.stopPropagation(); // Prevent card click
+    
+    // Get current user ID from PHP (you'll need to add this in your PHP)
+    const currentUserId = <?php echo $_SESSION['user_id']; ?>;
+    
+    // Check if viewing own profile
+    if (userId === currentUserId) {
+        window.location.href = 'Profile.php?id=' + userId;
+    } else {
+        window.location.href = 'Other-Profile.php?id=' + userId;
+    }
+}
+
+        // Function to render all recipes
+        function renderRecipes(recipes) {
+            const grid = document.getElementById('recipesGrid');
+            grid.innerHTML = recipes.map(recipe => createRecipeCard(recipe)).join('');
+        }
+
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Hamburger menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById("hamburgerMenu");
+            menu.classList.toggle("active");
+        }
+
+        // Logout function
+        function logoutUser() {
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            
+            if (confirmLogout) {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+                window.location.href = "Logout.php";
+            }
+        }
+
+        // Close menu when clicking any menu link EXCEPT logout
+        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.getElementById("hamburgerMenu").classList.remove("active");
+            });
+        });
+
+        // Filter dropdown toggle
+        function toggleFilter() {
+            const filterMenu = document.getElementById('filterMenu');
+            filterMenu.classList.toggle('active');
+        }
+
+        // Close filter when clicking outside
+        document.addEventListener('click', function(event) {
+            const filterDropdown = document.querySelector('.filter-dropdown');
+            const filterMenu = document.getElementById('filterMenu');
+            
+            if (!filterDropdown.contains(event.target)) {
+                filterMenu.classList.remove('active');
+            }
+        });
+
+        // Filter recipes
+        function filterRecipes(category) {
+            const cards = document.querySelectorAll('.recipe-card');
+            
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            document.getElementById('filterMenu').classList.remove('active');
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.recipe-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.recipe-title').textContent.toLowerCase();
+                const creator = card.querySelector('.creator-name').textContent.toLowerCase();
+                const description = card.querySelector('.recipe-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || creator.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+
+        // Toggle heart/favorite
+        function toggleHeart(event, element) {
+            event.stopPropagation();
+            element.classList.toggle('active');
+            
+            const icon = element.querySelector('i');
+            const card = element.closest('.recipe-card');
+            const likesElement = card.querySelector('.likes-count');
+            let currentLikes = parseInt(likesElement.textContent);
+            
+            if (element.classList.contains('active')) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                likesElement.textContent = currentLikes + 1;
+            } else {
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                likesElement.textContent = currentLikes - 1;
+            }
+        }
+
+        // View recipe function
+        function viewRecipe(recipeId) {
+            window.location.href = 'ViewRecipe.php?id=' + recipeId;
+        }
+
+        // Add transition styles for cards
+        document.querySelectorAll('.recipe-card').forEach(card => {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        });
+
+        // FAB tooltip functionality
+        const createFab = document.getElementById('createFab');
+        const fabTooltip = document.getElementById('fabTooltip');
+
+        if (createFab && fabTooltip) {
+            createFab.addEventListener('mouseenter', function() {
+                fabTooltip.classList.add('show');
+            });
+
+            createFab.addEventListener('mouseleave', function() {
+                fabTooltip.classList.remove('show');
+            });
+        }
+
+        function openCreateRecipe() {
+            window.location.href = 'AddRecipe.php'; 
+        }
+    </script>
 </body>
 </html>

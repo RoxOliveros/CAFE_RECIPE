@@ -1,3 +1,23 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: Login.php");
+    exit;
+}
+
+// Include database connection
+require_once 'config/database.php';
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch current user info
+$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$currentUser = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +39,7 @@
         <div class="container d-flex align-items-center">
 
             <!-- LOGO -->
-            <a class="navbar-brand me-auto" href="#">
+            <a class="navbar-brand me-auto" href="homepage.php">
                 <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
@@ -53,16 +73,16 @@
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-             <!-- Current User Display -->
-                <a href="Profile.php" class="current-user profile-link">
-                    <img src="<?php session_start();
-                        echo !empty($_SESSION['avatar_img']) ? htmlspecialchars($_SESSION['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($_SESSION['display_name'] ?? $_SESSION['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
+                <!-- Current User Display -->
+                <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                    <img src="<?php 
+                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                            'Asset/no-profile.jpg'; 
                     ?>" alt="Avatar" class="navbar-avatar">
                     <span class="navbar-username">
-                        <?php echo htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']); ?>
+                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
                     </span>
-                    </a>
+                </a>
 
                 <a href="AboutUs.php">About Us</a>
                 <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
@@ -155,7 +175,7 @@
     </section>
 
     <!-- footer-->
-        <footer class="custom-footer">
+    <footer class="custom-footer">
         <div class="container py-5">
             <div class="row">
                 
@@ -236,7 +256,7 @@
                         <i class="bi bi-geo-alt-fill" style="color: #fff3e0; margin-right: 10px;"></i>
                         <span style="color: #fff3e0; font-size: 14px;">Binan, Laguna, PH</span>
                     </div>
-
+                </div>
             </div>
 
             <!-- BOTTOM BAR -->
@@ -580,9 +600,13 @@
             window.location.href = 'ViewRecipe.php?id=' + recipeId;
         }
 
+       
         // Delete recipe
         function deleteRecipe(recipeId, recipeTitle) {
             if (confirm(`Are you sure you want to delete "${recipeTitle}"? This action cannot be undone.`)) {
+                // Show loading toast
+                const loadingToast = showLoading('Deleting recipe...', 'Please wait');
+                
                 // Send delete request to backend
                 fetch('delete-recipe.php', {
                     method: 'POST',
@@ -593,17 +617,29 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    // Close loading toast
+                    loadingToast.close();
+                    
                     if (data.success) {
-                        alert('Recipe deleted successfully! 🎉');
-                        // Reload recipes
-                        window.location.reload();
+                        // Show success toast
+                        showSuccess('Recipe deleted successfully! 🎉');
+                        
+                        // Reload recipes after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
                     } else {
-                        alert('Error: ' + data.message);
+                        // Show error toast
+                        showError(data.message || 'Failed to delete recipe');
                     }
                 })
                 .catch(error => {
+                    // Close loading toast
+                    loadingToast.close();
+                    
                     console.error('Error:', error);
-                    alert('Failed to delete recipe');
+                    // Show error toast
+                    showError('An unexpected error occurred. Please try again.');
                 });
             }
         }
