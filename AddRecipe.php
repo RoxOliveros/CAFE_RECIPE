@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="toast-notifications.css">
 
     <style>
         body {
@@ -607,6 +608,7 @@
         </div>
     </section>
 
+    <script src="toast-notifications.js" defer></script>
     <script>
         // Back button
         function goBack() {
@@ -709,6 +711,8 @@
             e.preventDefault();
             
             const formData = new FormData(this);
+
+            const loadingToast = showLoading('Publishing recipe...', 'Please wait');
             
             // Add video option to form data
             formData.append('video_option', currentVideoOption);
@@ -725,18 +729,31 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert('Recipe created successfully! 🎉');
-                    window.location.href = 'Recipes.php';
-                } else {
-                    alert('Error: ' + data.message);
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
+                setTimeout(() => {
+                    loadingToast.close();
+                }, 1500);
+                
+                setTimeout(() => {
+                    if (data.success) {
+                        // Show success toast
+                        showSuccess('Recipe created successfully! 🎉');
+                        
+                        setTimeout(() => {
+                    window.location.href = 'YourCreation.php';
+                        }, 1500);
+                    } else {
+                        // Show error toast
+                        showError(data.message || 'Failed to publish recipe');
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }, 1500);
             })
             .catch(error => {
+                loadingToast.close();
                 console.error('Error:', error);
-                alert('An error occurred while creating the recipe.');
+
+                alter('An error occurred while creating the recipe.');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             });

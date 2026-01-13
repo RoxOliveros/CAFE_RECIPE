@@ -604,49 +604,52 @@ $stmt->close();
 
         // Delete recipe
         function deleteRecipe(recipeId, recipeTitle) {
-            if (confirm(`Are you sure you want to delete "${recipeTitle}"? This action cannot be undone.`)) {
-                // Show loading toast
-                const loadingToast = showLoading('Deleting recipe...', 'Please wait');
-                
-                // Send delete request to backend
-                fetch('delete-recipe.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: recipeId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Close loading toast
-                    setTimeout(() => {
+            showConfirmation(
+                `Are you sure you want to delete "${recipeTitle}"? This action cannot be undone.`,
+                () => {
+                    // Show loading toast
+                    const loadingToast = showLoading('Deleting recipe...', 'Please wait');
+                    
+                    // Send delete request to backend
+                    fetch('delete-recipe.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: recipeId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Close loading toast
+                        setTimeout(() => {
+                            loadingToast.close();
+                        }, 1500);
+                        
+                        setTimeout(() => {
+                            if (data.success) {
+                                // Show success toast
+                                showSuccess('Recipe deleted successfully! 🎉');
+                                
+                                // Reload recipes after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Show error toast
+                                showError(data.message || 'Failed to delete recipe');
+                            }
+                        }, 1500);
+                    })
+                    .catch(error => {
+                        // Close loading toast
                         loadingToast.close();
-                    }, 1500);
-                    
-                    setTimeout(() => {
-                        if (data.success) {
-                            // Show success toast
-                            showSuccess('Recipe deleted successfully! 🎉');
-                            
-                            // Reload recipes after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            // Show error toast
-                            showError(data.message || 'Failed to delete recipe');
-                        }
-                    }, 1500);
-                })
-                .catch(error => {
-                    // Close loading toast
-                    loadingToast.close();
-                    
-                    console.error('Error:', error);
-                    // Show error toast
-                    showError('An unexpected error occurred. Please try again.');
-                });
-            }
+                        
+                        console.error('Error:', error);
+                        // Show error toast
+                        showError('An unexpected error occurred. Please try again.');
+                    });
+                }
+            );
         }
     </script>
 </body>

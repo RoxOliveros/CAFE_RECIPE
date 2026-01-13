@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="toast-notifications.css">
 
     <style>
         body {
@@ -439,6 +440,27 @@
             background: #fde8e8;
         }
 
+        /* Modal */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #d08f43 0%, #c89b52 50%, #b15b22 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 15px 30px;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 968px) {
             .content-grid {
@@ -476,6 +498,7 @@
         </div>
     </section>
 
+    <script src="toast-notifications.js" defer></script>
     <script>
 
         // Fetch current user
@@ -680,7 +703,7 @@
                     </h2>
                     
                     <div class="comment-box">
-                        <img id="avatar_img" alt="You" class="comment-avatar">
+                        <img id="avatar_img" src="Asset/no-profile.jpg" alt="You" class="comment-avatar">
                         <div class="comment-input">
                             <textarea placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
                             <button class="comment-submit" onclick="postComment()">Post Comment</button>
@@ -769,6 +792,8 @@
             const textarea = document.getElementById('commentText');
             const text = textarea.value.trim();
             
+            const loadingToast = showLoading('Posting comment...', 'Please wait');
+
             if (text) {
                 // Send to backend
                 fetch('post-comment.php', {
@@ -783,18 +808,28 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        alert('Comment posted successfully! 🎉');
-                        textarea.value = '';
-                        // Reload recipe to show new comment
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
+                    setTimeout(() => {
+                        loadingToast.close();
+                    }, 1500);
+                    
+                    setTimeout(() => {
+                        if (data.success) {
+                            // Show success toast
+                            showSuccess('Comment posted successfully! 🎉');
+                            textarea.value = '';
+                            
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Show error toast
+                            showError(data.message || 'Failed to post comment');
+                        }
+                    }, 1500);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to post comment');
+                    showError('Error:', error);
+                    showError('Failed to post comment');
                 });
             }
         }
@@ -838,24 +873,44 @@
 
         // For deleting a comment
         function deleteComment(commentId) {
-            if (confirm('Are you sure you want to delete this comment?')) {
-                fetch('delete-comment.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ comment_id: commentId })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Comment deleted successfully! 🎉');
-                        // Smoothly reload to update comment count and list
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(err => console.error('Error deleting comment:', err));
-            }
+            showConfirmation('Are you sure you want to delete this comment?',
+                () => {
+                    const loadingToast = showLoading('Deleting comment...', 'Please wait');
+
+                    fetch('delete-comment.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            comment_id: commentId,
+                            recipe_id: recipeId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        setTimeout(() => {
+                            loadingToast.close();
+                        }, 1500);
+                        
+                        setTimeout(() => {
+                            if (data.success) {
+                                // Show success toast
+                                showSuccess('Comment deleted successfully! 🎉');
+                                
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                // Show error toast
+                                showError(data.message || 'Failed to delete comment');
+                            }
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        showError('Error deleting comment:', err);
+                        showError('Failed to delete comment');
+                    });
+                }
+            );
         }
     </script>
 </body>

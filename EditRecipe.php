@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="toast-notifications.css">
 
     <style>
         body {
@@ -607,8 +608,8 @@
         </div>
     </section>
 
+    <script src="toast-notifications.js" defer></script>
     <script>
-
         // Get recipe ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const recipeId = urlParams.get('id');
@@ -816,6 +817,8 @@
             
             const formData = new FormData(this);
             
+            const loadingToast = showLoading('Updating recipe...', 'Please wait');
+
             // IMPORTANT: Add the recipeId we got from the URL earlier
             formData.append('recipe_id', recipeId);
             
@@ -824,7 +827,7 @@
             
             const submitBtn = this.querySelector('.btn-submit');
             const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Updating...'; // Change "Publishing" to "Updating"
+            submitBtn.textContent = 'Updating...';
             submitBtn.disabled = true;
             
             // Change target to update-recipe.php
@@ -834,18 +837,31 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert('Recipe updated successfully! 🎉');
-                    window.location.href = 'YourCreation.php'; // Redirect back to management
-                } else {
-                    alert('Error: ' + data.message);
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
+                setTimeout(() => {
+                    loadingToast.close();
+                }, 1500);
+                
+                setTimeout(() => {
+                    if (data.success) {
+                        // Show success toast
+                        showSuccess('Recipe updated successfully! 🎉');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'YourCreation.php';
+                        }, 1500);
+                    } else {
+                        // Show error toast
+                        showError(data.message || 'Failed to updated recipe');
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }, 1500);
             })
             .catch(error => {
+                loadingToast.close();
                 console.error('Error:', error);
-                alert('An error occurred while updating the recipe.');
+
+                showError('An error occurred while updating the recipe.');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             });

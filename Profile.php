@@ -238,7 +238,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                     <h5 class="modal-title"><i class="bi bi-pencil-fill"></i> Edit Profile</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 30px;">
                     <form id="editProfileForm" enctype="multipart/form-data">
                         <div class="avatar-upload-section">
                             <img src="<?php echo $avatar; ?>" alt="Avatar Preview" class="avatar-preview" id="avatarPreview">
@@ -398,18 +398,30 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                         });
                         
                         const data = await response.json();
-                        loading.close();
+                        setTimeout(() => {
+                            loading.close();
+                        }, 1500);
                         
-                        if (data.success) {
-                            showSuccess('Your account has been deleted. Redirecting...', 'Account Deleted');
-                            setTimeout(() => {
-                                window.location.href = 'Login.php';
-                            }, 2000);
-                        } else {
-                            showError(data.message || 'Failed to delete account. Please try again.');
-                        }
+                        setTimeout(() => {
+                            if (data.success) {
+                        
+                                if (data.success) {
+                                    showSuccess('Your account has been deleted. Redirecting...', 'Account Deleted');
+                                    
+                                    setTimeout(() => {
+                                        window.location.href = 'Login.php';
+                                    }, 1500);
+                                } else {
+                                    showError(data.message || 'Failed to delete account. Please try again.');
+                                }
+                            } else {
+                                // Show error toast
+                                showError(data.message || 'Failed to delete account. Please try again.');
+                            }
+                        }, 1500);
                     } catch (error) {
                         loading.close();
+
                         console.error('Error:', error);
                         showError('Network error. Please try again.');
                     }

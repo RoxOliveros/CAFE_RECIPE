@@ -83,7 +83,7 @@
 
 /* Toast Content */
 .toast-content {
-    flex: 1;
+    flex: 1 !important;
 }
 
 .toast-title {

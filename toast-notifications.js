@@ -25,7 +25,7 @@
         toast.className = `toast-notification ${type}`;
         toast.innerHTML = `
             <div class="toast-icon">${icons[type]}</div>
-            <div>
+            <div class="toast-content"> 
                 ${title ? `<div class="toast-title">${title}</div>` : ''}
                 <div class="toast-message">${message}</div>
             </div>

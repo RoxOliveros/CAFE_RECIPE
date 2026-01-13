@@ -47,6 +47,22 @@ try {
     
     $stmt->close();
     
+    $conn->query("UPDATE recipes r SET 
+        comments_count = (SELECT COUNT(*) FROM comments WHERE recipe_id = r.recipe_id),
+        likes_count = (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id),
+        saves_count = (SELECT COUNT(*) FROM recipe_saves WHERE recipe_id = r.recipe_id);
+    ");
+
+    // Reset AUTO_INCREMENT for all affected tables
+    $conn->query("ALTER TABLE users AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE followers AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE comments AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE recipe_likes AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE recipe_saves AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE recipes AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE instructions AUTO_INCREMENT = 1");
+    $conn->query("ALTER TABLE ingredients AUTO_INCREMENT = 1");
+    
     // Commit transaction
     $conn->commit();
     
