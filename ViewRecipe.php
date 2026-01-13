@@ -707,9 +707,10 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
                         <img id="avatar_img" src="Asset/no-profile.jpg" alt="You" class="comment-avatar">
                         <div class="comment-input">
                             <textarea placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
-                            <button class="comment-submit" onclick="postComment()" ${!isLoggedIn ? 'disabled' : ''}>
+                            <button class="comment-submit" onclick="postComment()">
                                 ${!isLoggedIn ? 'Login to comment' : 'Post Comment'}
                             </button>
+
                     </div>
                     
                     <div class="comments-list">
@@ -728,7 +729,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         // Toggle like
         function toggleLike() {
             if (!isLoggedIn) {
-                window.location.href = "login.php";
+                requireLogin("Login to like this recipe ❤️");
                 return;
             }
 
@@ -762,7 +763,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         // Toggle save
         function toggleSave() {
             if (!isLoggedIn) {
-                window.location.href = "login.php";
+                requireLogin("Login to save this recipe 🔖");
                 return;
             }
 
@@ -795,50 +796,50 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
 
         // Post comment
         function postComment() {
+            if (!isLoggedIn) {
+                showInfo('Please login to comment 💬', 'Login required');
+                setTimeout(() => {
+                    window.location.href = 'login.php';
+                }, 1500);
+                return;
+            }
+
             const textarea = document.getElementById('commentText');
             const text = textarea.value.trim();
-            
-            const loadingToast = showLoading('Posting comment...', 'Please wait');
 
-            if (text) {
-                // Send to backend
-                fetch('post-comment.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        recipe_id: recipeId, 
-                        comment: text 
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout(() => {
-                        loadingToast.close();
-                    }, 1500);
-                    
-                    setTimeout(() => {
-                        if (data.success) {
-                            // Show success toast
-                            showSuccess('Comment posted successfully! 🎉');
-                            textarea.value = '';
-                            
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            // Show error toast
-                            showError(data.message || 'Failed to post comment');
-                        }
-                    }, 1500);
-                })
-                .catch(error => {
-                    showError('Error:', error);
-                    showError('Failed to post comment');
-                });
+            if (!text) {
+                showWarning('Comment cannot be empty');
+                return;
             }
+
+    const loadingToast = showLoading('Posting comment...', 'Please wait');
+
+    fetch('post-comment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            recipe_id: recipeId, 
+            comment: text 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingToast.close();
+
+        if (data.success) {
+            showSuccess('Comment posted successfully! 🎉');
+            textarea.value = '';
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showError(data.message || 'Failed to post comment');
         }
+    })
+    .catch(() => {
+        loadingToast.close();
+        showError('Failed to post comment');
+    });
+}
+
 
         // Fetch avatar image
         async function loadProfile() {
@@ -918,6 +919,13 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
                 }
             );
         }
+
+        function requireLogin(message = "Please login to continue.") {
+        showWarning(message, "Login Required");
+        setTimeout(() => {
+            window.location.href = "Login.php";
+        }, 1500); // let toast show first
+    }
     </script>
 </body>
 </html>

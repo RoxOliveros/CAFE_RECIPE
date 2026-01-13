@@ -2,8 +2,7 @@
 session_start();
 require_once 'config/database.php';
 
-$isLoggedIn = isset($_SESSION['user_id']);
-$userId = $isLoggedIn ? $_SESSION['user_id'] : null;
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
 
 try {
     // Get all public recipes with user info
@@ -28,7 +27,7 @@ try {
             ORDER BY user_liked DESC, r.created_at DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
 

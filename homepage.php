@@ -627,7 +627,7 @@ window.addEventListener('resize', updateCardScales);
     event.stopPropagation();
     
     if (!currentUserId || currentUserId === null) {
-        window.location.href = 'Other-Profile.php?id=' + userId;  /
+        window.location.href = 'Other-Profile.php?id=' + userId;  
         return;
     }
     

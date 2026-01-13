@@ -40,7 +40,7 @@ echo "<script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="recipe-style.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="toast.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="toast-notifications.css">
 </head>
 
 <body>
@@ -255,7 +255,7 @@ echo "<script>
         </div>
     </footer>
 
-    <script src="toast.js"></script>
+    <script src="toast-notifications.js" defer></script>
     <script>
         let recipesData = [];
 
@@ -313,8 +313,8 @@ echo "<script>
         function viewProfile(event, userId) {
             event.stopPropagation(); 
             
-            if (!isLoggedIn || currentUserId === null) {
-                window.location.href = 'Other-Profile.php?id=' + userId;  
+            if (!isLoggedIn) {
+                requireLogin("Login to view profiles.");
                 return;
             }
             
@@ -430,48 +430,49 @@ echo "<script>
 
         // Toggle heart/favorite
         function toggleHeart(event, element) {
-    event.stopPropagation();  // Prevent card click
-    
-    if (!isLoggedIn) {
-        window.location.href = 'Login.php';
-        return;  
-    }
-    
-    element.classList.toggle('active');
-    
-    const icon = element.querySelector('i');
-    const card = element.closest('.recipe-card');
-    const likesElement = card.querySelector('.likes-count');
-    const recipeId = card.getAttribute('data-id');
-    
-    let currentLikes = parseInt(likesElement.textContent);
-    let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
+            event.stopPropagation();  
+            
+            if (!isLoggedIn) {
+                requireLogin("You need to login to like recipes.");
+                return;
+            }
 
-    if (action === 'add-like') {
-        icon.classList.replace('bi-heart', 'bi-heart-fill');
-        likesElement.textContent = currentLikes + 1;
-    } else {
-        icon.classList.replace('bi-heart-fill', 'bi-heart');
-        likesElement.textContent = currentLikes - 1;
-    }
+            
+            element.classList.toggle('active');
+            
+            const icon = element.querySelector('i');
+            const card = element.closest('.recipe-card');
+            const likesElement = card.querySelector('.likes-count');
+            const recipeId = card.getAttribute('data-id');
+            
+            let currentLikes = parseInt(likesElement.textContent);
+            let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
 
-    const requestData = {
-        action: action,
-        recipe_id: recipeId
-    };
+            if (action === 'add-like') {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+                likesElement.textContent = currentLikes + 1;
+            } else {
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+                likesElement.textContent = currentLikes - 1;
+            }
 
-    fetch('add-remove-like.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-    }).catch(error => {
-        console.error('Error toggling like:', error);
-        element.classList.toggle('active');
-        likesElement.textContent = currentLikes;  
-    });
-}
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            };
+
+            fetch('add-remove-like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            }).catch(error => {
+                console.error('Error toggling like:', error);
+                element.classList.toggle('active');
+                likesElement.textContent = currentLikes;  
+            });
+        }
 
         // View recipe function
         function viewRecipe(recipeId) {
@@ -502,7 +503,14 @@ echo "<script>
         }
 
         function redirectToLogin() {
-        window.location.href = 'Login.php';
+            requireLogin("Login to share your sweet creation!");
+        }
+
+        function requireLogin(message = "Please login to continue.") {
+        showWarning(message, "Login Required");
+        setTimeout(() => {
+            window.location.href = "Login.php";
+        }, 1500); // let toast show first
     }
         
     </script>

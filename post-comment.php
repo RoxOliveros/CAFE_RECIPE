@@ -1,10 +1,14 @@
 <?php
-header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1); // Enable errors for debugging
-
 session_start();
 require_once 'config/database.php';
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Please login to comment'
+    ]);
+    exit;
+}
 
 $user_id = $_SESSION['user_id'];
 
