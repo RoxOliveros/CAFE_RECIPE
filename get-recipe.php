@@ -3,7 +3,7 @@ session_start();
 require_once 'config/database.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
-$userId = $isLoggedIn ? (int)$_SESSION['user_id'] : 0;
+$user_id = $isLoggedIn ? (int)$_SESSION['user_id'] : 0;
 $recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($recipe_id <= 0) {

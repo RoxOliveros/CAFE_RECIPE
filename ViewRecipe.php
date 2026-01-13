@@ -710,7 +710,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
                             <button class="comment-submit" onclick="postComment()">
                                 ${!isLoggedIn ? 'Login to comment' : 'Post Comment'}
                             </button>
-
+                        </div>
                     </div>
                     
                     <div class="comments-list">

@@ -457,7 +457,7 @@ $stmt->close();
                     </div>
                     <div class="stat-mini">
                         <i class="bi bi-bookmark-fill"></i>
-                        <span>${recipe.saves}</span>
+                        <span id="save-count-${recipe.id}">${recipe.saves}</span>
                     </div>
                     <div class="stat-mini">
                         <i class="bi bi-chat-fill"></i>
@@ -516,8 +516,10 @@ $stmt->close();
         // For bookmark and unbookmark
         function toggleSave(recipeId) {
             const btn = document.getElementById('saveBtn-' + recipeId);
+            const countSpan = document.getElementById('save-count-' + recipeId);
 
             let action = '';
+            let currentSaves = countSpan ? parseInt(countSpan.textContent) : 0;
             
             if (btn.classList.contains('active')) {
                 btn.classList.remove('active');
@@ -525,12 +527,14 @@ $stmt->close();
                 btn.style.backgroundColor = "#e8f4f8";
                 btn.style.color = "#3498db";
                 action = 'remove-save';
+                if (countSpan) countSpan.textContent = currentSaves - 1;
             } else {
                 btn.classList.add('active');
                 btn.title = "Unsave Recipe";
                 btn.style.backgroundColor = "#3498db";
                 btn.style.color = "#fff";
                 action = 'add-save';
+                if (countSpan) countSpan.textContent = currentSaves + 1;
             }
             
             const requestData = {

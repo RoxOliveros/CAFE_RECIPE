@@ -437,7 +437,6 @@ echo "<script>
                 return;
             }
 
-            
             element.classList.toggle('active');
             
             const icon = element.querySelector('i');
