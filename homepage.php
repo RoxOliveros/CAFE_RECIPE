@@ -541,44 +541,76 @@ $stmt->close();
                 return category === 'all' ? allRecipes : allRecipes.filter(r => r.category === category);
             }
 
-            function renderCarousel(recipes) {
-                const messageEl = document.getElementById('noRecipesMessage');
-                track.innerHTML = ''; // clear cards
-                messageEl.style.display = 'none'; // hide message by default
+           function renderCarousel(recipes) {
+    const messageEl = document.getElementById('noRecipesMessage');
+    track.innerHTML = '';
+    messageEl.style.display = 'none';
 
-                if (recipes.length === 0) {
-                    messageEl.innerHTML = `
-                        No recipes yet for this category. 
-                        <a href="YourCreation.php">Add your recipe!</a>
-                    `;
-                    messageEl.style.display = 'block';
-                    cards = []; // carousel knows there's nothing to scroll
-                    return;
-                }
+    if (recipes.length === 0) {
+        messageEl.innerHTML = `
+            No recipes yet for this category. 
+            <a href="YourCreation.php">Add your recipe!</a>
+        `;
+        messageEl.style.display = 'block';
+        cards = [];
+        return;
+    }
 
-                recipes.forEach(recipe => {
-                    const card = document.createElement('div');
-                    card.className = 'food-card';
-                    card.innerHTML = `
-                        <img src="${recipe.image}" alt="${recipe.title}">
-                        <h5 class="card-title mt-3">${recipe.title}</h5>
-                        <button class="readmore-btn" onclick="viewRecipe(${recipe.id})">Read More</button>
-                         <button 
-                            class="favorite-btn"
-                            onclick="toggleHomepageFavorite(event, this, ${recipe.id})">
-                            <i class="bi bi-heart"></i>
-                        </button>
-                    `;
-                    track.appendChild(card);
-                });
+    recipes.forEach(recipe => {
+        const card = document.createElement('div');
+        card.className = 'food-card';
+        card.innerHTML = `
+            <div class="recipe-image-container">
+                <img src="${recipe.image}" alt="${recipe.title}">
+            </div>
+            <div class="recipe-content">
+                <h5 class="card-title">${recipe.title}</h5>
+                <div class="recipe-creator">
+                    <img src="${recipe.creatorAvatar || 'Asset/no-profile.jpg'}" 
+                         alt="${recipe.creator}" 
+                         class="creator-avatar"
+                         onclick="viewProfile(event, ${recipe.creatorId})">
+                    <span class="creator-name" onclick="viewProfile(event, ${recipe.creatorId})">${recipe.creator}</span>
+                </div>
+                <div class="recipe-stats">
+                    <div class="stat-item">
+                        <i class="bi bi-heart-fill"></i>
+                        <span class="likes-count">${recipe.likes || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-chat-fill"></i>
+                        <span>${recipe.comments || 0}</span>
+                    </div>
+                </div>
+                <p class="recipe-description">${recipe.description || 'A delicious dessert recipe'}</p>
+                <div class="recipe-footer">
+                    <div class="recipe-time">
+                        <i class="bi bi-clock"></i>
+                        <span>${recipe.time || '30 mins'}</span>
+                    </div>
+                    <button class="readmore-btn" onclick="viewRecipe(${recipe.id})">View Recipe</button>
+                </div>
+            </div>
+        `;
+        track.appendChild(card);
+    });
 
-                cards = [...track.children];
-                
-                track.style.transform = 'translateX(0)';
-                track.style.transition = 'none';
-                
-                startAutoplay();
-            }
+    cards = [...track.children];
+    track.style.transform = 'translateX(0)';
+    track.style.transition = 'none';
+    startAutoplay();
+}
+
+function viewProfile(event, userId) {
+    event.stopPropagation();
+    const currentUserId = <?php echo $_SESSION['user_id']; ?>;
+    
+    if (userId === currentUserId) {
+        window.location.href = 'Profile.php?id=' + userId;
+    } else {
+        window.location.href = 'Other-Profile.php?id=' + userId;
+    }
+}
 
             function cardWidth() {
                 return cards[0] ? cards[0].offsetWidth + gap : 0;
