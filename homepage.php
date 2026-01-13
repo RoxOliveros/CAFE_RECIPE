@@ -473,6 +473,38 @@ $stmt->close();
             });
         });
 
+        // Toggle favorite button - matches Recipes.php heart functionality
+    function toggleHomepageFavorite(event, element, recipeId) {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    element.classList.toggle('active');
+    
+    const icon = element.querySelector('i');
+    
+    if (element.classList.contains('active')) {
+        icon.classList.remove('bi-heart');
+        icon.classList.add('bi-heart-fill');
+        
+        console.log('Added to favorites: Recipe ID ' + recipeId);
+        
+        // Optional: Add toast notification if you have toast.js included
+        // if (typeof showToast === 'function') {
+        //     showToast('Added to favorites! ❤️', 'success');
+        // }
+    } else {
+        icon.classList.remove('bi-heart-fill');
+        icon.classList.add('bi-heart');
+        
+        console.log('Removed from favorites: Recipe ID ' + recipeId);
+        
+        // Optional: Add toast notification
+        // if (typeof showToast === 'function') {
+        //     showToast('Removed from favorites', 'info');
+        // }
+    }
+}
+
         // carousel script
         document.addEventListener('DOMContentLoaded', () => {
             const track = document.getElementById('carouselTrack');
@@ -531,14 +563,17 @@ $stmt->close();
                         <img src="${recipe.image}" alt="${recipe.title}">
                         <h5 class="card-title mt-3">${recipe.title}</h5>
                         <button class="readmore-btn" onclick="viewRecipe(${recipe.id})">Read More</button>
-                        <button class="favorite-btn"><i class="bi bi-heart"></i></button>
+                         <button 
+                            class="favorite-btn"
+                            onclick="toggleHomepageFavorite(event, this, ${recipe.id})">
+                            <i class="bi bi-heart"></i>
+                        </button>
                     `;
                     track.appendChild(card);
                 });
 
                 cards = [...track.children];
                 
-                // Initialize position to 0
                 track.style.transform = 'translateX(0)';
                 track.style.transition = 'none';
                 

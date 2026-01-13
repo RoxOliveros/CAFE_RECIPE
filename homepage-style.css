@@ -503,36 +503,42 @@
 
         .favorite-btn {
             position: absolute;
-            top: 260px;
-            right: 200px;
+            top: 25px;
+            right: 305px;
             width: 40px;
             height: 40px;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.8);
             border: none;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
+        .favorite-btn:hover {
+                transform: scale(1.15);
+                background: #fff;
+                border-color: #e74c3c;
+            }
+
             .favorite-btn i {
-                font-size: 25px;
-                color: #fff;
+                font-size: 20px;
+                color: #8f4a14;
+                transition: all 0.3s ease;
             }
 
             .favorite-btn.active {
-                background: #6b300a;
+                background: #fff;
+                border-color: #e74c3c;
             }
 
                 .favorite-btn.active i {
                     color: #e74c3c;
                 }
 
-            .favorite-btn:hover {
-                transform: scale(1.1);
-            }
+                        
 
         .nav-btn {
             position: absolute;
