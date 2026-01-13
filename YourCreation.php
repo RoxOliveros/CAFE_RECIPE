@@ -31,6 +31,7 @@ $stmt->close();
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="yourcreation-style.css">
+    <link rel="stylesheet" href="toast-notifications.css">
 </head>
 <body>
 
@@ -279,7 +280,8 @@ $stmt->close();
         </div>
     </footer>
 
-   <script>
+    <script src="toast-notifications.js" defer></script>
+    <script>
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
@@ -600,7 +602,6 @@ $stmt->close();
             window.location.href = 'ViewRecipe.php?id=' + recipeId;
         }
 
-       
         // Delete recipe
         function deleteRecipe(recipeId, recipeTitle) {
             if (confirm(`Are you sure you want to delete "${recipeTitle}"? This action cannot be undone.`)) {
