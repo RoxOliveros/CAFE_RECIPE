@@ -473,37 +473,7 @@ $stmt->close();
             });
         });
 
-        // Toggle favorite button - matches Recipes.php heart functionality
-    function toggleHomepageFavorite(event, element, recipeId) {
-    event.stopPropagation();
-    event.preventDefault();
     
-    element.classList.toggle('active');
-    
-    const icon = element.querySelector('i');
-    
-    if (element.classList.contains('active')) {
-        icon.classList.remove('bi-heart');
-        icon.classList.add('bi-heart-fill');
-        
-        console.log('Added to favorites: Recipe ID ' + recipeId);
-        
-        // Optional: Add toast notification if you have toast.js included
-        // if (typeof showToast === 'function') {
-        //     showToast('Added to favorites! ❤️', 'success');
-        // }
-    } else {
-        icon.classList.remove('bi-heart-fill');
-        icon.classList.add('bi-heart');
-        
-        console.log('Removed from favorites: Recipe ID ' + recipeId);
-        
-        // Optional: Add toast notification
-        // if (typeof showToast === 'function') {
-        //     showToast('Removed from favorites', 'info');
-        // }
-    }
-}
 
         // carousel script
         document.addEventListener('DOMContentLoaded', () => {
@@ -541,7 +511,40 @@ $stmt->close();
                 return category === 'all' ? allRecipes : allRecipes.filter(r => r.category === category);
             }
 
-           function renderCarousel(recipes) {
+
+
+            function updateCardScales() {
+                const viewport = document.querySelector('.carousel-viewport');
+                const cards = document.querySelectorAll('.food-card');
+                
+                if (!viewport || cards.length === 0) return;
+                
+                const viewportRect = viewport.getBoundingClientRect();
+                const viewportCenter = viewportRect.left + viewportRect.width / 2;
+                
+                cards.forEach(card => {
+                    const cardRect = card.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    const distance = Math.abs(viewportCenter - cardCenter);
+                    
+                    // Calculate scale based on distance from center
+                    // Cards closer to center = larger scale
+                    const maxDistance = viewportRect.width / 2;
+                    const normalizedDistance = Math.min(distance / maxDistance, 1);
+                    
+                    // Scale from 1.15 (center) to 1.0 (sides)
+                    const scale = 1.15 - (normalizedDistance * 0.15);
+                    
+                    // Apply transform
+                    card.style.transform = `scale(${scale})`;
+                    card.style.zIndex = scale > 1.05 ? '10' : '1';
+                    
+                    // Optional: Add slight opacity effect
+                    card.style.opacity = 0.7 + (0.3 * (1 - normalizedDistance));
+                });
+            }
+
+          function renderCarousel(recipes) {
     const messageEl = document.getElementById('noRecipesMessage');
     track.innerHTML = '';
     messageEl.style.display = 'none';
@@ -598,19 +601,28 @@ $stmt->close();
     cards = [...track.children];
     track.style.transform = 'translateX(0)';
     track.style.transition = 'none';
+    
+    // Initial scale update
+    setTimeout(() => {
+        updateCardScales();
+    }, 100);
+    
     startAutoplay();
 }
 
-function viewProfile(event, userId) {
-    event.stopPropagation();
-    const currentUserId = <?php echo $_SESSION['user_id']; ?>;
-    
-    if (userId === currentUserId) {
-        window.location.href = 'Profile.php?id=' + userId;
-    } else {
-        window.location.href = 'Other-Profile.php?id=' + userId;
-    }
-}
+// Also call on window resize
+window.addEventListener('resize', updateCardScales);
+
+            function viewProfile(event, userId) {
+                event.stopPropagation();
+                const currentUserId = <?php echo $_SESSION['user_id']; ?>;
+                
+                if (userId === currentUserId) {
+                    window.location.href = 'Profile.php?id=' + userId;
+                } else {
+                    window.location.href = 'Other-Profile.php?id=' + userId;
+                }
+            }
 
             function cardWidth() {
                 return cards[0] ? cards[0].offsetWidth + gap : 0;
@@ -622,20 +634,19 @@ function viewProfile(event, userId) {
                 
                 const w = cardWidth();
                 
-                // Smoothly slide left
                 track.style.transition = 'transform 0.5s ease';
                 track.style.transform = `translateX(-${w}px)`;
 
                 setTimeout(() => {
-                    // Move first card to end
                     track.appendChild(track.firstElementChild);
                     cards = [...track.children];
                     
-                    // Reset position instantly (no transition)
                     track.style.transition = 'none';
                     track.style.transform = 'translateX(0)';
                     
-                    // Allow next move
+                    // Update scales after move
+                    updateCardScales();
+                    
                     setTimeout(() => {
                         isMoving = false;
                     }, 50);
@@ -648,23 +659,20 @@ function viewProfile(event, userId) {
 
                 const w = cardWidth();
                 
-                // Move last card to front instantly
                 track.style.transition = 'none';
                 track.prepend(track.lastElementChild);
                 cards = [...track.children];
                 
-                // Position track to show the prepended card is off-screen to the left
                 track.style.transform = `translateX(-${w}px)`;
-
-                // Force reflow to ensure the instant position change is applied
                 track.offsetHeight;
 
                 setTimeout(() => {
-                    // Smoothly slide right to show the prepended card
                     track.style.transition = 'transform 0.5s ease';
                     track.style.transform = 'translateX(0)';
                     
                     setTimeout(() => {
+                        // Update scales after move
+                        updateCardScales();
                         isMoving = false;
                     }, 500);
                 }, 50);
