@@ -1,22 +1,23 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Login.php");
-    exit;
-}
+$isLoggedIn = isset($_SESSION['user_id']);
 
-// Include database connection
 require_once 'config/database.php';
 
-$user_id = $_SESSION['user_id'];
+$currentUser = null;
 
-// Fetch current user info
-$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$currentUser = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+if ($isLoggedIn) {
+    $user_id = $_SESSION['user_id'];
+    $stmt = $conn->prepare(
+        "SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?"
+    );
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $currentUser = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -74,20 +75,28 @@ $stmt->close();
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-                <!-- Current User Display -->
-                <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'Asset/no-profile.jpg'; 
-                    ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
-                </a>
+                <?php if ($isLoggedIn && $currentUser): ?>
+                    <!-- Logged-in -->
+                    <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                        <img src="<?php echo !empty($currentUser['avatar_img']) 
+                            ? htmlspecialchars($currentUser['avatar_img']) 
+                            : 'Asset/no-profile.jpg'; ?>" 
+                            class="navbar-avatar">
+                        <span class="navbar-username">
+                            <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                        </span>
+                    </a>
 
-                <a href="AboutUs.php">About Us</a>
-                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
+                    <a href="AboutUs.php">About Us</a>
+                    <a href="#" onclick="logoutUser()">Logout</a>
+
+                <?php else: ?>
+                    <!-- Guest -->
+                    <a href="AboutUs.php">About Us</a>
+                    <a href="Login.php">Login</a>
+                <?php endif; ?>
             </div>
+
         </div>
     </nav>
 

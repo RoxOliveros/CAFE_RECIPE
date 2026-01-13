@@ -1,3 +1,9 @@
+<?php
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+$userId = $isLoggedIn ? $_SESSION['user_id'] : null;
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -498,15 +504,10 @@
         </div>
     </section>
 
-    <script src="toast-notifications.js" defer></script>
-    <script>
-
-        // Fetch current user
-        let currentUserId = null;
-
-        fetch('get-user-profile.php')
-            .then(res => res.json())
-            .then(data => { currentUserId = data.user_id; });
+<script src="toast-notifications.js" defer></script>
+<script>
+        const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false' ?>;
+        const currentUserId = <?= $userId !== null ? $userId : 'null' ?>;
 
         // Get recipe ID from URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -706,8 +707,9 @@
                         <img id="avatar_img" src="Asset/no-profile.jpg" alt="You" class="comment-avatar">
                         <div class="comment-input">
                             <textarea placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
-                            <button class="comment-submit" onclick="postComment()">Post Comment</button>
-                        </div>
+                            <button class="comment-submit" onclick="postComment()" ${!isLoggedIn ? 'disabled' : ''}>
+                                ${!isLoggedIn ? 'Login to comment' : 'Post Comment'}
+                            </button>
                     </div>
                     
                     <div class="comments-list">
@@ -725,12 +727,17 @@
 
         // Toggle like
         function toggleLike() {
+            if (!isLoggedIn) {
+                window.location.href = "login.php";
+                return;
+            }
+
             const btn = document.getElementById('likeBtn');
             const count = document.getElementById('likeCount');
 
             let currentCount = parseInt(count.textContent);
             let action = '';
-            
+
             if (btn.classList.contains('active')) {
                 btn.classList.remove('active');
                 count.textContent = currentCount - 1;
@@ -740,29 +747,31 @@
                 count.textContent = currentCount + 1;
                 action = 'add-like';
             }
-            
-            const requestData = {
-                action: action,
-                recipe_id: recipeId
-            }
 
             fetch('add-remove-like.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: action,
+                    recipe_id: recipeId
+                })
             });
         }
 
+
         // Toggle save
         function toggleSave() {
+            if (!isLoggedIn) {
+                window.location.href = "login.php";
+                return;
+            }
+
             const btn = document.getElementById('saveBtn');
             const count = document.getElementById('saveCount');
 
             let currentCount = parseInt(count.textContent);
             let action = '';
-            
+
             if (btn.classList.contains('active')) {
                 btn.classList.remove('active');
                 count.textContent = currentCount - 1;
@@ -772,20 +781,17 @@
                 count.textContent = currentCount + 1;
                 action = 'add-save';
             }
-            
-            const requestData = {
-                action: action,
-                recipe_id: recipeId
-            }
 
             fetch('add-remove-bookmark.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: action,
+                    recipe_id: recipeId
+                })
             });
         }
+
 
         // Post comment
         function postComment() {
@@ -836,17 +842,17 @@
 
         // Fetch avatar image
         async function loadProfile() {
+            if (!isLoggedIn) return;
+
             try {
-                // Fetch JSON data from backend
                 const response = await fetch('get-user-profile.php');
                 const data = await response.json();
-
-                // Find the image element by id, and set the receive image
                 document.getElementById('avatar_img').src = data.avatar_img;
             } catch (error) {
-                console.error('Error loading user profile: ', error);
+                console.error('Profile load skipped (guest)');
             }
         }
+
 
         // Toggle comment dropdown
         function toggleCommentBtnDropdown(event, commentId) {

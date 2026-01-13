@@ -1,25 +1,24 @@
 <?php
-// Include database connection and fetch top contributors
+
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']); 
+
 require_once 'config/database.php';
 require_once 'getTopContributors.php';
 
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Login.php");
-    exit;
+$currentUser = null;
+if ($isLoggedIn) {
+    $user_id = $_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $currentUser = $result->fetch_assoc();
+    $stmt->close();
 }
-
-// Fetch current user info
-$user_id = $_SESSION['user_id'];
-
-$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$currentUser = $result->fetch_assoc();
-$stmt->close();
+$currentUserId = $isLoggedIn ? $_SESSION['user_id'] : null;
+echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null') . ";</script>";
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +33,7 @@ $stmt->close();
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="homepage-style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="toast.css?v=<?php echo time(); ?>">
 
 </head>
 
@@ -43,7 +43,7 @@ $stmt->close();
         <div class="container d-flex align-items-center">
 
             <!-- LOGO -->
-            <a class="navbar-brand me-auto" href="#">
+            <a class="navbar-brand me-auto" href="homepage.php">
                 <img src="Asset/LogoSC.png" alt="Sweet Creation Logo" width="70" height="60">
             </a>
 
@@ -59,38 +59,44 @@ $stmt->close();
                         <a class="nav-link active" href="#">HOME</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="Recipes.php">RECIPES</a>
+                        <a class="nav-link " href="Recipes.php">RECIPES</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="YourCreation.php">YOUR CREATION</a>
+                        <a class="nav-link" href="<?php echo $isLoggedIn ? 'YourCreation.php' : 'Login.php'; ?>">YOUR CREATION</a>
                     </li>
                     <li class="nav-item flex-fill">
                         <a class="nav-link" href="AboutUs.php">ABOUT US</a>
                     </li>
                 </ul>
             </div>
+
             
-            <div class="hamburger" onclick="toggleMenu()">
+            <div class="hamburger">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-                <!-- Current User Display -->
-                <a href="Profile.php?id=<?php echo $currentUser['user_id'] ?? $_SESSION['user_id']; ?>" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
-                    ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
-                </a>
-
-                <a href="AboutUs.php">About Us</a>
-                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
-            </div>
+                    <?php if ($isLoggedIn && $currentUser): ?>
+                        <!-- Logged-in menu: Profile, About Us, Logout -->
+                        <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                            <img src="<?php 
+                                echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                                    'Asset/no-profile.jpg'; 
+                            ?>" alt="Avatar" class="navbar-avatar">
+                            <span class="navbar-username">
+                                <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                            </span>
+                        </a>
+                        <a href="AboutUs.php">About Us</a>
+                        <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
+                    <?php else: ?>
+                        <!-- Non-logged-in menu: About Us, Login -->
+                        <a href="AboutUs.php">About Us</a>
+                        <a href="Login.php" class="login-link">Login</a>
+                    <?php endif; ?>
+                </div>
         </div>
     </nav>
 
@@ -135,7 +141,6 @@ $stmt->close();
                     </ul>
                 </div>
 
-                <!-- RIGHT CONTENT - TOP CONTRIBUTORS -->
                 <!-- RIGHT CONTENT - TOP CONTRIBUTORS -->
                 <div class="col-lg-6">
                     <p class="top-subtitle">UPDATED DAILY BY THE COMMUNITY</p>
@@ -244,7 +249,6 @@ $stmt->close();
             </div>
 
             <!-- btns for desserts -->
-            <!-- btns for desserts -->
             <div class="carousel-icons">
                 <button class="icon-btn" data-category="cakes" data-tooltip="Cakes & Cupcakes">
                     <img src="Asset/cupcake.png" alt="Cupcake/Cake">
@@ -279,7 +283,7 @@ $stmt->close();
                         </button>
 
                         <div class="people-card">
-                            <img src="Asset/von1.png" class="people-img" alt="Person">
+                            <img src="Asset/von.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>RESMA<br><span>JESTER VON</span></h3>
                                 <p>BACK END DEV</p>
@@ -287,7 +291,7 @@ $stmt->close();
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/rox.png" class="people-img" alt="Person">
+                            <img src="Asset/rox1.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>OLIVEROS<br><span>ROXANNE</span></h3>
                                 <p>FRONT END DEV</p>
@@ -295,7 +299,7 @@ $stmt->close();
                         </div>
 
                         <div class="people-card">
-                            <img src="Asset/jobs.png" class="people-img" alt="Person">
+                            <img src="Asset/jobs1.png" class="people-img" alt="Person">
                             <div class="people-info">
                                 <h3>ARAW<br><span>JOBEL</span></h3>
                                 <p>FRONT END DEV</p>
@@ -313,15 +317,15 @@ $stmt->close();
                 <div class="col-lg-5">
                     <h2 class="our-people-title">OUR <span>PEOPLE</span></h2>
                     <div class="people-texts">
-                        <p class="our-people-text" data-index="0">Hi, I'm Von!</p>
-                        <p class="our-people-text" data-index="1">Hi, I'm Rox!</p>
-                        <p class="our-people-text" data-index="2">Hi, I'm Jobs!</p>
+                        <p class="our-people-text" data-index="0">Hi, I'm Von! The Back-end developer who builds and manages the logic behind Sweet Creation.</p>
+                        <p class="our-people-text" data-index="1">Hi, I'm Rox! The Front-end developer focused on creating clean and user-friendly interfaces.</p>
+                        <p class="our-people-text" data-index="2">Hi, I'm Jobs! The Front-end developer who ensures the site looks good and feels easy to use.</p>
                     </div>
 
                     <div class="people-avatars">
                         <img src="Asset/vonavatar.jpg" alt="Von">
                         <img src="Asset/roxavatar.jpg" alt="Rox">
-                        <img src="Asset/jobsavatar.jpg" alt="Jobs">
+                        <img src="Asset/jobelavatar.jpg" alt="Jobs">
                     </div>
                 </div>
             </div>
@@ -434,45 +438,59 @@ $stmt->close();
     </footer>
 
     <!-- Navbar script -->
+    <script src="toast.js"></script>
     <script>
-        const navbar = document.querySelector('.navbar');
+         const navbar = document.querySelector('.navbar');
+            window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // menubar
-        // Close hamburger menu
-        function toggleMenu() {
-            const menu = document.getElementById("hamburgerMenu");
+    // Hamburger menu toggle (enhanced)
+    function toggleMenu(event) {
+        event.preventDefault();  
+        event.stopPropagation();  
+        console.log("Hamburger clicked!"); 
+        
+        const menu = document.getElementById("hamburgerMenu");
+        if (menu) {
             menu.classList.toggle("active");
+            console.log("Menu active state:", menu.classList.contains("active"));  
+        } else {
+            console.error("Hamburger menu not found!");
         }
+    }
 
-        // Logout function (GLOBAL)
-        function logoutUser() {
-            const confirmLogout = confirm("Are you sure you want to logout?");
-            
-            if (confirmLogout) {
-                document.getElementById("hamburgerMenu").classList.remove("active");
-                window.location.href = "Logout.php";
-            }
+    // Backup event listener for hamburger
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.querySelector('.hamburger');
+        if (hamburger) {
+            hamburger.addEventListener('click', toggleMenu);
+            console.log("Event listener added to hamburger");
+        } else {
+            console.error("Hamburger element not found!");
         }
+    });
 
-        function viewProfile(userId) {
-            window.location.href = `Profile.php?id=${userId}`;
+    // Logout function
+    function logoutUser() {
+        const confirmLogout = confirm("Are you sure you want to logout?");
+        
+        if (confirmLogout) {
+            document.getElementById("hamburgerMenu").classList.remove("active");
+            window.location.href = "Logout.php";
         }
+    }
 
-        // Close menu when clicking any menu link EXCEPT logout
-        document.querySelectorAll("#hamburgerMenu a").forEach(link => {
-            link.addEventListener("click", () => {
-                document.getElementById("hamburgerMenu").classList.remove("active");
-            });
+    // Close menu when clicking any menu link EXCEPT logout
+    document.querySelectorAll("#hamburgerMenu a").forEach(link => {
+        link.addEventListener("click", () => {
+            document.getElementById("hamburgerMenu").classList.remove("active");
         });
-
+    });
     
 
         // carousel script
@@ -526,38 +544,31 @@ $stmt->close();
                     const cardRect = card.getBoundingClientRect();
                     const cardCenter = cardRect.left + cardRect.width / 2;
                     const distance = Math.abs(viewportCenter - cardCenter);
-                    
-                    // Calculate scale based on distance from center
-                    // Cards closer to center = larger scale
                     const maxDistance = viewportRect.width / 2;
                     const normalizedDistance = Math.min(distance / maxDistance, 1);
-                    
-                    // Scale from 1.15 (center) to 1.0 (sides)
                     const scale = 1.15 - (normalizedDistance * 0.15);
                     
-                    // Apply transform
                     card.style.transform = `scale(${scale})`;
                     card.style.zIndex = scale > 1.05 ? '10' : '1';
                     
-                    // Optional: Add slight opacity effect
                     card.style.opacity = 0.7 + (0.3 * (1 - normalizedDistance));
                 });
             }
 
           function renderCarousel(recipes) {
-    const messageEl = document.getElementById('noRecipesMessage');
-    track.innerHTML = '';
-    messageEl.style.display = 'none';
+                const messageEl = document.getElementById('noRecipesMessage');
+                track.innerHTML = '';
+                messageEl.style.display = 'none';
 
-    if (recipes.length === 0) {
-        messageEl.innerHTML = `
-            No recipes yet for this category. 
-            <a href="YourCreation.php">Add your recipe!</a>
-        `;
-        messageEl.style.display = 'block';
-        cards = [];
-        return;
-    }
+                if (recipes.length === 0) {
+                    messageEl.innerHTML = `
+                        No recipes yet for this category. 
+                        <a href="YourCreation.php">Add your recipe!</a>
+                    `;
+                    messageEl.style.display = 'block';
+                    cards = [];
+                    return;
+                }
 
     recipes.forEach(recipe => {
         const card = document.createElement('div');
@@ -602,7 +613,6 @@ $stmt->close();
     track.style.transform = 'translateX(0)';
     track.style.transition = 'none';
     
-    // Initial scale update
     setTimeout(() => {
         updateCardScales();
     }, 100);
@@ -613,16 +623,21 @@ $stmt->close();
 // Also call on window resize
 window.addEventListener('resize', updateCardScales);
 
-            function viewProfile(event, userId) {
-                event.stopPropagation();
-                const currentUserId = <?php echo $_SESSION['user_id']; ?>;
-                
-                if (userId === currentUserId) {
-                    window.location.href = 'Profile.php?id=' + userId;
-                } else {
-                    window.location.href = 'Other-Profile.php?id=' + userId;
-                }
-            }
+    function viewProfile(event, userId) {
+    event.stopPropagation();
+    
+    if (!currentUserId || currentUserId === null) {
+        window.location.href = 'Other-Profile.php?id=' + userId;  /
+        return;
+    }
+    
+    // For logged-in users, check if viewing own profile
+    if (userId === currentUserId) {
+        window.location.href = 'Profile.php?id=' + userId;
+    } else {
+        window.location.href = 'Other-Profile.php?id=' + userId;
+    }
+}
 
             function cardWidth() {
                 return cards[0] ? cards[0].offsetWidth + gap : 0;
@@ -644,7 +659,6 @@ window.addEventListener('resize', updateCardScales);
                     track.style.transition = 'none';
                     track.style.transform = 'translateX(0)';
                     
-                    // Update scales after move
                     updateCardScales();
                     
                     setTimeout(() => {
@@ -671,7 +685,6 @@ window.addEventListener('resize', updateCardScales);
                     track.style.transform = 'translateX(0)';
                     
                     setTimeout(() => {
-                        // Update scales after move
                         updateCardScales();
                         isMoving = false;
                     }, 500);
@@ -715,18 +728,15 @@ window.addEventListener('resize', updateCardScales);
         let currentIndex = 0;
 
         function showPerson(index) {
-            // Show the correct card
             peopleCards.forEach((card, i) => {
                 card.style.display = i === index ? "block" : "none";
             });
 
-            // Highlight the avatar
             avatarButtons.forEach((avatar, i) => {
                 avatar.style.opacity = i === index ? "1" : "0.5";
                 avatar.style.transform = i === index ? "scale(1.1)" : "scale(1)";
             });
 
-            // Show the correct text
             peopleTexts.forEach((text, i) => {
                 text.style.display = i === index ? "block" : "none";
             });
@@ -743,7 +753,6 @@ window.addEventListener('resize', updateCardScales);
             });
         });
 
-        // Carousel buttons
         function peopleNext() {
             currentIndex = (currentIndex + 1) % peopleCards.length;
             showPerson(currentIndex);
@@ -753,8 +762,6 @@ window.addEventListener('resize', updateCardScales);
             currentIndex = (currentIndex - 1 + peopleCards.length) % peopleCards.length;
             showPerson(currentIndex);
         }
-
-        // Initial display
         showPerson(0);
 
     </script>

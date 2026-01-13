@@ -1,12 +1,9 @@
 <?php
-header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 require_once 'config/database.php';
 
-$user_id = $_SESSION['user_id'];
+$isLoggedIn = isset($_SESSION['user_id']);
+$userId = $isLoggedIn ? $_SESSION['user_id'] : null;
 
 try {
     // Get all public recipes with user info

@@ -1,22 +1,31 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Login.php");
-    exit;
-}
+$isLoggedIn = isset($_SESSION['user_id']);
 
-// Include database connection
 require_once 'config/database.php';
 
-$user_id = $_SESSION['user_id'];
+$currentUser = null;
+if ($isLoggedIn) {
+    $user_id = $_SESSION['user_id'];
+    $stmt = $conn->prepare("
+        SELECT user_id, username, display_name, avatar_img
+        FROM users
+        WHERE user_id = ?
+    ");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $currentUser = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 
-// Fetch current user info
-$stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$currentUser = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$currentUserId = $isLoggedIn ? $_SESSION['user_id'] : null;
+
+echo "<script>
+    const currentUserId = " . ($currentUserId !== null ? $currentUserId : 'null') . ";
+    const isLoggedIn = " . ($isLoggedIn ? 'true' : 'false') . ";
+</script>";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -60,7 +69,7 @@ $stmt->close();
                         <a class="nav-link active" href="#">RECIPES</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="YourCreation.php">YOUR CREATION</a>
+                        <a class="nav-link" href="<?php echo $isLoggedIn ? 'YourCreation.php' : 'Login.php'; ?>">YOUR CREATION</a>
                     </li>
                     <li class="nav-item flex-fill">
                         <a class="nav-link" href="AboutUs.php">ABOUT US</a>
@@ -75,19 +84,24 @@ $stmt->close();
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-                <!-- Current User Display -->
-                <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'Asset/no-profile.jpg'; 
-                    ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
-                </a>
-
-                <a href="AboutUs.php">About Us</a>
-                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
+                <?php if ($isLoggedIn && $currentUser): ?>
+                    <!-- Logged-in menu: Profile, About Us, Logout -->
+                    <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                        <img src="<?php 
+                            echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                                'Asset/no-profile.jpg'; 
+                        ?>" alt="Avatar" class="navbar-avatar">
+                        <span class="navbar-username">
+                            <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
+                        </span>
+                    </a>
+                    <a href="AboutUs.php">About Us</a>
+                    <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
+                <?php else: ?>
+                    <!-- Non-logged-in menu: About Us, Login -->
+                    <a href="AboutUs.php">About Us</a>
+                    <a href="Login.php" class="login-link">Login</a>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
@@ -127,9 +141,9 @@ $stmt->close();
         </div>
     </section>
 
-    <button class="create-recipe-fab" id="createFab" onclick="openCreateRecipe()">
-        <i class="bi bi-plus-lg"></i>
-    </button>
+    <button class="create-recipe-fab" id="createFab" onclick="<?php echo $isLoggedIn ? 'openCreateRecipe()' : 'redirectToLogin()' ?>">
+    <i class="bi bi-plus-lg"></i>
+</button>
 
     <div class="fab-tooltip" id="fabTooltip">
         <span class="tooltip-emoji">✨</span>
@@ -256,7 +270,6 @@ $stmt->close();
             });
 
         function createRecipeCard(recipe) {
-            // Check the liked state from the database
             const likedClass = recipe.isLiked ? 'active' : '';
             const heartIcon = recipe.isLiked ? 'bi-heart-fill' : 'bi-heart';
 
@@ -297,15 +310,14 @@ $stmt->close();
                 </div>
             `;
         }
-
-        // Add this new function to handle profile viewing
         function viewProfile(event, userId) {
-            event.stopPropagation(); // Prevent card click
+            event.stopPropagation(); 
             
-            // Get current user ID from PHP (you'll need to add this in your PHP)
-            const currentUserId = <?php echo $_SESSION['user_id']; ?>;
+            if (!isLoggedIn || currentUserId === null) {
+                window.location.href = 'Other-Profile.php?id=' + userId;  
+                return;
+            }
             
-            // Check if viewing own profile
             if (userId === currentUserId) {
                 window.location.href = 'Profile.php?id=' + userId;
             } else {
@@ -313,7 +325,6 @@ $stmt->close();
             }
         }
 
-        // Function to render all recipes
         function renderRecipes(recipes) {
             const grid = document.getElementById('recipesGrid');
             grid.innerHTML = recipes.map(recipe => createRecipeCard(recipe)).join('');
@@ -345,7 +356,6 @@ $stmt->close();
             }
         }
 
-        // Close menu when clicking any menu link EXCEPT logout
         document.querySelectorAll("#hamburgerMenu a").forEach(link => {
             link.addEventListener("click", () => {
                 document.getElementById("hamburgerMenu").classList.remove("active");
@@ -420,38 +430,48 @@ $stmt->close();
 
         // Toggle heart/favorite
         function toggleHeart(event, element) {
-            event.stopPropagation();
-            element.classList.toggle('active');
-            
-            const icon = element.querySelector('i');
-            const card = element.closest('.recipe-card');
-            const likesElement = card.querySelector('.likes-count');
-            const recipeId = card.getAttribute('data-id');
-            
-            let currentLikes = parseInt(likesElement.textContent);
-            let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
+    event.stopPropagation();  // Prevent card click
+    
+    if (!isLoggedIn) {
+        window.location.href = 'Login.php';
+        return;  
+    }
+    
+    element.classList.toggle('active');
+    
+    const icon = element.querySelector('i');
+    const card = element.closest('.recipe-card');
+    const likesElement = card.querySelector('.likes-count');
+    const recipeId = card.getAttribute('data-id');
+    
+    let currentLikes = parseInt(likesElement.textContent);
+    let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
 
-            if (action === 'add-like') {
-                icon.classList.replace('bi-heart', 'bi-heart-fill');
-                likesElement.textContent = currentLikes + 1;
-            } else {
-                icon.classList.replace('bi-heart-fill', 'bi-heart');
-                likesElement.textContent = currentLikes - 1;
-            }
+    if (action === 'add-like') {
+        icon.classList.replace('bi-heart', 'bi-heart-fill');
+        likesElement.textContent = currentLikes + 1;
+    } else {
+        icon.classList.replace('bi-heart-fill', 'bi-heart');
+        likesElement.textContent = currentLikes - 1;
+    }
 
-            const requestData = {
-                action: action,
-                recipe_id: recipeId
-            }
+    const requestData = {
+        action: action,
+        recipe_id: recipeId
+    };
 
-            fetch('add-remove-like.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-        }
+    fetch('add-remove-like.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    }).catch(error => {
+        console.error('Error toggling like:', error);
+        element.classList.toggle('active');
+        likesElement.textContent = currentLikes;  
+    });
+}
 
         // View recipe function
         function viewRecipe(recipeId) {
@@ -480,6 +500,11 @@ $stmt->close();
         function openCreateRecipe() {
             window.location.href = 'AddRecipe.php'; 
         }
+
+        function redirectToLogin() {
+        window.location.href = 'Login.php';
+    }
+        
     </script>
 </body>
 </html>

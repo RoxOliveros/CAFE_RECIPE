@@ -1,15 +1,10 @@
 <?php
-header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 require_once 'config/database.php';
 
-$user_id = $_SESSION['user_id'];
-
-// Get recipe ID from URL
-$recipe_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$isLoggedIn = isset($_SESSION['user_id']);
+$userId = $isLoggedIn ? (int)$_SESSION['user_id'] : 0;
+$recipe_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($recipe_id <= 0) {
     echo json_encode(['error' => 'Invalid recipe ID']);
