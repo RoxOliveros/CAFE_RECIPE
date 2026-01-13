@@ -256,58 +256,62 @@ $stmt->close();
             });
 
         function createRecipeCard(recipe) {
-    return `
-        <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
-            <div class="recipe-image-container">
-                <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
-                <span class="recipe-category-badge">${recipe.categoryLabel}</span>
-                <div class="recipe-heart" onclick="toggleHeart(event, this)">
-                    <i class="bi bi-heart"></i>
-                </div>
-            </div>
-            <div class="recipe-content">
-                <h3 class="recipe-title">${recipe.title}</h3>
-                <div class="recipe-creator">
-                    <img src="${recipe.creatorAvatar}" alt="Creator" class="creator-avatar" onclick="viewProfile(event, ${recipe.creatorId})">
-                    <span class="creator-name" onclick="viewProfile(event, ${recipe.creatorId})">${recipe.creator}</span>
-                </div>
-                <div class="recipe-stats">
-                    <div class="stat-item">
-                        <i class="bi bi-heart-fill"></i>
-                        <span class="likes-count">${recipe.likes}</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-chat-fill"></i>
-                        <span>${recipe.comments}</span>
-                    </div>
-                </div>
-                <p class="recipe-description">${recipe.description}</p>
-                <div class="recipe-footer">
-                    <div class="recipe-time">
-                        <i class="bi bi-clock"></i>
-                        <span>${recipe.time}</span>
-                    </div>
-                    <button class="view-recipe-btn" onclick="viewRecipe(${recipe.id})">View Recipe</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
+            // Check the liked state from the database
+            const likedClass = recipe.isLiked ? 'active' : '';
+            const heartIcon = recipe.isLiked ? 'bi-heart-fill' : 'bi-heart';
 
-// Add this new function to handle profile viewing
-function viewProfile(event, userId) {
-    event.stopPropagation(); // Prevent card click
-    
-    // Get current user ID from PHP (you'll need to add this in your PHP)
-    const currentUserId = <?php echo $_SESSION['user_id']; ?>;
-    
-    // Check if viewing own profile
-    if (userId === currentUserId) {
-        window.location.href = 'Profile.php?id=' + userId;
-    } else {
-        window.location.href = 'Other-Profile.php?id=' + userId;
-    }
-}
+            return `
+                <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
+                    <div class="recipe-image-container">
+                        <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                        <span class="recipe-category-badge">${recipe.categoryLabel}</span>
+                        <div class="recipe-heart ${likedClass}" onclick="toggleHeart(event, this)">
+                            <i class="bi ${heartIcon}"></i>
+                        </div>
+                    </div>
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">${recipe.title}</h3>
+                        <div class="recipe-creator">
+                            <img src="${recipe.creatorAvatar}" alt="Creator" class="creator-avatar" onclick="viewProfile(event, ${recipe.creatorId})">
+                            <span class="creator-name" onclick="viewProfile(event, ${recipe.creatorId})">${recipe.creator}</span>
+                        </div>
+                        <div class="recipe-stats">
+                            <div class="stat-item">
+                                <i class="bi bi-heart-fill"></i>
+                                <span class="likes-count">${recipe.likes}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-chat-fill"></i>
+                                <span>${recipe.comments}</span>
+                            </div>
+                        </div>
+                        <p class="recipe-description">${recipe.description}</p>
+                        <div class="recipe-footer">
+                            <div class="recipe-time">
+                                <i class="bi bi-clock"></i>
+                                <span>${recipe.time}</span>
+                            </div>
+                            <button class="view-recipe-btn" onclick="viewRecipe(${recipe.id})">View Recipe</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Add this new function to handle profile viewing
+        function viewProfile(event, userId) {
+            event.stopPropagation(); // Prevent card click
+            
+            // Get current user ID from PHP (you'll need to add this in your PHP)
+            const currentUserId = <?php echo $_SESSION['user_id']; ?>;
+            
+            // Check if viewing own profile
+            if (userId === currentUserId) {
+                window.location.href = 'Profile.php?id=' + userId;
+            } else {
+                window.location.href = 'Other-Profile.php?id=' + userId;
+            }
+        }
 
         // Function to render all recipes
         function renderRecipes(recipes) {
@@ -422,17 +426,31 @@ function viewProfile(event, userId) {
             const icon = element.querySelector('i');
             const card = element.closest('.recipe-card');
             const likesElement = card.querySelector('.likes-count');
-            let currentLikes = parseInt(likesElement.textContent);
+            const recipeId = card.getAttribute('data-id');
             
-            if (element.classList.contains('active')) {
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill');
+            let currentLikes = parseInt(likesElement.textContent);
+            let action = element.classList.contains('active') ? 'add-like' : 'remove-like';
+
+            if (action === 'add-like') {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
                 likesElement.textContent = currentLikes + 1;
             } else {
-                icon.classList.remove('bi-heart-fill');
-                icon.classList.add('bi-heart');
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
                 likesElement.textContent = currentLikes - 1;
             }
+
+            const requestData = {
+                action: action,
+                recipe_id: recipeId
+            }
+
+            fetch('add-remove-like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
         }
 
         // View recipe function
