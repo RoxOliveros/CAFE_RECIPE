@@ -442,16 +442,16 @@ body {
 .carousel-wrapper {
     position: relative;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
+    max-width: 1400px;
+    margin: 50px auto 0;
+    padding: 0 60px;
 }
 
 .carousel-viewport {
-   width: calc(280px * 3 + 50px * 2);
-    overflow-x: hidden;
-    overflow-y: visible;
+    width: 100%;
+    overflow: hidden;
     display: flex;
+    justify-content: flex-start;
     align-items: center;
     padding: 40px 0;
     min-height: 520px;
@@ -459,8 +459,9 @@ body {
 
 .carousel-track {
     display: flex;
-    gap: 50px; 
+    gap: 50px;
     transition: transform 0.5s ease;
+    padding: 0 20px;
 }
 
 .carousel-track.no-transition {
@@ -524,11 +525,10 @@ body {
     font-size: 18px;
     font-weight: 700;
     color: #fff;
-    margin: 0 0 6px 0; /* Reduce this value (currently 4px or 12px) */
+    margin: 0 0 6px 0;
     line-height: 1.3;
     min-height: 48px;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-align: center;
@@ -595,7 +595,6 @@ body {
     line-height: 1.5;
     margin-bottom: 15px;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 36px;
@@ -701,11 +700,11 @@ body {
 }
 
 .nav-btn.left {
-    left: 30px;
+    left: 10px;
 }
 
 .nav-btn.right {
-    right: 40px;
+    right: 10px;
 }
 
 /* Category Icons */
@@ -726,7 +725,7 @@ body {
 }
 
 .icon-btn img {
-    width: 35px; /* Changed from 50px to 35px */
+    width: 35px;
     height: auto;
     opacity: 0.85;
     transition: opacity 0.3s ease;
@@ -808,6 +807,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 90%;
     height: 300px;
     padding: 0;
     font-size: 18px;
@@ -910,8 +910,8 @@ body {
     height: 42px;
     border-radius: 50%;
     border: none;
-    color: #fff; /* White icon */
-    background-color: #8b5a2b; /* Darker brown for contrast */
+    color: #fff;
+    background-color: #8b5a2b;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -925,7 +925,7 @@ body {
 }
 
 .people-nav:hover {
-    background: #6b300a; /* Even darker brown on hover */
+    background: #6b300a;
     color: #fff;
 }
 
