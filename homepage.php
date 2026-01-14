@@ -17,7 +17,11 @@ if ($isLoggedIn) {
     $stmt->close();
 }
 $currentUserId = $isLoggedIn ? $_SESSION['user_id'] : null;
-echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null') . ";</script>";
+
+echo "<script>
+    const currentUserId = " . ($currentUserId !== null ? $currentUserId : 'null') . ";
+    const isLoggedIn = " . ($isLoggedIn ? 'true' : 'false') . ";
+</script>";
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +37,7 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="homepage-style.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="toast.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="toast-notifications.css?v=<?php echo time(); ?>">
 
 </head>
 
@@ -62,7 +66,7 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
                         <a class="nav-link " href="Recipes.php">RECIPES</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="<?php echo $isLoggedIn ? 'YourCreation.php' : 'Login.php'; ?>">YOUR CREATION</a>
+                        <a class="nav-link" href="#" onclick="viewYourCreation()">YOUR CREATION</a>
                     </li>
                     <li class="nav-item flex-fill">
                         <a class="nav-link" href="AboutUs.php">ABOUT US</a>
@@ -71,7 +75,7 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
             </div>
 
             
-            <div class="hamburger">
+            <div class="hamburger" onclick="toggleMenu()">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -178,7 +182,7 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
                         <button 
                             class="bar rank-<?php echo $i + 1; ?>" 
                             style="width: <?php echo $barWidth; ?>%;"
-                            onclick="viewProfile(<?php echo $contributor['user_id']; ?>)"
+                            onclick="viewProfile(event, <?php echo $contributor['user_id']; ?>)"
                             title="View <?php echo $displayName; ?>'s profile">
 
                             <img src="<?php echo $avatar; ?>" 
@@ -438,7 +442,7 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
     </footer>
 
     <!-- Navbar script -->
-    <script src="toast.js"></script>
+    <script src="toast-notifications.js" defer></script>
     <script>
          const navbar = document.querySelector('.navbar');
             window.addEventListener('scroll', () => {
@@ -450,30 +454,10 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
     });
 
     // Hamburger menu toggle (enhanced)
-    function toggleMenu(event) {
-        event.preventDefault();  
-        event.stopPropagation();  
-        console.log("Hamburger clicked!"); 
-        
-        const menu = document.getElementById("hamburgerMenu");
-        if (menu) {
+    function toggleMenu() {
+            const menu = document.getElementById("hamburgerMenu");
             menu.classList.toggle("active");
-            console.log("Menu active state:", menu.classList.contains("active"));  
-        } else {
-            console.error("Hamburger menu not found!");
         }
-    }
-
-    // Backup event listener for hamburger
-    document.addEventListener('DOMContentLoaded', function() {
-        const hamburger = document.querySelector('.hamburger');
-        if (hamburger) {
-            hamburger.addEventListener('click', toggleMenu);
-            console.log("Event listener added to hamburger");
-        } else {
-            console.error("Hamburger element not found!");
-        }
-    });
 
     // Logout function
     function logoutUser() {
@@ -623,22 +607,6 @@ echo "<script>const currentUserId = " . ($currentUserId ? $currentUserId : 'null
 // Also call on window resize
 window.addEventListener('resize', updateCardScales);
 
-    function viewProfile(event, userId) {
-    event.stopPropagation();
-    
-    if (!currentUserId || currentUserId === null) {
-        window.location.href = 'Other-Profile.php?id=' + userId;  
-        return;
-    }
-    
-    // For logged-in users, check if viewing own profile
-    if (userId === currentUserId) {
-        window.location.href = 'Profile.php?id=' + userId;
-    } else {
-        window.location.href = 'Other-Profile.php?id=' + userId;
-    }
-}
-
             function cardWidth() {
                 return cards[0] ? cards[0].offsetWidth + gap : 0;
             }
@@ -719,6 +687,20 @@ window.addEventListener('resize', updateCardScales);
             });
         });
 
+        function viewProfile(event, userId) {
+            event.stopPropagation(); 
+            
+            if (!isLoggedIn) {
+                requireLogin("You need to login to view profiles.");
+                return;
+            }
+            
+            if (userId === currentUserId) {
+                window.location.href = 'Profile.php?id=' + userId;
+            } else {
+                window.location.href = 'Other-Profile.php?id=' + userId;
+            }
+        }
 
         /* our people script */
         const avatarButtons = document.querySelectorAll(".people-avatars img");
@@ -764,6 +746,20 @@ window.addEventListener('resize', updateCardScales);
         }
         showPerson(0);
 
+        function requireLogin(message = "Please login to continue.") {
+            showWarning(message, "Login Required");
+            setTimeout(() => {
+                window.location.href = "Login.php";
+            }, 1500); // let toast show first
+        }
+
+        function viewYourCreation() {
+            if (!isLoggedIn) {
+                requireLogin("You need to login to view your creations.");
+                return;
+            }
+            window.location.href = 'YourCreation.php';
+        }
     </script>
 </body>
 </html>

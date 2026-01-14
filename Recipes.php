@@ -69,7 +69,7 @@ echo "<script>
                         <a class="nav-link active" href="#">RECIPES</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="<?php echo $isLoggedIn ? 'YourCreation.php' : 'Login.php'; ?>">YOUR CREATION</a>
+                        <a class="nav-link" href="#" onclick="viewYourCreation()">YOUR CREATION</a>
                     </li>
                     <li class="nav-item flex-fill">
                         <a class="nav-link" href="AboutUs.php">ABOUT US</a>
@@ -310,11 +310,12 @@ echo "<script>
                 </div>
             `;
         }
+
         function viewProfile(event, userId) {
             event.stopPropagation(); 
             
             if (!isLoggedIn) {
-                requireLogin("Login to view profiles.");
+                requireLogin("You need to login to view profiles.");
                 return;
             }
             
@@ -506,12 +507,19 @@ echo "<script>
         }
 
         function requireLogin(message = "Please login to continue.") {
-        showWarning(message, "Login Required");
-        setTimeout(() => {
-            window.location.href = "Login.php";
-        }, 1500); // let toast show first
-    }
+            showWarning(message, "Login Required");
+            setTimeout(() => {
+                window.location.href = "Login.php";
+            }, 1500); // let toast show first
+        }
         
+        function viewYourCreation() {
+            if (!isLoggedIn) {
+                requireLogin("You need to login to view your creations.");
+                return;
+            }
+            window.location.href = 'YourCreation.php';
+        }
     </script>
 </body>
 </html>

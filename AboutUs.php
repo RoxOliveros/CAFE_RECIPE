@@ -16,6 +16,13 @@ if ($isLoggedIn) {
     $currentUser = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
+
+$currentUserId = $isLoggedIn ? $_SESSION['user_id'] : null;
+
+echo "<script>
+    const currentUserId = " . ($currentUserId !== null ? $currentUserId : 'null') . ";
+    const isLoggedIn = " . ($isLoggedIn ? 'true' : 'false') . ";
+</script>";
 ?>
 
 
@@ -32,6 +39,7 @@ if ($isLoggedIn) {
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="aboutus-style.css?v=<?php echo time(); ?>"> 
+    <link rel="stylesheet" href="toast-notifications.css">
 </head>
 
 <body>
@@ -60,7 +68,7 @@ if ($isLoggedIn) {
                         <a class="nav-link" href="Recipes.php">RECIPES</a>
                     </li>
                     <li class="nav-item flex-fill">
-                        <a class="nav-link" href="YourCreation.php">YOUR CREATION</a>
+                        <a class="nav-link" href="#" onclick="viewYourCreation()">YOUR CREATION</a>
                     </li>
                     <li class="nav-item flex-fill">
                         <a class="nav-link active" href="#">ABOUT US</a>
@@ -310,7 +318,7 @@ if ($isLoggedIn) {
                         <h2 class="cta-title">Ready to Share Your Sweet Creations?</h2>
                         <p class="cta-text">Join our community of passionate bakers and dessert lovers today</p>
                         <div class="cta-buttons">
-                            <button class="cta-btn primary" onclick="window.location.href='AddRecipe.php'">
+                            <button class="cta-btn primary" onclick="createRecipe()">
                                 <i class="bi bi-plus-circle"></i>
                                 Create Recipe
                             </button>
@@ -431,6 +439,7 @@ if ($isLoggedIn) {
         </div>
     </footer>
 
+    <script src="toast-notifications.js" defer></script>
     <script>
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');
@@ -464,6 +473,21 @@ if ($isLoggedIn) {
                 document.getElementById("hamburgerMenu").classList.remove("active");
             });
         });
+
+        function requireLogin(message = "Please login to continue.") {
+            showWarning(message, "Login Required");
+            setTimeout(() => {
+                window.location.href = "Login.php";
+            }, 1500); // let toast show first
+        }
+
+        function viewYourCreation() {
+            if (!isLoggedIn) {
+                requireLogin("You need to login to create a recipe.");
+                return;
+            }
+            window.location.href = 'AddRecipe.php';
+        }
     </script>
 </body>
 </html>

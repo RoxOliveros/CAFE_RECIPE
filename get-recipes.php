@@ -24,7 +24,7 @@ try {
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.visibility = 'public'
-            ORDER BY user_liked DESC, r.created_at DESC";
+            ORDER BY user_liked DESC, r.likes_count DESC, r.created_at DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userId);
