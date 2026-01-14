@@ -6,6 +6,63 @@ ini_set('display_errors', 0); // Hide errors for security in production
 session_start();
 require_once 'config/database.php';
 
+function validateTitle(string $title): void {
+    $title = trim($title);
+
+    if (strlen($title) < 3) {
+        throw new Exception("Title must be at least 3 characters long.");
+    }
+
+    if (!preg_match('/^[A-Za-z ]+$/', $title)) {
+        throw new Exception("Title may only contain letters and spaces.");
+    }
+
+    if (!preg_match('/[aeiouAEIOU]/', $title)) {
+        throw new Exception("Title must contain real words.");
+    }
+}
+
+function validateDescription(string $description): void {
+    $description = trim($description);
+
+    if (strlen($description) < 10) {
+        throw new Exception("Description must be at least 10 characters long.");
+    }
+
+    if (!preg_match('/[aeiouAEIOU]/', $description)) {
+        throw new Exception("Description must contain real words.");
+    }
+}
+
+function validateIngredient(string $ingredient): void {
+    $ingredient = trim($ingredient);
+
+    if ($ingredient === '') return;
+
+    if (!preg_match('/^[A-Za-z0-9 ,.\'"!?()\-\/°]+$/', $ingredient)) {
+        throw new Exception("Ingredients contain invalid characters.");
+    }
+
+    if (!preg_match('/[aeiouAEIOU]/', $ingredient)) {
+        throw new Exception("Each ingredient must contain readable words.");
+    }
+}
+
+function validateInstruction(string $instruction): void {
+    $instruction = trim($instruction);
+
+    if ($instruction === '') return;
+
+    if (!preg_match('/^[A-Za-z0-9 ,.\'"!?()\-\/°]+$/', $instruction)) {
+        throw new Exception("Instructions contain invalid characters.");
+    }
+
+    if (!preg_match('/[aeiouAEIOU]/', $instruction)) {
+        throw new Exception("Each instruction must contain readable words.");
+    }
+}
+
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in']);
@@ -34,9 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Collect and Validate form data
-        $title = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucwords(strtolower($_POST['title'])))));
+        $title = trim($_POST['title'] ?? '');validateTitle($title);
+        $title = $conn->real_escape_string(ucwords(strtolower($title)));
+
         $category = $conn->real_escape_string(trim($_POST['category']));
-        $description = $conn->real_escape_string(preg_replace('/\s+/', ' ', trim(ucfirst($_POST['description']))));
+        
+        $description = trim($_POST['description'] ?? '');validateDescription($description);
+        $description = $conn->real_escape_string(ucfirst($description));
+
         $cooking_time = $conn->real_escape_string(trim($_POST['time'])) . ' mins';
         $servings = intval($_POST['servings']);
         $visibility = $conn->real_escape_string(trim($_POST['visibility']));
@@ -93,32 +155,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Update Ingredients (Delete old and Insert new)
         $conn->query("DELETE FROM ingredients WHERE recipe_id = $recipe_id");
-        if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
-            $ing_stmt = $conn->prepare("INSERT INTO ingredients (recipe_id, ingredient_text, order_index) VALUES (?, ?, ?)");
-            foreach ($_POST['ingredients'] as $index => $ingredient) {
-                $ingredient = preg_replace('/\s+/', ' ', trim($ingredient));
-                if (!empty(trim($ingredient))) {
-                    $ing_stmt->bind_param("isi", $recipe_id, $ingredient, $index);
-                    $ing_stmt->execute();
+            if (!empty($_POST['ingredients']) && is_array($_POST['ingredients'])) {
+                $ing_stmt = $conn->prepare(
+                    "INSERT INTO ingredients (recipe_id, ingredient_text, order_index) VALUES (?, ?, ?)"
+                );
+                foreach ($_POST['ingredients'] as $index => $ingredient) {
+                    $ingredient = preg_replace('/\s+/', ' ', trim($ingredient));
+                    validateIngredient($ingredient);
+                    if ($ingredient === '') continue;
+                        $ing_stmt->bind_param("isi", $recipe_id, $ingredient, $index);
+                        $ing_stmt->execute();
+                    }
                 }
-            }
-        }
-        $conn->query("ALTER TABLE ingredients AUTO_INCREMENT = 1");
+                 $conn->query("ALTER TABLE ingredients AUTO_INCREMENT = 1");
 
         // Update Instructions (Delete old and Insert new)
         $conn->query("DELETE FROM instructions WHERE recipe_id = $recipe_id");
-        if (isset($_POST['instructions']) && is_array($_POST['instructions'])) {
-            $ins_stmt = $conn->prepare("INSERT INTO instructions (recipe_id, step_number, instruction_text) VALUES (?, ?, ?)");
-            foreach ($_POST['instructions'] as $index => $instruction) {
-                $instruction = preg_replace('/\s+/', ' ', trim($instruction));
-                if (!empty(trim($instruction))) {
-                    $step_num = $index + 1;
-                    $ins_stmt->bind_param("iis", $recipe_id, $step_num, $instruction);
-                    $ins_stmt->execute();
+            if (!empty($_POST['instructions']) && is_array($_POST['instructions'])) {
+                $ins_stmt = $conn->prepare(
+                    "INSERT INTO instructions (recipe_id, step_number, instruction_text) VALUES (?, ?, ?)"
+                );
+                foreach ($_POST['instructions'] as $index => $instruction) {
+                    $instruction = preg_replace('/\s+/', ' ', trim($instruction));
+                    validateInstruction($instruction);
+
+                    if ($instruction === '') continue;
+                        $step = $index + 1;
+                        $ins_stmt->bind_param("iis", $recipe_id, $step, $instruction);
+                        $ins_stmt->execute();
+                    }
                 }
-            }
-        }
-        $conn->query("ALTER TABLE instructions AUTO_INCREMENT = 1");
+                $conn->query("ALTER TABLE instructions AUTO_INCREMENT = 1");
 
         $conn->commit();
         echo json_encode([

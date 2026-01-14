@@ -900,7 +900,7 @@
             if (!titlePattern.test(trimmed)) {
                 return {
                     valid: false,
-                    message: 'Title must contain real words (letters only).'
+                    message: 'Title must contain real words.'
                 };
             }
 
@@ -971,16 +971,27 @@
                 };
             }
 
+            // must contain vowels (anti-gibberish)
             if (!/[aeiouAEIOU]/.test(trimmed)) {
                 return {
                     valid: false,
-                    message: 'Instruction must contain real words.'
+                    message: 'Instruction must contain readable words.'
                 };
             }
 
-            const instructionPattern = /^[A-Za-z0-9 /.'\-,:!?]+$/;
+            // allow numbers & symbols
+            const pattern = /^[A-Za-z0-9 ,.'\-\/°!?()]+$/;
+
+            if (!pattern.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Instruction contains invalid characters.'
+                };
+            }
+
             return { valid: true };
         }
+
         
 </script>
 </body>
