@@ -157,7 +157,7 @@ echo "<script>
                                 <i class="bi bi-trophy"></i>
                                 <p>
                                     No contributors yet.<br>
-                                    Be the first to <a href="YourCreation.php">create a recipe</a>!
+                                    Be the first to <a href="#" onclick="viewYourCreation()">create a recipe</a>!
                                 </p>
                             </div>
                         <?php else: ?>
@@ -461,13 +461,13 @@ echo "<script>
 
     // Logout function
     function logoutUser() {
-        const confirmLogout = confirm("Are you sure you want to logout?");
-        
-        if (confirmLogout) {
-            document.getElementById("hamburgerMenu").classList.remove("active");
-            window.location.href = "Logout.php";
-        }
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    
+    if (confirmLogout) {
+        document.getElementById("hamburgerMenu").classList.remove("active");
+        window.location.href = "Login.php";  // Changed from "Logout.php" to "Login.php"
     }
+}
 
     // Close menu when clicking any menu link EXCEPT logout
     document.querySelectorAll("#hamburgerMenu a").forEach(link => {
@@ -547,7 +547,7 @@ echo "<script>
                 if (recipes.length === 0) {
                     messageEl.innerHTML = `
                         No recipes yet for this category. 
-                        <a href="YourCreation.php">Add your recipe!</a>
+                        <a href="#" onclick="viewYourCreation()">Add your recipe!</a>
                     `;
                     messageEl.style.display = 'block';
                     cards = [];
