@@ -415,7 +415,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Recipe Title <span class="required">*</span></label>
-                            <input type="text" list="recipe-title-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" id="recipe-title" maxlength="50" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
+                            <input type="text" list="recipe-title-list" id="recipeTitle" maxlength="50" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>                        
                         </div>
 
                         <datalist id="recipe-title-list"></datalist>
@@ -434,7 +434,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Description <span class="required">*</span></label>
-                            <textarea oninput="this.value = this.value.replace(/^[ \n]/g, '')" maxlength="200" class="form-control" name="description" placeholder="Brief description of your recipe..." style="resize: none;" required></textarea>
+                            <textarea id="recipeDescription" oninput="this.value = this.value.replace(/^[ \n]/g, '')" maxlength="200" class="form-control" name="description" placeholder="Brief description of your recipe..." style="resize: none;" required></textarea>
                         </div>
 
                         <div class="mb-3">
@@ -676,6 +676,49 @@
        // Form submission
         document.getElementById('createRecipeForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const titleInput = document.getElementById('recipeTitle');
+            const descriptionInput = document.getElementById('recipeDescription');
+
+            // TITLE VALIDATION
+            const titleCheck = validateTitleValue(titleInput.value);
+            if (!titleCheck.valid) {
+                showError(titleCheck.message, 'Validation Error');
+                titleInput.focus();
+                return;
+            }
+
+            // DESCRIPTION VALIDATION
+            const descCheck = validateDescriptionValue(descriptionInput.value);
+            if (!descCheck.valid) {
+                showError(descCheck.message, 'Validation Error');
+                descriptionInput.focus();
+                return;
+            }         
+            
+            // INGREDIENT VALIDATION 
+            const ingredientInputs = document.querySelectorAll('input[name="ingredients[]"]');
+            for (let input of ingredientInputs) {
+                const ingredientCheck = validateIngredientValue(input.value);
+                if (!ingredientCheck.valid) {
+                    showError(ingredientCheck.message, 'Validation Error');
+                    input.focus();
+                    return;
+                }
+            }
+
+            // INSTRUCTION VALIDATION (NEW)
+            const instructionInputs = document.querySelectorAll('input[name="instructions[]"]');
+            for (let input of instructionInputs) {
+                const instructionCheck = validateInstructionValue(input.value);
+                if (!instructionCheck.valid) {
+                    showError(instructionCheck.message, 'Validation Error');
+                    input.focus();
+                    return;
+                }
+            }
+            
+            e.preventDefault();
             
             const formData = new FormData(this);
 
@@ -840,7 +883,105 @@
                 }
             }
         });
-    </script>
 
+        // validation for title
+        function validateTitleValue(value) {
+            const trimmed = value.trim();
+
+            if (trimmed.length < 3) {
+                return {
+                    valid: false,
+                    message: 'Title must be at least 3 characters.'
+                };
+            }
+
+            const titlePattern = /^(?=.*[aeiouAEIOU])[A-Za-z ]{3,}$/;
+
+            if (!titlePattern.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Title must contain real words (letters only).'
+                };
+            }
+
+            return { valid: true };
+        }
+
+        //validation for description
+        function validateDescriptionValue(value) {
+            const trimmed = value.trim();
+
+            if (trimmed.length < 10) {
+                return {
+                    valid: false,
+                    message: 'Description must be at least 10 characters.'
+                };
+            }
+
+            if (!/[aeiouAEIOU]/.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Description must contain real words.'
+                };
+            }
+
+            const descriptionPattern = /^[A-Za-z0-9 ,.'"!?()\-\n]+$/;
+
+            if (!descriptionPattern.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Description contains invalid characters.'
+                };
+            }
+
+            return { valid: true };
+        }
+
+        // validation for ingredients
+        function validateIngredientValue(value) {
+            const trimmed = value.trim();
+
+            if (trimmed.length < 3) {
+                return {
+                    valid: false,
+                    message: 'Each ingredient must be at least 3 characters.'
+                };
+            }
+
+            if (!/[aeiouAEIOU]/.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Ingredient must contain real words.'
+                };
+            }
+
+            const ingredientPattern = /^[A-Za-z0-9 /.'\-]+$/;
+
+            return { valid: true };
+        }
+
+        // validation for instructions
+        function validateInstructionValue(value) {
+            const trimmed = value.trim();
+
+            if (trimmed.length < 3) {
+                return {
+                    valid: false,
+                    message: 'Each instruction must be at least 3 characters.'
+                };
+            }
+
+            if (!/[aeiouAEIOU]/.test(trimmed)) {
+                return {
+                    valid: false,
+                    message: 'Instruction must contain real words.'
+                };
+            }
+
+            const instructionPattern = /^[A-Za-z0-9 /.'\-,:!?]+$/;
+            return { valid: true };
+        }
+        
+</script>
 </body>
 </html>
