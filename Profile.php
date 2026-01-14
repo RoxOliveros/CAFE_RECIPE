@@ -72,9 +72,9 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="toast-notifications.css">
-    <link rel="stylesheet" href="navbar.css">
-    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="toast-notifications.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="profile.css?v=<?php echo time(); ?>">
     
 </head>
 <body>
@@ -120,9 +120,14 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                         echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
                             'Asset/no-profile.jpg'; 
                     ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
+                    <div class="user-text-details" style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <span class="navbar-username" style="font-size: 16px; font-weight: 600;">
+                            <?php echo htmlspecialchars($currentUser['display_name']); ?>
+                        </span>
+                        <span class="navbar-username" style="font-size: 13px; font-weight: 100; color: #b08261;">
+                            @<?php echo htmlspecialchars($currentUser['username']); ?>
+                        </span>
+                    </div>
                 </a>
                 <a href="AboutUs.php">About Us</a>
                 <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
@@ -163,7 +168,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                         <p class="profile-bio" id="profileBio"><?php echo $bio; ?></p>
                         
                         <div class="profile-meta">
-                            <span><i class="bi bi-calendar3"></i> Joined <?php echo $member_since; ?></span>
+                            <span><i class="bi bi-calendar-fill" style="color: #c89b52;"></i> Joined <?php echo $member_since; ?></span>
                         </div>
                         
                         <div class="profile-stats">
@@ -191,15 +196,15 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
         <div class="container">
             <ul class="nav nav-tabs profile-tabs" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#recipes">
-                        <i class="bi bi-grid-3x3-gap-fill"></i> Recipes
-                    </a>
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#recipes-tab">
+                        <i class="bi bi-grid-3x3"></i> Recipes
+                    </button>
                 </li>
                 <?php if ($is_own_profile): ?>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#saved">
-                        <i class="bi bi-bookmark-fill"></i> Saved
-                    </a>
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#liked-tab">
+                        <i class="bi bi-heart-fill"></i> Liked
+                    </button>
                 </li>
                 <?php endif; ?>
             </ul>
@@ -294,6 +299,16 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
         const profileUserId = <?php echo $profile_user_id; ?>;
         const currentUserId = <?php echo $current_user_id; ?>;
         const isOwnProfile = <?php echo $is_own_profile ? 'true' : 'false'; ?>;
+
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
 
         function toggleMenu() {
             document.getElementById("hamburgerMenu").classList.toggle("active");

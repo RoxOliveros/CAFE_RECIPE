@@ -1046,3 +1046,27 @@ body {
 .modal-body {
     padding: 20px;
 }
+
+.no-recipes-message {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    font-size: 18px;
+    color: #666;
+    text-align: center;
+    background: transparent;
+}
+
+.no-recipes-message a {
+    color: #6b300a;
+    text-decoration: underline;
+    font-weight: 600;
+    margin-left: 5px;
+}

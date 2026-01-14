@@ -90,9 +90,14 @@ echo "<script>
                             ? htmlspecialchars($currentUser['avatar_img']) 
                             : 'Asset/no-profile.jpg'; ?>" 
                             class="navbar-avatar">
-                        <span class="navbar-username">
-                            <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                        </span>
+                        <div class="user-text-details" style="display: flex; flex-direction: column; line-height: 1.2;">
+                            <span class="navbar-username" style="font-size: 16px; font-weight: 600;">
+                                <?php echo htmlspecialchars($currentUser['display_name']); ?>
+                            </span>
+                            <span class="navbar-username" style="font-size: 13px; font-weight: 100; color: #b08261;">
+                                @<?php echo htmlspecialchars($currentUser['username']); ?>
+                            </span>
+                        </div>
                     </a>
 
                     <a href="AboutUs.php">About Us</a>

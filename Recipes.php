@@ -91,9 +91,14 @@ echo "<script>
                             echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
                                 'Asset/no-profile.jpg'; 
                         ?>" alt="Avatar" class="navbar-avatar">
-                        <span class="navbar-username">
-                            <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                        </span>
+                        <div class="user-text-details" style="display: flex; flex-direction: column; line-height: 1.2;">
+                            <span class="navbar-username" style="font-size: 16px; font-weight: 600;">
+                                <?php echo htmlspecialchars($currentUser['display_name']); ?>
+                            </span>
+                            <span class="navbar-username" style="font-size: 13px; font-weight: 100; color: #b08261;">
+                                @<?php echo htmlspecialchars($currentUser['username']); ?>
+                            </span>
+                        </div>
                     </a>
                     <a href="AboutUs.php">About Us</a>
                     <a class="login-link" onclick="logoutUser()">Logout</a>
@@ -318,7 +323,7 @@ echo "<script>
                 requireLogin("You need to login to view profiles.");
                 return;
             }
-            
+            console.log("Viewing profile of user ID:", userId);
             if (userId === currentUserId) {
                 window.location.href = 'Profile.php?id=' + userId;
             } else {

@@ -50,7 +50,7 @@ $stats = [
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="navbar.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="other-profile-style.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="toast.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="toast-notifications.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -100,9 +100,14 @@ $stats = [
                         echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
                             'Asset/no-profile.jpg'; 
                     ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
+                    <div class="user-text-details" style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <span class="navbar-username" style="font-size: 16px; font-weight: 600;">
+                            <?php echo htmlspecialchars($currentUser['display_name']); ?>
+                        </span>
+                        <span class="navbar-username" style="font-size: 13px; font-weight: 100; color: #b08261;">
+                            @<?php echo htmlspecialchars($currentUser['username']); ?>
+                        </span>
+                    </div>
                 </a>
 
                 <a href="AboutUs.php">About Us</a>
@@ -117,65 +122,8 @@ $stats = [
             <div class="profile-card">
                 <div class="profile-cover"></div>
                 
-                <div class="profile-info-wrapper">
-                    <div class="profile-avatar-section">
-                        <img src="<?php echo htmlspecialchars($profileUser['avatar_img']); ?>" 
-                             alt="Profile Avatar" class="profile-avatar">
-                        
-                        <div class="profile-actions">
-                            <button class="follow-btn" id="followBtn" onclick="toggleFollow()">
-                                <i class="bi bi-person-plus-fill"></i>
-                                <span id="followText">Follow</span>
-                            </button>
-                            
-                            <div class="dropdown">
-                                <button class="more-options-btn" type="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="hideUser()">
-                                            <i class="bi bi-eye-slash"></i>
-                                            Hide Posts
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="#" onclick="blockUser()">
-                                            <i class="bi bi-shield-x"></i>
-                                            Block User
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-details">
-                        <h1 class="profile-name"><?php echo htmlspecialchars($profileUser['display_name']); ?></h1>
-                        <p class="profile-username">@<?php echo htmlspecialchars($profileUser['username']); ?></p>
-                        
-                        <p class="profile-bio"><?php echo htmlspecialchars($profileUser['bio']); ?></p>
-                        
-                        <div class="profile-meta">
-                            <span><i class="bi bi-geo-alt-fill"></i> <?php echo htmlspecialchars($profileUser['location']); ?></span>
-                            <span><i class="bi bi-calendar-fill"></i> Joined <?php echo date('F Y', strtotime($profileUser['joined_date'])); ?></span>
-                        </div>
-
-                        <div class="profile-stats">
-                            <div class="stat-item" onclick="showFollowers()">
-                                <span class="stat-number"><?php echo number_format($stats['followers']); ?></span>
-                                <span class="stat-label">Followers</span>
-                            </div>
-                            <div class="stat-item" onclick="showFollowing()">
-                                <span class="stat-number"><?php echo number_format($stats['following']); ?></span>
-                                <span class="stat-label">Following</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number"><?php echo $stats['recipes']; ?></span>
-                                <span class="stat-label">Recipes</span>
-                            </div>
-                        </div>
-                    </div>
+                <div id="profileContainer" class="profile-info-wrapper">
+                    <!-- Profile information will be loaded here -->    
                 </div>
             </div>
         </div>
@@ -354,7 +302,7 @@ $stats = [
         </div>
     </footer>
 
-    <script src="toast.js"></script>
+    <script src="toast-notifications.js"></script>
     <script>
         const profileUserId = <?php echo $profile_user_id; ?>;
         const currentUserId = <?php echo $current_user_id; ?>;
@@ -466,6 +414,94 @@ $stats = [
             { id: 7, name: 'Baker\'s Delight', username: 'bakersdelight', avatar: 'https://i.pravatar.cc/150?img=27' },
             { id: 8, name: 'Sweet Tooth', username: 'sweettooth', avatar: 'https://i.pravatar.cc/150?img=20' }
         ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) {
+            alert('User not found');
+            window.location.href = 'homepage.php';
+        }
+
+        // Fetch user's bookmarked recipes from database
+        fetch('get-user-profile.php?id=' + userId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyBookmark').style.display = 'block';
+                    return;
+                }
+                renderProfile(data);
+            })
+            .catch(err => console.error(err));
+
+        function renderProfile(profile) {
+            const container = document.getElementById('profileContainer');
+
+            const bio = profile.bio ? profile.bio : 'No bio yet.';
+            const date = new Date(profile.created_at);
+            const $member_since = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            container.innerHTML = `
+                <div class="profile-avatar-section">
+                    <img src="${profile.avatar_img}" alt="Profile Avatar" class="profile-avatar">
+                    
+                    <div class="profile-actions">
+                        <button class="follow-btn" id="followBtn" onclick="toggleFollow()">
+                            <i class="bi bi-person-plus-fill"></i>
+                            <span id="followText">Follow</span>
+                        </button>
+                        
+                        <div class="dropdown">
+                            <button class="more-options-btn" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="hideUser()">
+                                        <i class="bi bi-eye-slash"></i>
+                                        Hide Posts
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" onclick="blockUser()">
+                                        <i class="bi bi-shield-x"></i>
+                                        Block User
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-details">
+                    <h1 class="profile-name">${profile.display_name}</h1>
+                    <p class="profile-username">@${profile.username}</p>
+                    
+                    <p class="profile-bio">${bio}</p>
+                    
+                    <div class="profile-meta">
+                        <span><i class="bi bi-calendar-fill" style="color: #c89b52;"></i> Joined ${$member_since}</span>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">${profile.recipes_count}</span>
+                            <span class="stat-label">Recipes</span>
+                        </div>
+                        <div class="stat-item" onclick="showFollowers()">
+                            <span class="stat-number">${profile.follower_count}</span>
+                            <span class="stat-label">Followers</span>
+                        </div>
+                        <div class="stat-item" onclick="showFollowing()">
+                            <span class="stat-number">${profile.following_count}</span>
+                            <span class="stat-label">Following</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         // Navbar scroll effect
         const navbar = document.querySelector('.navbar');

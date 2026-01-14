@@ -8,6 +8,7 @@ try {
     // Get all public recipes with user info
     $sql = "SELECT 
                 r.recipe_id,
+                r.user_id AS creator_id,
                 r.title,
                 r.description,
                 r.category,
@@ -49,6 +50,7 @@ try {
                 'category' => $row['category'],
                 'categoryLabel' => $categoryLabels[$row['category']] ?? strtoupper($row['category']),
                 'image' => $row['thumbnail_url'],
+                'creatorId' => (int)$row['creator_id'],
                 'creator' => '@' . $row['username'],
                 'creatorAvatar' => $row['avatar_img'] ?? 'Asset/no-profile.jpg',
                 'likes' => (int)$row['likes_count'],
