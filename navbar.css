@@ -139,3 +139,23 @@
     font-weight: 500;
     font-size: 14px;
 }
+
+/* Ensures the profile link aligns the image and the text block side-by-side */
+.profile-link.current-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+}
+
+/* Stacks the display name and username */
+.user-text-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Optional: Slight color change for username to make it look like a secondary label */
+.user-text-details span:last-child {
+    opacity: 0.8;
+}

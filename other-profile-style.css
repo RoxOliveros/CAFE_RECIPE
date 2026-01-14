@@ -185,10 +185,6 @@ body {
     gap: 6px;
 }
 
-.profile-meta i {
-    color: #c89b52;
-}
-
 .profile-stats {
     display: flex;
     gap: 40px;
@@ -350,6 +346,29 @@ body {
     font-size: 16px;
     color: #999;
     margin-bottom: 20px;
+}
+
+/* Follow Modal */
+.follow-user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.follow-user-item:hover {
+    background: #f9f4e9;
+}
+
+.follow-user-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 /* Modal Styling */

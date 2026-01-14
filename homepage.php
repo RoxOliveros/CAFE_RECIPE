@@ -77,20 +77,30 @@ $stmt->close();
             </div>
 
             <div class="hamburger-menu" id="hamburgerMenu">
-                <!-- Current User Display -->
-                <a href="Profile.php?id=<?php echo $currentUser['user_id'] ?? $_SESSION['user_id']; ?>" class="current-user profile-link">
-                    <img src="<?php 
-                        echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
-                            'https://ui-avatars.com/api/?name=' . urlencode($currentUser['display_name'] ?? $currentUser['username']) . '&background=ff6b9d&color=fff&bold=true&size=40'; 
-                    ?>" alt="Avatar" class="navbar-avatar">
-                    <span class="navbar-username">
-                        <?php echo htmlspecialchars($currentUser['display_name'] ?? $currentUser['username']); ?>
-                    </span>
-                </a>
-
-                <a href="AboutUs.php">About Us</a>
-                <a href="#" class="login-link" onclick="logoutUser()">Logout</a>
-            </div>
+                    <?php if ($isLoggedIn && $currentUser): ?>
+                        <!-- Logged-in menu: Profile, About Us, Logout -->
+                        <a href="Profile.php?id=<?php echo $currentUser['user_id']; ?>" class="current-user profile-link">
+                            <img src="<?php 
+                                echo !empty($currentUser['avatar_img']) ? htmlspecialchars($currentUser['avatar_img']) : 
+                                    'Asset/no-profile.jpg'; 
+                            ?>" alt="Avatar" class="navbar-avatar">
+                            <div class="user-text-details" style="display: flex; flex-direction: column; line-height: 1.2;">
+                                <span class="navbar-username" style="font-size: 16px; font-weight: 600;">
+                                    <?php echo htmlspecialchars($currentUser['display_name']); ?>
+                                </span>
+                                <span class="navbar-username" style="font-size: 13px; font-weight: 100; color: #b08261;">
+                                    @<?php echo htmlspecialchars($currentUser['username']); ?>
+                                </span>
+                            </div>
+                        </a>
+                        <a href="AboutUs.php">About Us</a>
+                        <a class="login-link" onclick="logoutUser()">Logout</a> 
+                    <?php else: ?>
+                        <!-- Non-logged-in menu: About Us, Login -->
+                        <a href="AboutUs.php">About Us</a>
+                        <a href="Login.php" class="login-link">Login</a>
+                    <?php endif; ?>
+                </div>
         </div>
     </nav>
 
