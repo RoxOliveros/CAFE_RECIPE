@@ -79,7 +79,7 @@ echo "<script>
             <div class="notification-container">
             <button class="notification-bell" onclick="toggleNotifications()" id="notificationBtn">
                 <i class="bi bi-bell-fill"></i>
-                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                <span class="notification-badge" id="notificationBadge" style="display: flex;">999</span>
             </button>
             
             <!-- Notification Dropdown -->
@@ -747,6 +747,10 @@ function toggleNotifications() {
     
     if (dropdown.classList.contains('show')) {
         loadNotifications();
+    } else {
+        const badge = document.getElementById('notificationBadge');
+        badge.textContent = 0;
+        badge.style.display = 'flex';
     }
 }
 

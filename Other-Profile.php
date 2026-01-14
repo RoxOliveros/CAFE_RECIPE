@@ -1,5 +1,7 @@
 <?php
 session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: Login.php");
     exit;
@@ -18,23 +20,25 @@ $stmt->execute();
 $currentUser = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// DUMMY DATA for profile user (replace with real query later)
-$profileUser = [
-    'user_id' => $profile_user_id,
-    'username' => 'sweetbaker101',
-    'display_name' => 'Sarah Johnson',
-    'avatar_img' => 'https://i.pravatar.cc/300?img=47',
-    'bio' => '🧁 Passionate home baker | 🍰 Sharing my sweet creations | 📍 Manila, PH',
-    'location' => 'Manila, Philippines',
-    'joined_date' => '2023-06-15'
-];
+$profile_stmt = $conn->prepare("SELECT user_id, username, display_name, avatar_img FROM users WHERE user_id = ?");
+$profile_stmt->bind_param("i", $profile_user_id);
+$profile_stmt->execute();
+$userProfile = $profile_stmt->get_result()->fetch_assoc();
+$profile_stmt->close();
 
-// DUMMY STATS
-$stats = [
-    'followers' => 1234,
-    'following' => 567,
-    'recipes' => 28
-];
+// Check if current user is following the profile user
+$is_following = false;
+$check_stmt = $conn->prepare("SELECT 1 FROM followers WHERE follower_id = ? AND following_id = ?");
+$check_stmt->bind_param("ii", $current_user_id, $profile_user_id);
+$check_stmt->execute();
+$is_following = $check_stmt->get_result()->num_rows > 0;
+$check_stmt->close();
+
+$userProfileName = htmlspecialchars($userProfile['display_name']);
+
+echo "<script>
+    const isLoggedIn = " . ($isLoggedIn ? 'true' : 'false') . ";
+</script>";
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +46,7 @@ $stats = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($profileUser['display_name']); ?> - Sweet Creation</title>
+    <title><?php echo $userProfileName; ?> - Sweet Creation</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -164,17 +168,15 @@ $stats = [
     </section>
 
     <!-- FOLLOWERS MODAL -->
-    <div class="modal fade" id="followersModal" tabindex="-1">
+    <div class="modal fade" id="followModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Followers</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="followersList">
-                        <!-- Followers list will be loaded here -->
-                    </div>
+                <div class="modal-body" id="followModalBody">
+                    <!-- Follower list will be loaded here -->
                 </div>
             </div>
         </div>
@@ -188,10 +190,8 @@ $stats = [
                     <h5 class="modal-title">Following</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="followingList">
-                        <!-- Following list will be loaded here -->
-                    </div>
+                <div class="modal-body" id="followingModalBody">
+                    <!-- Following list will be loaded here -->
                 </div>
             </div>
         </div>
@@ -307,114 +307,6 @@ $stats = [
         const profileUserId = <?php echo $profile_user_id; ?>;
         const currentUserId = <?php echo $current_user_id; ?>;
 
-        // DUMMY DATA for recipes
-        const dummyRecipes = [
-            {
-                id: 1,
-                image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&h=500&fit=crop',
-                title: 'Red Velvet Cupcakes',
-                likes: 324,
-                comments: 45
-            },
-            {
-                id: 2,
-                image: 'https://images.unsplash.com/photo-1557925923-cd4648e211a0?w=500&h=500&fit=crop',
-                title: 'Chocolate Chip Cookies',
-                likes: 289,
-                comments: 32
-            },
-            {
-                id: 3,
-                image: 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=500&h=500&fit=crop',
-                title: 'Strawberry Cheesecake',
-                likes: 512,
-                comments: 67
-            },
-            {
-                id: 4,
-                image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&h=500&fit=crop',
-                title: 'Blueberry Muffins',
-                likes: 198,
-                comments: 28
-            },
-            {
-                id: 5,
-                image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=500&h=500&fit=crop',
-                title: 'Vanilla Macarons',
-                likes: 445,
-                comments: 89
-            },
-            {
-                id: 6,
-                image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&h=500&fit=crop',
-                title: 'Lemon Tart',
-                likes: 276,
-                comments: 41
-            },
-            {
-                id: 7,
-                image: 'https://images.unsplash.com/photo-1586985289906-406988974504?w=500&h=500&fit=crop',
-                title: 'Chocolate Brownies',
-                likes: 367,
-                comments: 53
-            },
-            {
-                id: 8,
-                image: 'https://images.unsplash.com/photo-1509365390695-33c2a5b153f9?w=500&h=500&fit=crop',
-                title: 'Cinnamon Rolls',
-                likes: 421,
-                comments: 72
-            }
-        ];
-
-        // DUMMY DATA for liked recipes
-        const dummyLikedRecipes = [
-            {
-                id: 9,
-                image: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=500&h=500&fit=crop',
-                title: 'Tiramisu',
-                likes: 634,
-                comments: 91
-            },
-            {
-                id: 10,
-                image: 'https://images.unsplash.com/photo-1562440499-64c9a111f713?w=500&h=500&fit=crop',
-                title: 'Apple Pie',
-                likes: 502,
-                comments: 78
-            },
-            {
-                id: 11,
-                image: 'https://images.unsplash.com/photo-1517427294546-5aa121f68e8a?w=500&h=500&fit=crop',
-                title: 'Panna Cotta',
-                likes: 389,
-                comments: 56
-            },
-            {
-                id: 12,
-                image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=500&h=500&fit=crop',
-                title: 'Caramel Flan',
-                likes: 298,
-                comments: 44
-            }
-        ];
-
-        // DUMMY DATA for followers
-        const dummyFollowers = [
-            { id: 1, name: 'Emily Parker', username: 'emilyeats', avatar: 'https://i.pravatar.cc/150?img=1' },
-            { id: 2, name: 'Michael Chen', username: 'chefmike', avatar: 'https://i.pravatar.cc/150?img=12' },
-            { id: 3, name: 'Jessica Martinez', username: 'jessicabakes', avatar: 'https://i.pravatar.cc/150?img=9' },
-            { id: 4, name: 'David Kim', username: 'davidscuisine', avatar: 'https://i.pravatar.cc/150?img=13' },
-            { id: 5, name: 'Amanda Taylor', username: 'amandacooks', avatar: 'https://i.pravatar.cc/150?img=5' }
-        ];
-
-        // DUMMY DATA for following
-        const dummyFollowing = [
-            { id: 6, name: 'Chef Gordon', username: 'gordonbakes', avatar: 'https://i.pravatar.cc/150?img=33' },
-            { id: 7, name: 'Baker\'s Delight', username: 'bakersdelight', avatar: 'https://i.pravatar.cc/150?img=27' },
-            { id: 8, name: 'Sweet Tooth', username: 'sweettooth', avatar: 'https://i.pravatar.cc/150?img=20' }
-        ];
-
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
 
@@ -442,15 +334,20 @@ $stats = [
             const bio = profile.bio ? profile.bio : 'No bio yet.';
             const date = new Date(profile.created_at);
             const $member_since = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const followingActive = <?php echo $is_following ? 'true' : 'false'; ?>;
+            const btnClass = followingActive ? 'follow-btn following' : 'follow-btn';
+            const btnText = followingActive ? 'Following' : 'Follow';
+            const btnIcon = followingActive ? 'bi-person-check-fill' : 'bi-person-plus-fill';
 
             container.innerHTML = `
                 <div class="profile-avatar-section">
                     <img src="${profile.avatar_img}" alt="Profile Avatar" class="profile-avatar">
                     
                     <div class="profile-actions">
-                        <button class="follow-btn" id="followBtn" onclick="toggleFollow()">
-                            <i class="bi bi-person-plus-fill"></i>
-                            <span id="followText">Follow</span>
+                        <button class="${btnClass}" id="followBtn" onclick="toggleFollow()">
+                            <i class="bi ${btnIcon}"></i>
+                            <span id="followText">${btnText}</span>
                         </button>
                         
                         <div class="dropdown">
@@ -490,11 +387,11 @@ $stats = [
                             <span class="stat-number">${profile.recipes_count}</span>
                             <span class="stat-label">Recipes</span>
                         </div>
-                        <div class="stat-item" onclick="showFollowers()">
-                            <span class="stat-number">${profile.follower_count}</span>
+                        <div class="stat-item" onclick="showFollowersModal(<?php echo $profile_user_id; ?>)">
+                            <span class="stat-number" id="followerCount">${profile.follower_count}</span>
                             <span class="stat-label">Followers</span>
                         </div>
-                        <div class="stat-item" onclick="showFollowing()">
+                        <div class="stat-item" onclick="showFollowingModal(<?php echo $profile_user_id; ?>)">
                             <span class="stat-number">${profile.following_count}</span>
                             <span class="stat-label">Following</span>
                         </div>
@@ -536,66 +433,147 @@ $stats = [
             });
         });
 
+        let userRecipes = [];
+
+        fetch('get-others-recipes.php?id=' + userId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyBookmark').style.display = 'block';
+                    return;
+                }
+                userRecipes = data.recipes;
+                loadUserRecipes();
+            })
+            .catch(err => console.error(err));
+
         // Load user recipes with dummy data
         function loadUserRecipes() {
             const container = document.getElementById('userRecipes');
-            container.innerHTML = dummyRecipes.map(recipe => `
-                <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
-                    <img src="${recipe.image}" alt="${recipe.title}">
-                    <div class="recipe-overlay">
-                        <h3>${recipe.title}</h3>
-                        <div class="recipe-stats">
-                            <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
-                            <span><i class="bi bi-chat-fill"></i> ${recipe.comments}</span>
+
+            if (userRecipes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recipes">
+                        <div class="no-recipes-content">
+                            <i class="bi bi-inbox"></i>
+                            <h3>No Recipes Yet</h3>
+                            <p>This user hasn't posted any recipes yet. Check back later!</p>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            } else {
+                container.innerHTML = userRecipes.map(recipe => `
+                    <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <div class="recipe-overlay">
+                            <h3>${recipe.title}</h3>
+                            <div class="recipe-stats">
+                                <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
+                                <span><i class="bi bi-chat-fill"></i> ${recipe.comments}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
+
+        let likedRecipes = [];
+        
+        fetch('get-others-likes.php?id=' + userId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyBookmark').style.display = 'block';
+                    return;
+                }
+                likedRecipes = data.liked_recipes;
+            })
+            .catch(err => console.error(err));
 
         // Load liked recipes with dummy data
         function loadLikedRecipes() {
             const container = document.getElementById('likedRecipes');
-            container.innerHTML = dummyLikedRecipes.map(recipe => `
-                <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
-                    <img src="${recipe.image}" alt="${recipe.title}">
-                    <div class="recipe-overlay">
-                        <h3>${recipe.title}</h3>
-                        <div class="recipe-stats">
-                            <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
-                            <span><i class="bi bi-chat-fill"></i> ${recipe.comments}</span>
+
+            if (likedRecipes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recipes">
+                        <div class="no-recipes-content">
+                            <i class="bi bi-heart"></i>
+                            <h3>No Liked Recipes Yet</h3>
+                            <p>This user hasn't liked any recipes yet. Check back later!</p>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            } else {
+                container.innerHTML = likedRecipes.map(recipe => `
+                    <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <div class="recipe-overlay">
+                            <h3>${recipe.title}</h3>
+                            <div class="recipe-stats">
+                                <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
+                                <span><i class="bi bi-chat-fill"></i> ${recipe.comments}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
-        // Load followers
-        function loadFollowers() {
-            const container = document.getElementById('followersList');
-            container.innerHTML = dummyFollowers.map(user => `
-                <div class="follow-user-item" onclick="viewUserProfile(${user.id})">
-                    <img src="${user.avatar}" alt="${user.name}">
-                    <div class="follow-user-info">
-                        <div class="follow-user-name">${user.name}</div>
-                        <div class="follow-user-username">@${user.username}</div>
+        async function showFollowersModal(userId) {
+            const modal = new bootstrap.Modal(document.getElementById('followModal'));
+            modal.show();
+            
+            try {
+                const response = await fetch(`get-followers.php?id=${userId}`);
+                const followers = await response.json();
+                
+                if (followers.length === 0) {
+                    document.getElementById('followModalBody').innerHTML = '<p class="text-center text-muted">No followers yet.</p>';
+                    return;
+                }
+                
+                document.getElementById('followModalBody').innerHTML = followers.map(user => `
+                    <div class="follow-user-item" onclick="viewProfile(event, ${user.id})">
+                        <img src="${user.avatar_img || 'Asset/no-profile.jpg'}" alt="${user.display_name}">
+                        <div>
+                            <div class="fw-bold">${user.display_name || user.username}</div>
+                            <div class="text-muted small">@${user.username}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
 
-        // Load following
-        function loadFollowing() {
-            const container = document.getElementById('followingList');
-            container.innerHTML = dummyFollowing.map(user => `
-                <div class="follow-user-item" onclick="viewUserProfile(${user.id})">
-                    <img src="${user.avatar}" alt="${user.name}">
-                    <div class="follow-user-info">
-                        <div class="follow-user-name">${user.name}</div>
-                        <div class="follow-user-username">@${user.username}</div>
+        async function showFollowingModal(userId) {
+            const modal = new bootstrap.Modal(document.getElementById('followingModal'));
+            modal.show();
+            
+            try {
+                const response = await fetch(`get-following.php?id=${userId}`);
+                const following = await response.json();
+                
+                if (following.length === 0) {
+                    document.getElementById('followingModalBody').innerHTML = '<p class="text-center text-muted">Not following anyone yet.</p>';
+                    return;
+                }
+                
+                document.getElementById('followingModalBody').innerHTML = following.map(user => `
+                    <div class="follow-user-item" onclick="viewProfile(event, ${user.id})">
+                        <img src="${user.avatar_img || 'Asset/no-profile.jpg'}" alt="${user.display_name}">
+                        <div>
+                            <div class="fw-bold">${user.display_name || user.username}</div>
+                            <div class="text-muted small">@${user.username}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
 
         // Toggle follow
@@ -604,17 +582,47 @@ $stats = [
             const text = document.getElementById('followText');
             const icon = btn.querySelector('i');
             
-            if (btn.classList.contains('following')) {
-                btn.classList.remove('following');
-                icon.className = 'bi bi-person-plus-fill';
-                text.textContent = 'Follow';
-                showToast('Unfollowed successfully', 'success');
-            } else {
-                btn.classList.add('following');
-                icon.className = 'bi bi-person-check-fill';
-                text.textContent = 'Following';
-                showToast('Following successfully', 'success');
-            }
+            const followers = document.getElementById('followerCount');
+            const followerCount = parseInt(followers.textContent);
+
+            const isFollowing = btn.classList.contains('following');
+            const action = isFollowing ? 'unfollow' : 'follow';
+
+            btn.disabled = true;
+            
+            fetch('toggle-follow.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: action, 
+                    other_user_id: profileUserId 
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    if (action === 'follow') {
+                        btn.classList.add('following');
+                        icon.className = 'bi bi-person-check-fill';
+                        text.textContent = 'Following';
+                        followers.textContent = followerCount + 1;
+                        showSuccess('Followed successfully');
+                    } else {
+                        btn.classList.remove('following');
+                        icon.className = 'bi bi-person-plus-fill';
+                        text.textContent = 'Follow';
+                        followers.textContent = followerCount - 1;
+                        showSuccess('Unfollowed successfully');
+                    }
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                console.error('Error:', err);
+            });
         }
 
         // Hide user
@@ -634,25 +642,9 @@ $stats = [
             }
         }
 
-        // Show followers modal
-        function showFollowers() {
-            loadFollowers();
-            const modal = new bootstrap.Modal(document.getElementById('followersModal'));
-            modal.show();
-        }
-
-        // Show following modal
-        function showFollowing() {
-            loadFollowing();
-            const modal = new bootstrap.Modal(document.getElementById('followingModal'));
-            modal.show();
-        }
-
         // View recipe
         function viewRecipe(recipeId) {
-            console.log('Viewing recipe:', recipeId);
-            showToast('Opening recipe...', 'info');
-            // window.location.href = 'ViewRecipe.php?id=' + recipeId;
+            window.location.href = 'ViewRecipe.php?id=' + recipeId;
         }
 
         // View user profile
@@ -697,7 +689,12 @@ $stats = [
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserRecipes();
+            const recipeTab = document.querySelector('[data-bs-target="#recipes-tab"]');
+            if (recipeTab) {
+                recipeTab.addEventListener('shown.bs.tab', function() {
+                    loadUserRecipes();
+                });
+            }
             
             // Load liked recipes when tab is shown
             const likedTab = document.querySelector('[data-bs-target="#liked-tab"]');
@@ -707,6 +704,21 @@ $stats = [
                 });
             }
         });
+
+        function viewProfile(event, userId) {
+            event.stopPropagation(); 
+            
+            if (!isLoggedIn) {
+                requireLogin("You need to login to view profiles.");
+                return;
+            }
+            console.log("Viewing profile of user ID:", userId);
+            if (userId === currentUserId) {
+                window.location.href = 'Profile.php?id=' + userId;
+            } else {
+                window.location.href = 'Other-Profile.php?id=' + userId;
+            }
+        }
     </script>
     
     <style>

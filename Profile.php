@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 
 require_once 'config/database.php';
 session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: Login.php");
@@ -60,6 +61,10 @@ $display_name = htmlspecialchars($profile_user['display_name'] ?? $profile_user[
 $username = htmlspecialchars($profile_user['username']);
 $bio = htmlspecialchars($profile_user['bio'] ?? 'No bio yet.');
 $member_since = date('F Y', strtotime($profile_user['created_at']));
+
+echo "<script>
+    const isLoggedIn = " . ($isLoggedIn ? 'true' : 'false') . ";
+</script>";
 ?>
 
 <!DOCTYPE html>
@@ -200,37 +205,27 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                         <i class="bi bi-grid-3x3"></i> Recipes
                     </button>
                 </li>
-                <?php if ($is_own_profile): ?>
                 <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#liked-tab">
-                        <i class="bi bi-heart-fill"></i> Liked
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#saved-tab">
+                        <i class="bi bi-bookmark-fill"></i> Saved
                     </button>
                 </li>
-                <?php endif; ?>
             </ul>
 
-            <div class="tab-content">
-                <div id="recipes" class="tab-pane fade show active">
+            <div class="tab-content mt-4">
+                <!-- RECIPES TAB -->
+                <div class="tab-pane fade show active" id="recipes-tab">
                     <div class="recipes-grid" id="recipesGrid">
-                        <div class="text-center" style="grid-column: 1 / -1;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+                        <!-- Dummy recipe cards will be loaded here -->
                     </div>
                 </div>
-                
-                <?php if ($is_own_profile): ?>
-                <div id="Bookmarks" class="tab-pane fade">
+
+                <!-- SAVED TAB -->
+                <div class="tab-pane fade" id="saved-tab">
                     <div class="recipes-grid" id="savedGrid">
-                        <div class="text-center" style="grid-column: 1 / -1;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+                        <!-- Dummy saved recipe cards will be loaded here -->
                     </div>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -243,7 +238,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                     <h5 class="modal-title"><i class="bi bi-pencil-fill"></i> Edit Profile</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="padding: 30px;">
+                <div class="modal-body" style="padding: 30px; margin-bottom: -10px;">
                     <form id="editProfileForm" enctype="multipart/form-data">
                         <div class="avatar-upload-section">
                             <img src="<?php echo $avatar; ?>" alt="Avatar Preview" class="avatar-preview" id="avatarPreview">
@@ -280,22 +275,145 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
         </div>
     </div>
 
-    <!-- Follow Modal -->
+    <!-- FOLLOWERS MODAL -->
     <div class="modal fade" id="followModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="followModalTitle">Followers</h5>
+                    <h5 class="modal-title">Followers</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="followModalBody"></div>
+                <div class="modal-body" id="followModalBody">
+                    <!-- Follower list will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- FOLLOWING MODAL -->
+    <div class="modal fade" id="followingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Following</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="followingModalBody">
+                    <!-- Following list will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer-->
+    <footer class="custom-footer">
+        <div class="container py-5">
+            <div class="row">
+                
+                <!-- LOGO & ABOUT -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <img src="Asset/footerLogo.png" alt="Sweet Creation" height="120" class="mb-3">
+        
+                    <!-- Social Media -->
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-facebook" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-instagram" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-twitter" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="bi bi-youtube" style="font-size: 18px;"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- QUICK LINKS -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Quick Links</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="homepage.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Home</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="Recipes.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Recipes</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="YourCreation.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">Your Creation</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="AboutUs.php" style="color: #fff3e0; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">About Us</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- CATEGORIES -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Categories</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Cakes & Cupcakes</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Cookies & Bars</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Frozen Desserts</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Pies & Tarts</a>
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 14px;">Custards & Puddings</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- CONTACT INFO -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 style="color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 20px;">Contact Us</h5>
+                    <div style="margin-bottom: 15px;">
+                        <i class="bi bi-envelope-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <a href="mailto:sweetcreation@gmail.com" style="color: #fff3e0; text-decoration: none; font-size: 14px;">sweetcreation@gmail.com</a>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <i class="bi bi-telephone-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <a href="tel:+639344767596" style="color: #fff3e0; text-decoration: none; font-size: 14px;">+63 934 476 7596</a>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <i class="bi bi-geo-alt-fill" style="color: #fff3e0; margin-right: 10px;"></i>
+                        <span style="color: #fff3e0; font-size: 14px;">Binan, Laguna, PH</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM BAR -->
+            <div style="border-top: 2px solid rgba(255,255,255,0.2); margin-top: 30px; padding-top: 25px;">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <p style="color: #fff3e0; font-size: 13px; margin: 0;">
+                            © 2024 Sweet Creation. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Privacy Policy</a>
+                        <span style="color: #fff3e0;">•</span>
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Terms of Service</a>
+                        <span style="color: #fff3e0;">•</span>
+                        <a href="#" style="color: #fff3e0; text-decoration: none; font-size: 13px; margin: 0 10px;">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="toast-notifications.js" defer></script>
     <script>
+
         const profileUserId = <?php echo $profile_user_id; ?>;
         const currentUserId = <?php echo $current_user_id; ?>;
         const isOwnProfile = <?php echo $is_own_profile ? 'true' : 'false'; ?>;
@@ -452,14 +570,27 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
             );
         }
 
-        async function loadRecipes() {
+        let userRecipes = [];
+
+        // Fetch user's recipes from database
+        fetch('get-user-recipes.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyRecipe').style.display = 'block';
+                    return;
+                }
+                userRecipes = data.recipes;
+                loadUserRecipes();
+            })
+            .catch(err => console.error(err));
+
+        async function loadUserRecipes() {
             try {
-                const response = await fetch(`get-user-recipes.php?user_id=${profileUserId}`);
-                const recipes = await response.json();
-                
                 const grid = document.getElementById('recipesGrid');
                 
-                if (recipes.length === 0) {
+                if (userRecipes.length === 0) {
                     if (isOwnProfile) {
                         grid.innerHTML = `
                             <div class="no-recipes">
@@ -468,7 +599,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                                     <h3>No Recipes Yet</h3>
                                     <p>Start sharing your delicious creations with the community! Your first recipe is just a click away.</p>
                                     <a href="YourCreation.php" class="btn-create-recipe">
-                                        <i class="bi bi-plus-circle-fill"></i> Create Your First Recipe
+                                        <i class="bi bi-plus-circle-fill" style="height: 75px; weight: 75x;"></i> Create Your First Recipe
                                     </a>
                                 </div>
                             </div>
@@ -487,7 +618,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                     return;
                 }
                 
-                grid.innerHTML = recipes.map(recipe => `
+                grid.innerHTML = userRecipes.map(recipe => `
                     <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
                         <img src="${recipe.image}" alt="${recipe.title}">
                         <div class="recipe-overlay">
@@ -512,25 +643,37 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                 `;
             }
         }
+        
+        let savedRecipes = [];
+
+        // Fetch user's recipes from database
+        fetch('get-user-bookmarks.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('emptyRecipe').style.display = 'block';
+                    return;
+                }
+                savedRecipes = data.bookmarks;
+            })
+            .catch(err => console.error(err));
 
         async function loadSavedRecipes() {
             if (!isOwnProfile) return;
             
             try {
-                const response = await fetch('get-saved-recipes.php');
-                const recipes = await response.json();
-                
                 const grid = document.getElementById('savedGrid');
                 
-                if (recipes.length === 0) {
+                if (savedRecipes.length === 0) {
                     grid.innerHTML = `
                         <div class="no-recipes">
                             <div class="no-recipes-content">
                                 <i class="bi bi-bookmark"></i>
                                 <h3>No Saved Recipes Yet</h3>
-                                <p>Start bookmarking your favorite recipes to find them easily later!</p>
+                                <p>Start bookmarking your favorite recipes to find them easily! Explore recipes to find out more.</p>
                                 <a href="Recipes.php" class="btn-create-recipe">
-                                    <i class="bi bi-search"></i> Explore Recipes
+                                    <i class="bi bi-search" style="height: 75px; weight: 75x;"></i> Explore Recipes
                                 </a>
                             </div>
                         </div>
@@ -538,7 +681,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                     return;
                 }
                 
-                grid.innerHTML = recipes.map(recipe => `
+                grid.innerHTML = savedRecipes.map(recipe => `
                     <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
                         <img src="${recipe.image}" alt="${recipe.title}">
                         <div class="recipe-overlay">
@@ -593,21 +736,19 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
 
         async function showFollowersModal(userId) {
             const modal = new bootstrap.Modal(document.getElementById('followModal'));
-            document.getElementById('followModalTitle').textContent = 'Followers';
-            document.getElementById('followModalBody').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
             modal.show();
             
             try {
-                const response = await fetch(`get-followers.php?user_id=${userId}`);
+                const response = await fetch(`get-followers.php?id=${userId}`);
                 const followers = await response.json();
                 
                 if (followers.length === 0) {
-                    document.getElementById('followModalBody').innerHTML = '<p class="text-center text-muted">No followers yet</p>';
+                    document.getElementById('followModalBody').innerHTML = '<p class="text-center text-muted">No followers yet.</p>';
                     return;
                 }
                 
                 document.getElementById('followModalBody').innerHTML = followers.map(user => `
-                    <div class="follow-user-item" onclick="window.location.href='Profile.php?id=${user.user_id}'">
+                    <div class="follow-user-item" onclick="viewProfile(event, ${user.id})">
                         <img src="${user.avatar_img || 'Asset/no-profile.jpg'}" alt="${user.display_name}">
                         <div>
                             <div class="fw-bold">${user.display_name || user.username}</div>
@@ -621,22 +762,20 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
         }
 
         async function showFollowingModal(userId) {
-            const modal = new bootstrap.Modal(document.getElementById('followModal'));
-            document.getElementById('followModalTitle').textContent = 'Following';
-            document.getElementById('followModalBody').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+            const modal = new bootstrap.Modal(document.getElementById('followingModal'));
             modal.show();
             
             try {
-                const response = await fetch(`get-following.php?user_id=${userId}`);
+                const response = await fetch(`get-following.php?id=${userId}`);
                 const following = await response.json();
                 
                 if (following.length === 0) {
-                    document.getElementById('followModalBody').innerHTML = '<p class="text-center text-muted">Not following anyone yet</p>';
+                    document.getElementById('followingModalBody').innerHTML = '<p class="text-center text-muted">Not following anyone yet.</p>';
                     return;
                 }
                 
-                document.getElementById('followModalBody').innerHTML = following.map(user => `
-                    <div class="follow-user-item" onclick="window.location.href='Profile.php?id=${user.user_id}'">
+                document.getElementById('followingModalBody').innerHTML = following.map(user => `
+                    <div class="follow-user-item" onclick="viewProfile(event, ${user.id})">
                         <img src="${user.avatar_img || 'Asset/no-profile.jpg'}" alt="${user.display_name}">
                         <div>
                             <div class="fw-bold">${user.display_name || user.username}</div>
@@ -653,12 +792,38 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
             window.location.href = `ViewRecipe.php?id=${id}`;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadRecipes();
-            if (isOwnProfile) {
-                loadSavedRecipes();
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            const recipeTab = document.querySelector('[data-bs-target="#recipes-tab"]');
+            if (recipeTab) {
+                recipeTab.addEventListener('shown.bs.tab', function() {
+                    loadUserRecipes();
+                });
+            }
+            
+            // Load liked recipes when tab is shown
+            const savedTab = document.querySelector('[data-bs-target="#saved-tab"]');
+            if (savedTab) {
+                savedTab.addEventListener('shown.bs.tab', function() {
+                    loadSavedRecipes();
+                });
             }
         });
+
+        function viewProfile(event, userId) {
+            event.stopPropagation(); 
+            
+            if (!isLoggedIn) {
+                requireLogin("You need to login to view profiles.");
+                return;
+            }
+            console.log("Viewing profile of user ID:", userId);
+            if (userId === currentUserId) {
+                window.location.href = 'Profile.php?id=' + userId;
+            } else {
+                window.location.href = 'Other-Profile.php?id=' + userId;
+            }
+        }
     </script>
 </body>
 </html>

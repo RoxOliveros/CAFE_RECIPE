@@ -848,7 +848,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
             if (!isLoggedIn) return;
 
             try {
-                const response = await fetch('get-user-profile.php');
+                const response = await fetch('get-user-profile.php?id=' + currentUserId);
                 const data = await response.json();
                 document.getElementById('avatar_img').src = data.avatar_img;
             } catch (error) {
