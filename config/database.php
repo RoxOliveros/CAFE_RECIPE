@@ -4,7 +4,7 @@ $DBHost = 'localhost';
 $DBUser = 'root';
 $DBPass = '';
 // $DBPass = 'admin123';
-// $DBPass = 'roxie_123';
+$DBPass = 'roxie_123';
 $DBName = 'sweet_creation';
 
 
