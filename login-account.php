@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
         // Get input
-        $username = trim($_POST['username']);
+        $username = trim(strtolower($_POST['username']));
         $password = trim($_POST['password']);
 
         if (empty($username) || empty($password)) {

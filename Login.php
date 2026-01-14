@@ -22,12 +22,12 @@
 
             <div class="form-group">
                 <label>Username</label>
-                <input type="username" name="username" placeholder="Enter username" autocomplete="off" required>
+                <input type="username" onkeydown="if(event.key === ' ') return false;" oninput="this.value = this.value.replace(/[^a-zA-Z0-9-_.]/g, '')" maxlength="20" name="username" placeholder="Enter username" autocomplete="off" required>
             </div>
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" placeholder="Enter password" autocomplete="new-password" required>
+                <input type="password" onkeydown="if(event.key === ' ') return false;" oninput="this.value = this.value.replace(/\s/g, '')" maxlength="20" name="password" placeholder="Enter password" autocomplete="new-password" required>
             </div>
 
             <button type="submit" class="submit-btn">Login</button>
@@ -87,8 +87,8 @@
                     } else {
                         // Show error toast
                         showError(data.message || 'Failed to login');
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
+                        loginBtn.textContent = originalText;
+                        loginBtn.disabled = false;
                     }
                 }, 1500);
             })

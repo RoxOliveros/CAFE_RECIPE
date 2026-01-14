@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Get input
         $display_name = trim($_POST['display_name']);
-        $username = trim($_POST['username']);
+        $username = trim(strtolower($_POST['username']));
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $conf_password = trim($_POST['confirm_password']);

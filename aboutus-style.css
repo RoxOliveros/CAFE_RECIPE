@@ -423,6 +423,27 @@ body {
     transform: translateY(-3px);
 }
 
+/* Modal */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #d08f43 0%, #c89b52 50%, #b15b22 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 15px 30px;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
 /* FOOTER */
 .custom-footer {
     background-color: #c79850;

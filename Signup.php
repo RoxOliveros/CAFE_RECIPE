@@ -23,27 +23,27 @@
 
             <div class="form-group">
                 <label>Display Name</label>
-                <input type="text" name="display_name" placeholder="Enter display name" required>
+                <input type="text" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" title="Only letters and spaces are allowed." maxlength="50" name="display_name" placeholder="Enter display name" required>
             </div>
 
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" placeholder="Enter username" required>
+                <input type="text" onkeydown="if(event.key === ' ') return false;" oninput="checkUsername(this)" title="Only letters, numbers, -, _, and . are allowed." maxlength="20" name="username" placeholder="Enter username" required>
             </div>
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" id="email" placeholder="Enter email" required>
+                <input type="email" onkeydown="if(event.key === ' ') return false;" oninput="checkEmail(this)" title="Please follow this format - example@gmail.com" maxlength="50" name="email" id="email" placeholder="Enter email" required>
             </div>
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" id="signupPassword" placeholder="Create password" required>
+                <input type="password" onkeydown="if(event.key === ' ') return false;" oninput="checkPassword(this)" maxlength="20" name="password" id="signupPassword" placeholder="Create password" required>
             </div>
 
             <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm_password" id="confirmPassword" placeholder="Confirm password" required>
+                <input type="password" onkeydown="if(event.key === ' ') return false;" maxlength="20" name="confirm_password" id="confirmPassword" placeholder="Confirm password" required>
             </div>
 
            <div class="form-group">
@@ -143,6 +143,36 @@
 
             img.classList.add('selected');
             document.getElementById('selectedAvatar').value = img.src;
+        }
+
+        function checkEmail(input) {
+            const start = input.selectionStart;
+            
+            const newValue = input.value.replace(/[^a-zA-Z0-9-_.@]/g, '');
+            
+            if (input.value !== newValue) {
+                input.value = newValue;
+                
+                input.setSelectionRange(start - 1, start - 1);
+            }
+        }
+
+        function checkPassword(input) {
+            if (input.value.length > 0 && input.value.length < 8) {
+                input.setCustomValidity("Your password must be 8 characters or more.");
+            } else {
+                input.setCustomValidity(""); 
+            }
+        }
+
+        function checkUsername(input) {
+            input.value = input.value.replace(/[^a-zA-Z0-9-_.]/g, '')
+
+            if (input.value.length > 0 && input.value.length < 8) {
+                input.setCustomValidity("Your username must be 8 characters or more.");
+            } else {
+                input.setCustomValidity(""); 
+            }
         }
     </script>
 

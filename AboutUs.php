@@ -96,7 +96,7 @@ echo "<script>
                     </a>
 
                     <a href="AboutUs.php">About Us</a>
-                    <a href="#" onclick="logoutUser()">Logout</a>
+                    <a class="login-link" onclick="logoutUser()">Logout</a>
 
                 <?php else: ?>
                     <!-- Guest -->
@@ -459,12 +459,20 @@ echo "<script>
 
         // Logout function
         function logoutUser() {
-            const confirmLogout = confirm("Are you sure you want to logout?");
+            showConfirmation("Are you sure you want to logout?", () => {
             
-            if (confirmLogout) {
-                document.getElementById("hamburgerMenu").classList.remove("active");
-                window.location.href = "Logout.php";
-            }
+                const loadingToast = showLoading('Logging out...', 'Please wait');
+
+                setTimeout(() => {
+                    loadingToast.close();
+                    showSuccess("You have logged out successfully! 🎉");
+
+                    setTimeout(() => {
+                        document.getElementById("hamburgerMenu").classList.remove("active");
+                        window.location.href = "Logout.php";
+                    }, 1500);
+                }, 1500);
+            });
         }
 
         // Close menu when clicking any menu link EXCEPT logout
@@ -483,9 +491,19 @@ echo "<script>
 
         function viewYourCreation() {
             if (!isLoggedIn) {
+                requireLogin("You need to login to view your creations.");
+                return;
+            }
+            
+            window.location.href = 'YourCreation.php';
+        }
+
+        function createRecipe() {
+            if (!isLoggedIn) {
                 requireLogin("You need to login to create a recipe.");
                 return;
             }
+            
             window.location.href = 'AddRecipe.php';
         }
     </script>

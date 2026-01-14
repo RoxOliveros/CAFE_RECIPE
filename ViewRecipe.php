@@ -706,7 +706,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
                     <div class="comment-box">
                         <img id="avatar_img" src="Asset/no-profile.jpg" alt="You" class="comment-avatar">
                         <div class="comment-input">
-                            <textarea placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
+                            <textarea oninput="this.value = this.value.replace(/^[ ]/g, '')" maxlength="200" placeholder="Share your thoughts about this recipe..." id="commentText" style="resize: none;"></textarea>
                             <button class="comment-submit" onclick="postComment()">
                                 ${!isLoggedIn ? 'Login to comment' : 'Post Comment'}
                             </button>
@@ -729,7 +729,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         // Toggle like
         function toggleLike() {
             if (!isLoggedIn) {
-                requireLogin("Login to like this recipe ❤️");
+                requireLogin("Please login to like this recipe. ❤️");
                 return;
             }
 
@@ -763,7 +763,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         // Toggle save
         function toggleSave() {
             if (!isLoggedIn) {
-                requireLogin("Login to save this recipe 🔖");
+                requireLogin("Please login to save this recipe. 🔖");
                 return;
             }
 
@@ -797,7 +797,7 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         // Post comment
         function postComment() {
             if (!isLoggedIn) {
-                showInfo('Please login to comment 💬', 'Login required');
+                requireLogin('Please login to comment. 💬');
                 setTimeout(() => {
                     window.location.href = 'login.php';
                 }, 1500);
@@ -824,15 +824,17 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
     })
     .then(response => response.json())
     .then(data => {
-        loadingToast.close();
+        setTimeout(() => {
+            loadingToast.close();
 
-        if (data.success) {
-            showSuccess('Comment posted successfully! 🎉');
-            textarea.value = '';
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            showError(data.message || 'Failed to post comment');
-        }
+            if (data.success) {
+                showSuccess('Comment posted successfully! 🎉');
+                textarea.value = '';
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showError(data.message || 'Failed to post comment');
+            }
+        }, 1500);
     })
     .catch(() => {
         loadingToast.close();

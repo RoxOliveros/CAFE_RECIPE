@@ -252,13 +252,13 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                         
                         <div class="mb-3">
                             <label for="displayName" class="form-label">Display Name</label>
-                            <input type="text" class="form-control" id="displayName" name="display_name" 
+                            <input type="text" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" placeholder="Change display name" class="form-control" id="displayName" name="display_name" 
                                    value="<?php echo htmlspecialchars($profile_user['display_name'] ?? $profile_user['username']); ?>" required maxlength="50">
                         </div>
                         
                         <div class="mb-3">
                             <label for="bioText" class="form-label">Bio</label>
-                            <textarea class="form-control" id="bioText" name="bio" rows="4" 
+                            <textarea oninput="this.value = this.value.replace(/^[ \n]/g, '')" class="form-control" id="bioText" name="bio" rows="4" 
                                       maxlength="200" placeholder="Tell us about yourself..."><?php 
                                       $raw_bio = $profile_user['bio'] ?? '';
                                       echo htmlspecialchars($raw_bio);
@@ -331,6 +331,8 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
             // Disable button immediately
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+                    
+            const loadingToast = showLoading('Updating profile...', 'Please wait');
             
             try {
                 const response = await fetch('edit-profile.php', {
@@ -345,42 +347,48 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Close modal FIRST
-                    const modalElement = document.getElementById('editProfileModal');
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    modal.hide();
-                    
-                    // Wait for modal animation to complete
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Clean up any leftover backdrops
-                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('padding-right');
-                    document.body.style.removeProperty('overflow');
-                    
-                    // Update profile display
-                    document.getElementById('profileDisplayName').textContent = data.user.display_name;
-                    document.getElementById('profileBio').textContent = data.user.bio || 'No bio yet.';
-                    
-                    // Update avatar if changed
-                    if (data.user.avatar_img) {
-                        const avatarUrl = data.user.avatar_img + '?t=' + Date.now();
-                        document.getElementById('profileAvatar').src = avatarUrl;
-                        document.getElementById('avatarPreview').src = avatarUrl;
-                    }
-                    
-                    console.log('About to show success toast');
-                    showSuccess('Your profile has been updated successfully!', 'Profile Updated!');
+                    setTimeout(() => {
+                        loadingToast.close();
+
+                    }, 1500);
+                    setTimeout(() => { 
+                        console.log('About to show success toast');
+                        showSuccess('Your profile has been updated successfully!', 'Profile Updated!');
+
+                        // Close modal FIRST
+                        const modalElement = document.getElementById('editProfileModal');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        modal.hide();
+                        
+                        // Wait for modal animation to complete
+                        new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Clean up any leftover backdrops
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style.removeProperty('padding-right');
+                        document.body.style.removeProperty('overflow');
+                        
+                        // Update profile display
+                        document.getElementById('profileDisplayName').textContent = data.user.display_name;
+                        document.getElementById('profileBio').textContent = data.user.bio || 'No bio yet.';
+                        
+                        // Update avatar if changed
+                        if (data.user.avatar_img) {
+                            const avatarUrl = data.user.avatar_img + '?t=' + Date.now();
+                            document.getElementById('profileAvatar').src = avatarUrl;
+                            document.getElementById('avatarPreview').src = avatarUrl;
+                        }
+                        
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Save Changes';
+                    }, 1500);
                 } else {
                     showError(data.message || 'Failed to update profile. Please try again.');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showError('Network error. Please check your connection and try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Save Changes';
             }
         });
 
@@ -406,7 +414,7 @@ $member_since = date('F Y', strtotime($profile_user['created_at']));
                             if (data.success) {
                         
                                 if (data.success) {
-                                    showSuccess('Your account has been deleted. Redirecting...', 'Account Deleted');
+                                    showSuccess('Your account has been deleted! 🗑️', 'Account Deleted');
                                     
                                     setTimeout(() => {
                                         window.location.href = 'Login.php';

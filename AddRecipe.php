@@ -415,7 +415,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Recipe Title <span class="required">*</span></label>
-                            <input type="text" list="recipe-title-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" id="recipe-title" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
+                            <input type="text" list="recipe-title-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '').replace(/[^a-zA-Z ]/g, '')" id="recipe-title" maxlength="50" class="form-control" name="title" placeholder="e.g., Chocolate Chip Cookies" required>
                         </div>
 
                         <datalist id="recipe-title-list"></datalist>
@@ -434,7 +434,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Description <span class="required">*</span></label>
-                            <textarea oninput="this.value = this.value.replace(/^[ \n]/g, '')" class="form-control" name="description" placeholder="Brief description of your recipe..." required></textarea>
+                            <textarea oninput="this.value = this.value.replace(/^[ \n]/g, '')" maxlength="200" class="form-control" name="description" placeholder="Brief description of your recipe..." style="resize: none;" required></textarea>
                         </div>
 
                         <div class="mb-3">
@@ -512,7 +512,7 @@
 
                         <div id="youtubeContainer" class="video-input-container">
                             <label class="form-label">YouTube Video URL</label>
-                            <input type="url" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" class="form-control" name="youtube_url" placeholder="https://youtube.com/watch?v=...">
+                            <input type="url" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" maxlength="75" class="form-control" name="youtube_url" placeholder="https://youtube.com/watch?v=...">
                         </div>
                     </div>
 
@@ -525,7 +525,7 @@
 
                         <div id="ingredientsList">
                             <div class="input-group-item">
-                                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
+                                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" maxlength="50" class="form-control" name="ingredients[]" placeholder="e.g., 2 cups all-purpose flour" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
@@ -549,7 +549,7 @@
 
                         <div id="instructionsList">
                             <div class="input-group-item">
-                                <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" class="form-control" name="instructions[]" placeholder="Step 1: Preheat oven to 350°F" required>
+                                <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" maxlength="50" class="form-control" name="instructions[]" placeholder="Step 1: Preheat oven to 350°F" required>
                                 <!-- <button type="button" class="btn-remove-item" onclick="removeItem(this)" style="visibility: hidden;">
                                     <i class="bi bi-trash"></i>
                                 </button> -->
@@ -636,7 +636,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" class="form-control" name="ingredients[]" placeholder="..." required>
+                <input type=text list="ingredient-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="ingredient" maxlength="50" class="form-control" name="ingredients[]" placeholder="..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
@@ -652,7 +652,7 @@
             const newItem = document.createElement('div');
             newItem.className = 'input-group-item';
             newItem.innerHTML = `
-                <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
+                <input type="text" list="instruction-list" oninput="this.value = this.value.replace(/ {2,}/g, ' ').replace(/^ /g, '')" id="instruction" maxlength="50" class="form-control" name="instructions[]" placeholder="Step ${stepNumber}: ..." required>
                 <button type="button" class="btn-remove-item" onclick="removeItem(this)">
                     <i class="bi bi-trash"></i>
                 </button>
