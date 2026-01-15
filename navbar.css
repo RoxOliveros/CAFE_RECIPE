@@ -76,33 +76,56 @@
 /* FIXED HAMBURGER MENU - Position relative to hamburger icon */
 .hamburger-menu {
     position: absolute;
-    top: 100%;
-    right: 0;
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    padding: 15px 0;
-    width: 220px;
+    top: 70px;
+    right: 20px;
+    background: white;
+    border: 2px solid #e0d5c7; /* Match profile dropdown border */
+    border-radius: 15px;      /* Match profile dropdown radius */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    min-width: 220px;
     display: none;
-    flex-direction: column;
-    z-index: 999;
-    transform-origin: top right;
+    z-index: 1000;
 }
 
 .hamburger-menu a {
-    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
     text-decoration: none;
     color: #6b300a;
+    font-size: 14px;
     font-weight: 600;
-    transition: background 0.3s;
+    border-radius: 10px;      /* Match item radius */
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .hamburger-menu a:hover {
-    background-color: #fff3e0;
+    background: #f9f4e9;      /* Match profile hover background */
+    color: #6b300a;
+}
+
+.hamburger-menu a.login-link {
+    color: #dc3545;           /* Match .text-danger color */
+}
+
+.hamburger-menu a.login-link:hover {
+    background: #fff5f5;      /* Match .text-danger hover background */
+    color: #dc3545;
 }
 
 .hamburger-menu.active {
-    display: flex;
+    display: block;
+}
+
+.hamburger-menu .current-user {
+    border-bottom: 1px solid #e0d5c7;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-radius: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .custom-footer a:hover {

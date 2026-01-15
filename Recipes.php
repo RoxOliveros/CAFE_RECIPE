@@ -277,12 +277,15 @@ echo "<script>
         function createRecipeCard(recipe) {
             const likedClass = recipe.isLiked ? 'active' : '';
             const heartIcon = recipe.isLiked ? 'bi-heart-fill' : 'bi-heart';
+            
+            const visibilityBadge = recipe.visibility === 'followers' ? '<span class="recipe-visibility-badge"><i class="bi bi-people-fill"></i></span>' : '';
 
             return `
                 <div class="recipe-card" data-category="${recipe.category}" data-id="${recipe.id}">
                     <div class="recipe-image-container">
                         <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
                         <span class="recipe-category-badge">${recipe.categoryLabel}</span>
+                        ${visibilityBadge}
                         <div class="recipe-heart ${likedClass}" onclick="toggleHeart(event, this)">
                             <i class="bi ${heartIcon}"></i>
                         </div>

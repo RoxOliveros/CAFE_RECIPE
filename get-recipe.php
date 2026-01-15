@@ -35,7 +35,11 @@ try {
                 (SELECT COUNT(*) FROM recipe_saves WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_saved
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
-            WHERE r.recipe_id = ?";
+            WHERE r.recipe_id = ?
+            AND (r.visibility = 'public' OR (r.visibility = 'followers' 
+            AND ((SELECT COUNT(*) FROM followers WHERE follower_id = ? AND following_id = r.user_id) > 0 
+            OR r.user_id = ?)))
+            ORDER BY r.created_at DESC";
     
     $stmt = $conn->prepare($sql);
     
@@ -43,7 +47,7 @@ try {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     
-    $stmt->bind_param("iii", $user_id, $user_id, $recipe_id);
+    $stmt->bind_param("iiiii", $user_id, $user_id, $recipe_id, $user_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     

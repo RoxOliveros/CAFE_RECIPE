@@ -411,15 +411,16 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         /* COMMENT BTN DROPDOWN */
         .comment-btn-dropdown {
             position: absolute;
-            top: 25px; /* Adjust based on icon size */
-            right: 0;
-            background: #fff;
-            border: 1px solid #e6dcc8;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            top: 25px;
+            right: 0px;
+            background: white;
+            border: 2px solid #e0d5c7; /* Match profile dropdown border */
+            border-radius: 15px;      /* Match profile dropdown radius */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 6px;
             min-width: 100px;
-            z-index: 100;
             display: none;
+            z-index: 1000;
         }
 
         .comment-btn-dropdown.active {
@@ -428,8 +429,9 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
 
         .comment-btn-dropdown button {
             width: 100%;
-            padding: 12px 15px;
+            padding: 5px 10px;
             border: none;
+            border-radius: 5px;
             background: none;
             color: #e74c3c;
             text-align: right;
@@ -443,7 +445,8 @@ $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
         }
 
         .comment-btn-dropdown button:hover {
-            background: #fde8e8;
+            background: #fff5f5;      /* Match .text-danger hover background */
+            color: #dc3545;
         }
 
         /* Modal */

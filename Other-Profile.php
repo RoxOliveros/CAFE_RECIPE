@@ -348,27 +348,27 @@ echo "<script>
                         <button class="${btnClass}" id="followBtn" onclick="toggleFollow()">
                             <i class="bi ${btnIcon}"></i>
                             <span id="followText">${btnText}</span>
-                        </button>
-                        
-                        <div class="dropdown">
-                            <button class="more-options-btn" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="#" onclick="hideUser()">
-                                        <i class="bi bi-eye-slash"></i>
-                                        Hide Posts
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="#" onclick="blockUser()">
-                                        <i class="bi bi-shield-x"></i>
-                                        Block User
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                        </button>` +
+                        // <div class="dropdown">
+                        //     <button class="more-options-btn" type="button" data-bs-toggle="dropdown">
+                        //         <i class="bi bi-three-dots"></i>
+                        //     </button>
+                        //     <ul class="dropdown-menu dropdown-menu-end">
+                        //         <li>
+                        //             <a class="dropdown-item" href="#" onclick="hideUser()">
+                        //                 <i class="bi bi-eye-slash"></i>
+                        //                 Hide Posts
+                        //             </a>
+                        //         </li>
+                        //         <li>
+                        //             <a class="dropdown-item text-danger" href="#" onclick="blockUser()">
+                        //                 <i class="bi bi-shield-x"></i>
+                        //                 Block User
+                        //             </a>
+                        //         </li>
+                        //     </ul>
+                        // </div>
+                        `
                     </div>
                 </div>
 
@@ -463,10 +463,14 @@ echo "<script>
                     </div>
                 `;
             } else {
-                container.innerHTML = userRecipes.map(recipe => `
-                    <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
-                        <img src="${recipe.image}" alt="${recipe.title}">
-                        <div class="recipe-overlay">
+                container.innerHTML = userRecipes.map(recipe => {
+                    const visibilityBadge = recipe.visibility === 'followers' ? '<div class="recipe-visibility-badge" title="Followers Only"><i class="bi bi-people-fill"></i></div>' : '';
+
+                    return `
+                        <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                            ${visibilityBadge}
+                            <img src="${recipe.image}" alt="${recipe.title}">
+                            <div class="recipe-overlay">
                             <h3>${recipe.title}</h3>
                             <div class="recipe-stats">
                                 <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
@@ -474,7 +478,7 @@ echo "<script>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
         }
 
@@ -507,10 +511,14 @@ echo "<script>
                     </div>
                 `;
             } else {
-                container.innerHTML = likedRecipes.map(recipe => `
-                    <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
-                        <img src="${recipe.image}" alt="${recipe.title}">
-                        <div class="recipe-overlay">
+                container.innerHTML = likedRecipes.map(recipe => {
+                    const visibilityBadge = recipe.visibility === 'followers' ? '<div class="recipe-visibility-badge" title="Followers Only"><i class="bi bi-people-fill"></i></div>' : '';
+
+                    return `
+                        <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                            ${visibilityBadge}
+                            <img src="${recipe.image}" alt="${recipe.title}">
+                            <div class="recipe-overlay">
                             <h3>${recipe.title}</h3>
                             <div class="recipe-stats">
                                 <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
@@ -518,7 +526,7 @@ echo "<script>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
         }
 

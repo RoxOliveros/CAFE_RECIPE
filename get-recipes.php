@@ -10,6 +10,7 @@ try {
                 r.recipe_id,
                 r.user_id AS creator_id,
                 r.title,
+                r.visibility,
                 r.description,
                 r.category,
                 r.thumbnail_url,
@@ -21,14 +22,17 @@ try {
                 u.username,
                 u.display_name,
                 u.avatar_img,
-                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked
+                (SELECT COUNT(*) FROM recipe_likes WHERE recipe_id = r.recipe_id AND user_id = ?) AS user_liked,
+                (SELECT COUNT(*) FROM followers WHERE follower_id = ? AND following_id = r.user_id) as is_follower
             FROM recipes r
             JOIN users u ON r.user_id = u.user_id
             WHERE r.visibility = 'public'
+            OR (r.visibility = 'followers' AND ((SELECT COUNT(*) FROM followers WHERE follower_id = ? AND following_id = r.user_id) > 0 
+            OR r.user_id = ?))
             ORDER BY user_liked DESC, r.likes_count DESC, r.created_at DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $userId);
+    $stmt->bind_param("iiii", $userId, $userId, $userId, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -47,6 +51,7 @@ try {
             $recipes[] = [
                 'id' => (int)$row['recipe_id'],
                 'title' => $row['title'],
+                'visibility' => $row['visibility'],
                 'category' => $row['category'],
                 'categoryLabel' => $categoryLabels[$row['category']] ?? strtoupper($row['category']),
                 'image' => $row['thumbnail_url'],

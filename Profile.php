@@ -18,7 +18,14 @@ $is_own_profile = ($profile_user_id === $current_user_id);
 // Fetch profile user data
 $stmt = $conn->prepare("
     SELECT u.*, 
-           (SELECT COUNT(*) FROM recipes WHERE user_id = u.user_id AND visibility = 'public') as recipe_count,
+           (SELECT COUNT(*) FROM recipes 
+            WHERE user_id = u.user_id 
+            AND (visibility = 'public' 
+                 OR (visibility = 'followers' AND (
+                     (SELECT COUNT(*) FROM followers WHERE follower_id = ? AND following_id = u.user_id) > 0 
+                     OR u.user_id = ?
+                 ))
+            )) as recipe_count,
            (SELECT COUNT(*) FROM followers WHERE following_id = u.user_id) as followers_count,
            (SELECT COUNT(*) FROM followers WHERE follower_id = u.user_id) as following_count
     FROM users u 
@@ -29,7 +36,7 @@ if (!$stmt) {
     die("Database error: " . $conn->error);
 }
 
-$stmt->bind_param("i", $profile_user_id);
+$stmt->bind_param("iii", $current_user_id, $current_user_id, $profile_user_id);
 $stmt->execute();
 $profile_user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
@@ -618,8 +625,12 @@ echo "<script>
                     return;
                 }
                 
-                grid.innerHTML = userRecipes.map(recipe => `
+                grid.innerHTML = userRecipes.map(recipe => {
+                    const visibilityBadge = recipe.visibility === 'followers' ? '<div class="recipe-visibility-badge" title="Followers Only"><i class="bi bi-people-fill"></i></div>' : '';
+
+                    return `
                     <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                        ${visibilityBadge}
                         <img src="${recipe.image}" alt="${recipe.title}">
                         <div class="recipe-overlay">
                             <h3>${recipe.title}</h3>
@@ -629,7 +640,7 @@ echo "<script>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('recipesGrid').innerHTML = `
@@ -681,10 +692,14 @@ echo "<script>
                     return;
                 }
                 
-                grid.innerHTML = savedRecipes.map(recipe => `
-                    <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
-                        <img src="${recipe.image}" alt="${recipe.title}">
-                        <div class="recipe-overlay">
+                grid.innerHTML = savedRecipes.map(recipe => {
+                    const visibilityBadge = recipe.visibility === 'followers' ? '<div class="recipe-visibility-badge" title="Followers Only"><i class="bi bi-people-fill"></i></div>' : '';
+
+                    return `
+                        <div class="recipe-card" onclick="viewRecipe(${recipe.id})">
+                            ${visibilityBadge}
+                            <img src="${recipe.image}" alt="${recipe.title}">
+                            <div class="recipe-overlay">
                             <h3>${recipe.title}</h3>
                             <div class="recipe-stats">
                                 <span><i class="bi bi-heart-fill"></i> ${recipe.likes}</span>
@@ -692,7 +707,7 @@ echo "<script>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             } catch (error) {
                 console.error('Error:', error);
             }

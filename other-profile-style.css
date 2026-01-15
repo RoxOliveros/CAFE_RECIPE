@@ -449,6 +449,52 @@ body {
     transform: scale(1.1) !important;
 }
 
+/* Updated Visibility Badge to match Heart Icon size */
+.recipe-visibility-badge {
+    position: absolute;
+    top: 15px;
+    right: 60px; /* Positioned exactly beside the heart icon */
+    background: rgba(255, 255, 255, 0.95);
+    width: 38px;  /* Same size as .recipe-heart */
+    height: 38px; /* Same size as .recipe-heart */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent; /* Hidden border by default */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+/* Update the icon inside the badge */
+.recipe-visibility-badge i {
+    font-size: 18px; /* Match heart icon icon size */
+    color: #8f4a14;
+}
+
+/* Optional: Tooltip to show text since the label is now just an icon */
+.recipe-visibility-badge:hover {
+    transform: scale(1.15); /* Match heart icon scale */
+    background: #fff;
+    border-color: #8f4a14;  /* Brown border */
+}
+
+/* Optional: Tooltip to show text since the label is now just an icon */
+.recipe-visibility-badge:hover::after {
+    content: "Followers Only";
+    position: absolute;
+    bottom: -35px;
+    right: 0;
+    background: #6b300a;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .profile-info-wrapper {
