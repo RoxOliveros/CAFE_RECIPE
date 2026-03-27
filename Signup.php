@@ -82,7 +82,7 @@
         function showLogin() {
                 window.location.href = 'Login.php';
             }
-
+    
         function goHome() {
                 window.location.href = 'homepage.php';
         }

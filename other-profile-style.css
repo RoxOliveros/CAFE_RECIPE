@@ -453,7 +453,7 @@ body {
 .recipe-visibility-badge {
     position: absolute;
     top: 15px;
-    right: 60px; /* Positioned exactly beside the heart icon */
+    right: 15px; /* Positioned exactly beside the heart icon */
     background: rgba(255, 255, 255, 0.95);
     width: 38px;  /* Same size as .recipe-heart */
     height: 38px; /* Same size as .recipe-heart */

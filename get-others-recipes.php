@@ -24,6 +24,9 @@ try {
                 r.created_at
             FROM recipes r
             WHERE r.user_id = ?
+            AND (r.visibility = 'public' OR (r.visibility = 'followers' 
+            AND ((SELECT COUNT(*) FROM followers WHERE follower_id = ? AND following_id = r.user_id) > 0 
+            OR r.user_id = ?)))
             ORDER BY r.created_at DESC";
 
     $stmt = $conn->prepare($sql);
@@ -32,7 +35,7 @@ try {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param("iii  ", $user_id, $user_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     

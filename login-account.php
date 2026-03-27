@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Username and password are required");
         }
 
-        // 1. Select user by username only (don't check password in SQL)
+        // Select user by username only (don't check password in SQL)
         $sql = "SELECT user_id, username, password_hash, display_name, avatar_img FROM users WHERE username = ?";
 
         $stmt = $conn->prepare($sql);
